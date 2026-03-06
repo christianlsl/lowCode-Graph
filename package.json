@@ -4,6 +4,7 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
+        "process-data": "python scripts/process_data.py",
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview"
