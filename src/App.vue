@@ -228,7 +228,7 @@ const buildOption = (payload) => {
                 edgeSymbolSize: [4, 10],
                 label: {
                     show: true,
-                    position: 'right',
+                    position: 'top',
                     fontSize: 12,
                     color: '#0f172a'
                 },
@@ -383,17 +383,84 @@ onBeforeUnmount(() => {
     padding: 6px 10px;
 }
 
-.markdown-content :deep(h1),
-.markdown-content :deep(h2),
-.markdown-content :deep(h3) {
-    margin: 0.5rem 0;
+.markdown-content {
+    padding: 0 4px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.markdown-content :deep(h1) {
+    margin: 1.2rem 0 0.8rem;
+    font-size: 1.8rem;
+    font-weight: 700;
     color: #0f172a;
+    border-bottom: 2px solid #e0e7ff;
+    padding-bottom: 0.6rem;
+}
+
+.markdown-content :deep(h2) {
+    margin: 1rem 0 0.6rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1e293b;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.4rem;
+}
+
+.markdown-content :deep(h3) {
+    margin: 0.8rem 0 0.4rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #334155;
 }
 
 .markdown-content :deep(p) {
-    margin: 0 0 0.8rem;
-    line-height: 1.7;
-    color: #334155;
+    margin: 0 0 1rem;
+    line-height: 1.8;
+    color: #475569;
+    font-size: 14px;
+}
+
+.markdown-content :deep(strong) {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.markdown-content :deep(br) {
+    display: block;
+    content: '';
+}
+
+.analysis-dialog :deep(.el-dialog) {
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.analysis-dialog :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, #f0f4ff 0%, #fff5f9 100%);
+    border-bottom: 1px solid #e0e7ff;
+    border-radius: 8px 8px 0 0;
+    padding: 16px 20px;
+}
+
+.analysis-dialog :deep(.el-dialog__title) {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.analysis-dialog :deep(.el-dialog__body) {
+    padding: 24px;
+    background-color: #fafbfc;
+}
+
+.analysis-dialog :deep(.el-dialog__close) {
+    color: #64748b;
+    font-size: 20px;
+}
+
+.analysis-dialog :deep(.el-dialog__close:hover) {
+    color: #0f172a;
 }
 
 .graph-canvas {

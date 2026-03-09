@@ -66,7 +66,7 @@ def _parse_graph_structure(
 					"display_name": f"{node_id}: {type_name}",
 					"tooltip": [
 						f"node_id: {node_id}",
-						f"type_code: {type_code}",
+						# f"type_code: {type_code}",
 						f"type_name: {type_name}",
 					],
 				}
@@ -87,7 +87,7 @@ def _parse_graph_structure(
 					"tooltip": [
 						f"source: {source}",
 						f"target: {target}",
-						f"type_code: {type_code}",
+						# f"type_code: {type_code}",
 						f"relation: {relation}",
 					],
 				}
@@ -123,7 +123,7 @@ def _build_instance_graph(
 					f"name: {node_name}",
 					f"id: {node_path}",
 					f"type_name: {type_name}",
-					f"type_code: {type_code}",
+					# f"type_code: {type_code}",
 				],
 			}
 		)
