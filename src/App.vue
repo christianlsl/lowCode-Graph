@@ -1,12 +1,12 @@
 <template>
     <el-container class="page">
-        <el-header class="header">低代码数字孪生关系图</el-header>
+        <el-header class="header">低代码高频组件分析报告</el-header>
         <el-main class="main">
             <el-row :gutter="16" class="layout-row">
                 <el-col :xs="24" :lg="13">
                     <el-card class="panel-card" shadow="hover">
                         <template #header>
-                            <div class="card-header">频繁子图树形表</div>
+                            <div class="card-header">高频组件展示表</div>
                         </template>
 
                         <el-table :data="subgraphRows" border row-key="row_id" max-height="72vh"

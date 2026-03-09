@@ -146,9 +146,9 @@ def _build_instance_graph(
 
 
 def build_output() -> dict[str, Any]:
-	frequent_subgraphs_json = _load_json(DATA_DIR / "frequent_subgraphs.json")
-	graphs_json = _load_json(DATA_DIR / "graphs.json")
-	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "node_edge_defs.txt")
+	frequent_subgraphs_json = _load_json(DATA_DIR / "final_result.json")
+	graphs_json = _load_json(DATA_DIR / "origin_graph_data.json")
+	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
 
 	frequent_subgraphs = frequent_subgraphs_json.get("frequent_subgraphs", [])
 	graphs = graphs_json.get("graphs", [])
