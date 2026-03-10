@@ -1,48 +1,51 @@
 # lowCode-Graph
 
-一个用于展示低代码高频组件子图的可视化项目。
+一个用于展示低代码热点组件分析结果的可视化项目。
 
-项目包含两部分：
-- 数据预处理：将原始图数据转换为前端可直接消费的结构化 JSON。
-- 前端可视化：基于 Vue 3 + Element Plus + ECharts 展示子图表格、聚类实例和关系图。
+项目由两部分组成：
 
-## 功能特性
+- Python 数据处理脚本：将原始热点子图数据转换成前端可直接消费的结构化 JSON。
+- Vue 可视化前端：基于 Vue 3、Element Plus 和 ECharts 展示概览、定义、热点簇列表和热点详情。
 
-- 展示高频子图（`subgraph`）及其 `support` 信息。
-- 按语义聚类（`domain_semantic_clusters`）展开查看实例。
-- 一键查看子图或实例的关系图（节点/边 + 类型和关系标签）。
-- 查看 `structure_analysis` 分析详情（弹窗展示）。
+## 页面功能
+
+当前界面包含 4 个主要标签页：
+
+- 分析概览：展示报告元信息和热点组件统计。
+- 相关定义：展示热点组件挖掘定义、相似性维度和支持度规则。
+- Top 热点组件：按结构相似或语义相似查看热点簇列表，并支持关系图预览。
+- 热点组件详情：展开查看热点簇实例、语义描述、关键差异点和实例关系图。
 
 ## 技术栈
 
 - 前端：Vue 3、Vite、Element Plus、ECharts
-- 脚本：Python 3（用于数据处理）
+- 数据处理：Python 3
+- 构建工具：Vite
 
 ## 环境要求
 
 - Node.js 18+
 - npm 9+
-- Python 3.10+（建议使用虚拟环境）
+- Python 3.10+
 
 ## 快速开始
 
-### 1. 安装依赖
+### 1. 安装前端依赖
 
 ```bash
 npm install
 ```
 
-### 2. 处理数据
-根目录新建data/
-```bash
-mkdir data
-```
-把所需的三个源数据文件放入data/
-+ data/edge_and_vertex_mapping.txt
-+ data/final_result.json
-+ data/origin_graph_data.json
+### 2. 准备数据文件
 
-使用python脚本转换为前端数据 `src/assets/graph_table_data.json`：
+项目当前使用以下输入文件：
+
+- `data/frequent_subgraphs.json`：热点簇主数据，包含结构相似与语义相似聚类、实例、报告元信息等。
+- `data/edge_and_vertex_mapping.txt`：节点类型与边关系编码映射。
+
+如果你已经有现成的 `src/assets/graph_table_data.json`，可以跳过数据处理，直接启动前端。
+
+### 3. 生成前端数据
 
 ```bash
 npm run process-data
@@ -54,15 +57,17 @@ npm run process-data
 python scripts/process_data.py
 ```
 
-### 3. 启动开发环境
+该步骤会生成或覆盖：
+
+- `src/assets/graph_table_data.json`
+
+### 4. 启动开发环境
 
 ```bash
 npm run dev
 ```
 
-默认由 Vite 启动本地开发服务。
-
-### 4. 构建与预览
+### 5. 构建与预览
 
 ```bash
 npm run build
@@ -71,22 +76,31 @@ npm run preview
 
 ## 数据流说明
 
-输入文件：
-- `data/final_result.json`：频繁子图结果、实例信息、结构分析等。
-- `data/origin_graph_data.json`：原始图基础信息（如 `graph_id` 到 `page_path` 的映射）。
-- `data/edge_and_vertex_mapping.txt`：节点类型和边关系编码映射。
+处理脚本为：
 
-处理脚本：
 - `scripts/process_data.py`
 
+输入文件：
+
+- `data/frequent_subgraphs.json`
+- `data/edge_and_vertex_mapping.txt`
+
+静态说明数据：
+
+- `src/assets/defs.json`：定义页展示内容和支持度规则。
+
 输出文件：
+
 - `src/assets/graph_table_data.json`
 
-输出内容主要包含：
-- `table_rows`：表格分层数据（subgraph -> cluster -> instance）
-- `charts.subgraphs`：子图可视化数据
-- `charts.instances`：实例可视化数据
-- `meta`：生成时间与统计信息
+输出 JSON 主要包含：
+
+- `meta`：报告日期、版本、生成工具版本、覆盖仓库等元信息。
+- `overview_stats`：热点簇数量、实例数量、项目数、页面数和组件类型统计。
+- `top_hotspot`：Top 热点簇表格数据。
+- `hotspot_details`：热点簇详情数据。
+- `charts.subgraphs`：子图级关系图数据。
+- `charts.instances`：实例级关系图数据。
 
 ## 项目结构
 
@@ -94,30 +108,43 @@ npm run preview
 lowCode-Graph/
 ├─ data/
 │  ├─ edge_and_vertex_mapping.txt
-│  ├─ final_result.json
-│  └─ origin_graph_data.json
+│  └─ frequent_subgraphs.json
 ├─ scripts/
 │  └─ process_data.py
 ├─ src/
 │  ├─ assets/
+│  │  ├─ defs.json
 │  │  └─ graph_table_data.json
+│  ├─ components/
+│  │  └─ tabs/
+│  │     ├─ DefinitionsTab.vue
+│  │     ├─ HotspotDetailsTab.vue
+│  │     ├─ OverviewTab.vue
+│  │     └─ TopHotspotTab.vue
+│  ├─ utils/
+│  │  └─ graphOption.js
 │  ├─ App.vue
 │  ├─ main.js
 │  └─ style.css
 ├─ index.html
 ├─ package.json
+├─ README.md
 └─ vite.config.js
 ```
 
-## 常用脚本
+## 常用命令
 
-- `npm run process-data`：执行数据转换。
-- `npm run dev`：启动开发服务器。
-- `npm run build`：打包生产版本。
+- `npm run process-data`：执行数据转换脚本。
+- `npm run dev`：启动 Vite 开发服务器。
+- `npm run build`：构建生产版本。
 - `npm run preview`：本地预览构建产物。
+
+## 部署说明
+
+`vite.config.js` 中已配置 `base: './'`，适合将构建产物部署为相对路径静态站点。
 
 ## 注意事项
 
-- 如果 `npm run process-data` 失败，请确认当前 `python` 命令指向可用的 Python 3 环境。
-- 数据更新后需重新执行 `npm run process-data`，否则前端仍使用旧的 `graph_table_data.json`。
-- `vite.config.js` 已配置 `base: './'`，便于静态部署。
+- `npm run process-data` 依赖当前环境中的 `python` 命令，请确保它指向可用的 Python 3。
+- 更新 `data/frequent_subgraphs.json` 或 `data/edge_and_vertex_mapping.txt` 后，需要重新执行 `npm run process-data`。
+- 如果页面数据与最新分析结果不一致，优先检查 `src/assets/graph_table_data.json` 是否已重新生成。

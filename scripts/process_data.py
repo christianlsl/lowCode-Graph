@@ -97,6 +97,7 @@ def _parse_graph_structure(
 
 
 def _build_instance_graph(
+	mode: str,
 	subgraph_id: int,
 	instance: dict[str, Any],
 	base_edges: list[dict[str, Any]],
@@ -129,14 +130,14 @@ def _build_instance_graph(
 		)
 
 	instance_key = (
-		f"{subgraph_id}:{instance.get('graph_id', -1)}:{instance.get('instance_id', -1)}"
+		f"{mode}:{subgraph_id}:{instance.get('graph_id', -1)}:{instance.get('instance_id', -1)}"
 	)
 
 	chart_payload = {
 		"title": (
+			f"{mode.title()} Cluster {subgraph_id} - "
 			f"Instance {instance.get('instance_id', '-')}, "
-			f"Graph {instance.get('graph_id', '-')}, "
-			f"Subgraph {subgraph_id}"
+			f"Graph {instance.get('graph_id', '-')}"
 		),
 		"categories": sorted({node["type_name"] for node in nodes}),
 		"nodes": nodes,
@@ -145,24 +146,28 @@ def _build_instance_graph(
 	return instance_key, chart_payload
 
 
-def build_output() -> dict[str, Any]:
-	frequent_subgraphs_json = _load_json(DATA_DIR / "final_result.json")
-	graphs_json = _load_json(DATA_DIR / "origin_graph_data.json")
-	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
+def _split_page_path(page_path: str) -> tuple[str, str, str]:
+	parts = [item for item in str(page_path).split("/") if item]
+	project = parts[0] if len(parts) > 0 else ""
+	module = parts[1] if len(parts) > 1 else ""
+	page = parts[2] if len(parts) > 2 else ""
+	return project, module, page
 
-	frequent_subgraphs = frequent_subgraphs_json.get("frequent_subgraphs", [])
-	graphs = graphs_json.get("graphs", [])
-	graph_page_by_id = {item.get("graph_id"): item.get("page_path", "") for item in graphs}
 
-	table_rows: list[dict[str, Any]] = []
-	subgraph_charts: dict[str, Any] = {}
-	instance_charts: dict[str, Any] = {}
+def _build_cluster_rows(
+	mode: str,
+	clusters: list[dict[str, Any]],
+	node_type_dict: dict[int, str],
+	edge_relation_dict: dict[int, str],
+	subgraph_charts: dict[str, Any],
+	instance_charts: dict[str, Any],
+) -> list[dict[str, Any]]:
+	rows: list[dict[str, Any]] = []
 
-	for subgraph in frequent_subgraphs:
-		subgraph_id = subgraph.get("subgraph_id")
-		support = subgraph.get("support")
-		structure_analysis = subgraph.get("structure_analysis", "")
+	for subgraph in clusters:
+		subgraph_id = int(subgraph.get("subgraph_id", -1))
 		graph_structure_data = subgraph.get("graph_structure_data", [])
+		instances = subgraph.get("instances", [])
 
 		base_nodes, base_edges, node_type_by_id, node_type_code_by_id = _parse_graph_structure(
 			graph_structure_data,
@@ -170,104 +175,187 @@ def build_output() -> dict[str, Any]:
 			edge_relation_dict,
 		)
 
-		subgraph_charts[str(subgraph_id)] = {
-			"title": f"Subgraph {subgraph_id}",
+		subgraph_key = f"{mode}:{subgraph_id}"
+		subgraph_charts[subgraph_key] = {
+			"title": f"{mode.title()} Cluster {subgraph_id}",
 			"categories": sorted({node["type_name"] for node in base_nodes}),
 			"nodes": base_nodes,
 			"edges": base_edges,
 		}
 
-		instances = subgraph.get("instances", [])
-		instance_lookup = {
-			(item.get("graph_id"), item.get("instance_id")): item for item in instances
-		}
+		instance_rows: list[dict[str, Any]] = []
+		for instance in instances:
+			graph_id = instance.get("graph_id")
+			instance_id = instance.get("instance_id")
+			page_path = str(instance.get("page_path", ""))
+			project_name, module_name, page_name = _split_page_path(page_path)
 
-		cluster_children: list[dict[str, Any]] = []
-		clusters = (
-			subgraph.get("domain_semantic_clusters", {})
-			.get("clusters", {})
-		)
-		for cluster_key, cluster_instances in clusters.items():
-			instance_rows: list[dict[str, Any]] = []
-			for brief_instance in cluster_instances:
-				graph_id = brief_instance.get("graph_id")
-				instance_id = brief_instance.get("instance_id")
-				domain_label = brief_instance.get("domain_label", "")
-				instance = instance_lookup.get((graph_id, instance_id), {})
-				page_path = graph_page_by_id.get(graph_id) or instance.get("page_path", "")
+			instance_key, instance_chart_payload = _build_instance_graph(
+				mode,
+				subgraph_id,
+				instance,
+				base_edges,
+				node_type_by_id,
+				node_type_code_by_id,
+			)
+			instance_charts[instance_key] = instance_chart_payload
 
-				if instance:
-					instance_key, instance_chart_payload = _build_instance_graph(
-						int(subgraph_id),
-						instance,
-						base_edges,
-						node_type_by_id,
-						node_type_code_by_id,
-					)
-					instance_charts[instance_key] = instance_chart_payload
-
-				instance_rows.append(
-					{
-						"row_id": f"subgraph-{subgraph_id}-cluster-{cluster_key}-instance-{graph_id}-{instance_id}",
-						"row_type": "instance",
-						"group_name": f"Cluster {cluster_key}",
-						"subgraph_id": subgraph_id,
-						"instance_id": instance_id,
-						"graph_id": graph_id,
-						"support": "",
-						"domain_label": domain_label,
-						"page_path": page_path,
-						"structure_analysis": "",
-						"visualization": {
-							"kind": "instance",
-							"key": f"{subgraph_id}:{graph_id}:{instance_id}",
-						},
-					}
-				)
-
-			cluster_children.append(
+			instance_rows.append(
 				{
-					"row_id": f"subgraph-{subgraph_id}-cluster-{cluster_key}",
-					"row_type": "cluster",
-					"group_name": f"Cluster {cluster_key}",
-					"subgraph_id": subgraph_id,
-					"instance_id": "",
-					"graph_id": "",
-					"support": "",
-					"domain_label": "",
-					"page_path": "",
-					"structure_analysis": "",
-					"visualization": None,
-					"children": instance_rows,
+					"instance_id": instance_id,
+					"graph_id": graph_id,
+					"page_path": page_path,
+					"project_name": project_name,
+					"module_name": module_name,
+					"page_name": page_name,
+					"description": instance.get("description", ""),
+					"visualization": {
+						"kind": "instance",
+						"key": instance_key,
+					},
 				}
 			)
 
-		table_rows.append(
+		rows.append(
 			{
-				"row_id": f"subgraph-{subgraph_id}",
-				"row_type": "subgraph",
-				"group_name": "",
 				"subgraph_id": subgraph_id,
-				"instance_id": "",
-				"graph_id": "",
-				"support": support,
-				"domain_label": "",
-				"page_path": "",
-				"structure_analysis": structure_analysis,
+				"type": subgraph.get("type", ""),
+				"name": subgraph.get("name", ""),
+				"support": subgraph.get("support", 0),
+				"size": subgraph.get("size", 0),
+				"code_lines": subgraph.get("code_lines", 0),
+				"struc_cluster_num": subgraph.get("struc_cluster_num", 0),
+				"relevent_projects_num": subgraph.get("relevent_projects_num", 0),
+				"summary": subgraph.get("summary", ""),
+				"semantic_same_points": subgraph.get("semantic_same_points", ""),
+				"instance_defference": subgraph.get("instance_defference", ""),
+				"instances": instance_rows,
 				"visualization": {
 					"kind": "subgraph",
-					"key": str(subgraph_id),
+					"key": subgraph_key,
 				},
-				"children": cluster_children,
 			}
 		)
+
+	return rows
+
+
+def _collect_overview_stats(
+	structure_clusters: list[dict[str, Any]],
+	semantic_clusters: list[dict[str, Any]],
+	node_type_dict: dict[int, str],
+) -> dict[str, int]:
+	all_clusters = [*structure_clusters, *semantic_clusters]
+
+	project_names: set[str] = set()
+	page_paths: set[str] = set()
+	component_types: set[str] = set()
+	service_types: set[str] = set()
+	model_types: set[str] = set()
+	instance_count = 0
+
+	for cluster in all_clusters:
+		instance_count += len(cluster.get("instances", []))
+
+		for path in cluster.get("page_paths", []):
+			if path:
+				page_paths.add(str(path))
+				project_names.add(str(path).split("/")[0])
+
+		for instance in cluster.get("instances", []):
+			path = str(instance.get("page_path", ""))
+			if path:
+				page_paths.add(path)
+				project_names.add(path.split("/")[0])
+
+		for line in cluster.get("graph_structure_data", []):
+			parts = str(line).strip().split()
+			if len(parts) >= 3 and parts[0] == "v":
+				type_code = int(parts[2])
+				type_name = node_type_dict.get(type_code, f"UNKNOWN_{type_code}")
+				if type_name.startswith("COMPONENT"):
+					component_types.add(type_name)
+				if type_name.startswith("SERNODE"):
+					service_types.add(type_name)
+				if type_name.startswith("MODEL"):
+					model_types.add(type_name)
+
+	return {
+		"hotspot_cluster_count": len(all_clusters),
+		"hotspot_instance_count": instance_count,
+		"project_count": len(project_names),
+		"page_count": len(page_paths),
+		"component_count": len(component_types),
+		"service_count": len(service_types),
+		"model_count": len(model_types),
+	}
+
+
+def _sort_hotspot_detail_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+	return sorted(
+		rows,
+		key=lambda row: (
+			-int(row.get("relevent_projects_num", 0)),
+			-int(row.get("code_lines", 0)),
+			-int(row.get("support", 0)),
+			-int(row.get("subgraph_id", -1)),
+		),
+	)
+
+
+def build_output() -> dict[str, Any]:
+	frequent_subgraphs_json = _load_json(DATA_DIR / "frequent_subgraphs.json")
+	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
+
+	structure_clusters = frequent_subgraphs_json.get("structure_similar_subgraphs", [])
+	semantic_clusters = frequent_subgraphs_json.get("semantic_similar_subgraphs", [])
+
+	overview_stats = _collect_overview_stats(
+		structure_clusters,
+		semantic_clusters,
+		node_type_dict,
+	)
+
+	subgraph_charts: dict[str, Any] = {}
+	instance_charts: dict[str, Any] = {}
+
+	structure_rows = _build_cluster_rows(
+		mode="structure",
+		clusters=structure_clusters,
+		node_type_dict=node_type_dict,
+		edge_relation_dict=edge_relation_dict,
+		subgraph_charts=subgraph_charts,
+		instance_charts=instance_charts,
+	)
+	semantic_rows = _build_cluster_rows(
+		mode="semantic",
+		clusters=semantic_clusters,
+		node_type_dict=node_type_dict,
+		edge_relation_dict=edge_relation_dict,
+		subgraph_charts=subgraph_charts,
+		instance_charts=instance_charts,
+	)
+
+	sorted_structure_detail_rows = _sort_hotspot_detail_rows(structure_rows)
+	sorted_semantic_detail_rows = _sort_hotspot_detail_rows(semantic_rows)
 
 	return {
 		"meta": {
 			"generated_at": datetime.now(timezone.utc).isoformat(),
-			"subgraph_count": len(table_rows),
+			"report_date": frequent_subgraphs_json.get("report_date", ""),
+			"report_version": frequent_subgraphs_json.get("report_version", ""),
+			"generator_tool_version": frequent_subgraphs_json.get("generator_tool_version", ""),
+			"covered_repositories": frequent_subgraphs_json.get("covered_repositories", ""),
 		},
-		"table_rows": table_rows,
+		"overview_stats": overview_stats,
+		"top_hotspot": {
+			"structure_rows": structure_rows,
+			"semantic_rows": semantic_rows,
+		},
+		"hotspot_details": {
+			"structure_clusters": sorted_structure_detail_rows,
+			"semantic_clusters": sorted_semantic_detail_rows,
+		},
 		"charts": {
 			"subgraphs": subgraph_charts,
 			"instances": instance_charts,
