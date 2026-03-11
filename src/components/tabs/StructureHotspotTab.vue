@@ -37,6 +37,7 @@
                 <el-tree :data="treeData" node-key="id" :props="treeProps" default-expand-all class="graph-tree" />
             </div>
             <div v-else ref="chartRef" class="graph-canvas"></div>
+            <!-- <div ref="chartRef" class="graph-canvas"></div> -->
         </el-card>
 
         <section class="detail-section">

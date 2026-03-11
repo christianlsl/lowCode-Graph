@@ -83,7 +83,7 @@
 </template>
 <script setup>
 import { Collection, Operation, List } from '@element-plus/icons-vue'
-import defsData from '../../assets/defs.json'
+import defsData from '../../../data/defs.json'
 
 const { allSections, thresholdRules } = defsData
 
