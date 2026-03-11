@@ -42,6 +42,7 @@ npm install
 
 - `data/data.json`：热点簇主数据，包含结构相似与语义相似聚类、统计信息、报告元信息等。
 - `data/edge_and_vertex_mapping.txt`：节点类型与边关系编码映射。
+- `data/defs.json`：相关定义（静态数据）。
 
 如果你已经有现成的 `src/assets/graph_table_data.json`，可以跳过数据处理，直接启动前端。
 
@@ -87,7 +88,7 @@ npm run preview
 
 静态说明数据：
 
-- `src/assets/defs.json`：定义页展示内容和支持度规则。
+- `data/defs.json`：定义页展示内容和支持度规则。
 
 输出文件：
 
@@ -108,13 +109,13 @@ npm run preview
 ```text
 lowCode-Graph/
 ├─ data/
+│  ├─ defs.json
 │  ├─ edge_and_vertex_mapping.txt
 │  └─ data.json
 ├─ scripts/
 │  └─ process_data.py
 ├─ src/
 │  ├─ assets/
-│  │  ├─ defs.json
 │  │  └─ graph_table_data.json
 │  ├─ components/
 │  │  └─ tabs/
