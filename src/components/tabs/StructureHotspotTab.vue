@@ -27,8 +27,8 @@
                 <div class="card-header with-action">
                     <span>{{ chartTitle }}</span>
                     <el-radio-group v-model="graphMode" size="small">
-                        <el-radio-button label="tree">树</el-radio-button>
-                        <el-radio-button label="directed">有向图</el-radio-button>
+                        <el-radio-button value="tree">树</el-radio-button>
+                        <el-radio-button value="directed">有向图</el-radio-button>
                     </el-radio-group>
                 </div>
             </template>
@@ -129,10 +129,11 @@ const ensureChart = () => {
 }
 
 const renderGraph = async () => {
+
     if (graphMode.value !== 'directed') return
     const payload = selectedPayload.value
     if (!payload) return
-
+    // console.log('Rendering graph with payload:', selectedPayload.value)
     await nextTick()
     ensureChart()
     if (!chartInstance) return
@@ -194,10 +195,17 @@ watch(
 )
 
 watch(graphMode, async (value) => {
-    if (value === 'directed' && props.isActive) {
+    if (value !== 'directed') {
+        if (chartInstance) {
+            chartInstance.dispose()
+            chartInstance = null
+        }
+        return
+    }
+    if (props.isActive) {
         await renderGraph()
     }
-})
+}, { flush: 'post' })
 
 watch(
     () => props.isActive,
@@ -205,7 +213,8 @@ watch(
         if (value && graphMode.value === 'directed') {
             await renderGraph()
         }
-    }
+    },
+    { flush: 'post' }
 )
 
 const handleResize = () => {
