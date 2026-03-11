@@ -5,7 +5,7 @@
 项目由两部分组成：
 
 - Python 数据处理脚本：将原始热点子图数据转换成前端可直接消费的结构化 JSON。
-- Vue 可视化前端：基于 Vue 3、Element Plus 和 ECharts 展示概览、定义、热点簇列表和热点详情。
+- Vue 可视化前端：基于 Vue 3、Element Plus 和 ECharts 展示概览、定义、结构相似热点和语义相似热点。
 
 ## 页面功能
 
@@ -13,8 +13,8 @@
 
 - 分析概览：展示报告元信息和热点组件统计。
 - 相关定义：展示热点组件挖掘定义、相似性维度和支持度规则。
-- Top 热点组件：按结构相似或语义相似查看热点簇列表，并支持关系图预览。
-- 热点组件详情：展开查看热点簇实例、语义描述、关键差异点和实例关系图。
+- 结构相似热点组件：查看结构热点簇列表、实例详情，并支持树形图 / 有向图切换。
+- 语义相似热点组件：查看语义热点簇及其关联的结构簇、语义描述与关键差异点。
 
 ## 技术栈
 
@@ -40,7 +40,7 @@ npm install
 
 项目当前使用以下输入文件：
 
-- `data/frequent_subgraphs.json`：热点簇主数据，包含结构相似与语义相似聚类、实例、报告元信息等。
+- `data/data.json`：热点簇主数据，包含结构相似与语义相似聚类、统计信息、报告元信息等。
 - `data/edge_and_vertex_mapping.txt`：节点类型与边关系编码映射。
 
 如果你已经有现成的 `src/assets/graph_table_data.json`，可以跳过数据处理，直接启动前端。
@@ -82,7 +82,7 @@ npm run preview
 
 输入文件：
 
-- `data/frequent_subgraphs.json`
+- `data/data.json`
 - `data/edge_and_vertex_mapping.txt`
 
 静态说明数据：
@@ -97,10 +97,11 @@ npm run preview
 
 - `meta`：报告日期、版本、生成工具版本、覆盖仓库等元信息。
 - `overview_stats`：热点簇数量、实例数量、项目数、页面数和组件类型统计。
-- `top_hotspot`：Top 热点簇表格数据。
-- `hotspot_details`：热点簇详情数据。
+- `structure_hotspot.rows`：结构相似热点簇数据（含实例列表和关系图键）。
+- `semantic_hotspot.rows`：语义相似热点簇数据（含关联结构簇映射）。
 - `charts.subgraphs`：子图级关系图数据。
-- `charts.instances`：实例级关系图数据。
+
+其中 `charts.subgraphs[*]` 额外包含 `tree` 字段，供结构热点页的树形视图使用。
 
 ## 项目结构
 
@@ -108,7 +109,7 @@ npm run preview
 lowCode-Graph/
 ├─ data/
 │  ├─ edge_and_vertex_mapping.txt
-│  └─ frequent_subgraphs.json
+│  └─ data.json
 ├─ scripts/
 │  └─ process_data.py
 ├─ src/
@@ -118,9 +119,9 @@ lowCode-Graph/
 │  ├─ components/
 │  │  └─ tabs/
 │  │     ├─ DefinitionsTab.vue
-│  │     ├─ HotspotDetailsTab.vue
 │  │     ├─ OverviewTab.vue
-│  │     └─ TopHotspotTab.vue
+│  │     ├─ SemanticHotspotTab.vue
+│  │     └─ StructureHotspotTab.vue
 │  ├─ utils/
 │  │  └─ graphOption.js
 │  ├─ App.vue
@@ -146,5 +147,5 @@ lowCode-Graph/
 ## 注意事项
 
 - `npm run process-data` 依赖当前环境中的 `python` 命令，请确保它指向可用的 Python 3。
-- 更新 `data/frequent_subgraphs.json` 或 `data/edge_and_vertex_mapping.txt` 后，需要重新执行 `npm run process-data`。
+- 更新 `data/data.json` 或 `data/edge_and_vertex_mapping.txt` 后，需要重新执行 `npm run process-data`。
 - 如果页面数据与最新分析结果不一致，优先检查 `src/assets/graph_table_data.json` 是否已重新生成。

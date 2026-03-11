@@ -8,7 +8,7 @@
                 <el-descriptions-item label="报告日期">{{ meta.report_date || '-' }}</el-descriptions-item>
                 <el-descriptions-item label="报告版本">{{ meta.report_version || '-' }}</el-descriptions-item>
                 <el-descriptions-item label="生成工具版本">{{ meta.generator_tool_version || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="覆盖仓库">{{ meta.covered_repositories || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="覆盖仓库">{{ coveredRepositories }}</el-descriptions-item>
             </el-descriptions>
         </el-card>
 
@@ -38,14 +38,22 @@ const props = defineProps({
     }
 })
 
+const coveredRepositories = computed(() => {
+    const value = props.meta.covered_repositories
+    if (Array.isArray(value)) {
+        return value.length ? value.join(', ') : '-'
+    }
+    return value || '-'
+})
+
 const overviewRows = computed(() => [
-    { label: '识别热点簇', value: props.stats.hotspot_cluster_count ?? 0 },
-    { label: '热点实例', value: props.stats.hotspot_instance_count ?? 0 },
-    { label: '涉及工程个数', value: props.stats.project_count ?? 0 },
-    { label: '涉及页面个数', value: props.stats.page_count ?? 0 },
-    { label: '涉及组件个数', value: props.stats.component_count ?? 0 },
-    { label: '涉及服务个数', value: props.stats.service_count ?? 0 },
-    { label: '涉及模型个数', value: props.stats.model_count ?? 0 }
+    { label: '识别热点簇', value: props.stats.hotspot_clusters ?? 0 },
+    { label: '热点实例', value: props.stats.hotspot_instances ?? 0 },
+    { label: '涉及工程个数', value: props.stats.projects_involved ?? 0 },
+    { label: '涉及页面个数', value: props.stats.pages_involved ?? 0 },
+    { label: '涉及组件个数', value: props.stats.components_involved ?? 0 },
+    { label: '涉及服务个数', value: props.stats.services_involved ?? 0 },
+    { label: '涉及模型个数', value: props.stats.models_involved ?? 0 }
 ])
 </script>
 

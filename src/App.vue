@@ -14,16 +14,13 @@
                     <DefinitionsTab />
                 </el-tab-pane>
 
-                <el-tab-pane label="Top热点组件" name="top-hotspot">
-                    <TopHotspotTab :structure-rows="topHotspot.structure_rows || []"
-                        :semantic-rows="topHotspot.semantic_rows || []" :charts="charts"
-                        :is-active="activeTab === 'top-hotspot'" />
+                <el-tab-pane label="结构相似热点组件" name="structure-hotspot">
+                    <StructureHotspotTab :rows="structureHotspot.rows || []" :charts="charts"
+                        :is-active="activeTab === 'structure-hotspot'" />
                 </el-tab-pane>
 
-                <el-tab-pane label="热点组件详情" name="details">
-                    <HotspotDetailsTab :structure-clusters="hotspotDetails.structure_clusters || []"
-                        :semantic-clusters="hotspotDetails.semantic_clusters || []" :charts="charts"
-                        :is-active="activeTab === 'details'" />
+                <el-tab-pane label="语义相似热点组件" name="semantic-hotspot">
+                    <SemanticHotspotTab :rows="semanticHotspot.rows || []" />
                 </el-tab-pane>
             </el-tabs>
         </el-main>
@@ -35,16 +32,16 @@ import { ref } from 'vue'
 import processedData from './assets/graph_table_data.json'
 import OverviewTab from './components/tabs/OverviewTab.vue'
 import DefinitionsTab from './components/tabs/DefinitionsTab.vue'
-import TopHotspotTab from './components/tabs/TopHotspotTab.vue'
-import HotspotDetailsTab from './components/tabs/HotspotDetailsTab.vue'
+import StructureHotspotTab from './components/tabs/StructureHotspotTab.vue'
+import SemanticHotspotTab from './components/tabs/SemanticHotspotTab.vue'
 
 const activeTab = ref('overview')
 
 const meta = processedData.meta || {}
 const stats = processedData.overview_stats || {}
-const topHotspot = processedData.top_hotspot || {}
-const hotspotDetails = processedData.hotspot_details || {}
-const charts = processedData.charts || { subgraphs: {}, instances: {} }
+const structureHotspot = processedData.structure_hotspot || {}
+const semanticHotspot = processedData.semantic_hotspot || {}
+const charts = processedData.charts || { subgraphs: {} }
 </script>
 
 <style scoped>
