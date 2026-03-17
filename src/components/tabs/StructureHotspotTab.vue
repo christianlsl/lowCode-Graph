@@ -17,13 +17,22 @@
 
             <el-table :data="filteredRows" border row-key="structure_cluster_id" max-height="46vh" highlight-current-row
                 @current-change="handleCurrentChange">
-                <el-table-column prop="type" label="组件类型" min-width="120" />
+                <el-table-column prop="type" label="簇类型" min-width="120" />
                 <el-table-column prop="structure_cluster_id" label="结构cluster_id" min-width="130" />
-                <el-table-column prop="name" label="热点簇名称" min-width="180" show-overflow-tooltip />
-                <el-table-column prop="support" label="复用次数" min-width="100" />
-                <el-table-column prop="size" label="组件大小" min-width="100" />
-                <el-table-column prop="code_lines" label="复用代码量" min-width="110" />
-                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" />
+                <el-table-column label="热点簇名称" min-width="280">
+                    <template #default="scope">
+                        <div class="name-cell">
+                            <span class="name-text">{{ scope.row.name || '-' }}</span>
+                            <el-tag v-if="scope.row.parent_cluster_name" type="warning" effect="light" round>
+                                {{ scope.row.parent_cluster_name }}
+                            </el-tag>
+                        </div>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column prop="support" label="复用次数" min-width="100" /> -->
+                <el-table-column prop="size" label="组件大小" min-width="100" sortable />
+                <el-table-column prop="code_lines" label="复用代码量" min-width="110" sortable />
+                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" sortable />
                 <el-table-column label="关系图" min-width="120" fixed="right">
                     <template #default="scope">
                         <el-button type="success" plain @click="selectRow(scope.row)">查看关系图</el-button>
@@ -333,6 +342,17 @@ onBeforeUnmount(() => {
 
 .type-select {
     width: 180px;
+}
+
+.name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.name-text {
+    min-width: 0;
 }
 
 .tree-wrap {

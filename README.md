@@ -13,7 +13,7 @@
 
 - 分析概览：展示报告元信息和热点组件统计。
 - 相关定义：展示热点组件挖掘定义、相似性维度和支持度规则。
-- 结构相似热点组件：查看结构热点簇列表、实例详情，并支持树形图 / 有向图切换。
+- 结构相似热点组件：查看结构热点簇列表、父模式标签、实例详情，并支持树形图 / 有向图切换。
 - 语义相似热点组件：查看语义热点簇及其关联的结构簇、语义描述与关键差异点。
 
 ## 技术栈
@@ -40,7 +40,7 @@ npm install
 
 项目当前使用以下输入文件：
 
-- `data/data.json`：热点簇主数据，包含结构相似与语义相似聚类、统计信息、报告元信息等。
+- `data/data.json`：热点簇主数据，包含父模式聚类、结构相似与语义相似聚类、统计信息、报告元信息等。
 - `data/edge_and_vertex_mapping.txt`：节点类型与边关系编码映射。
 - `data/defs.json`：相关定义（静态数据）。
 
@@ -98,11 +98,12 @@ npm run preview
 
 - `meta`：报告日期、版本、生成工具版本、覆盖仓库等元信息。
 - `overview_stats`：热点簇数量、实例数量、项目数、页面数和组件类型统计。
-- `structure_hotspot.rows`：结构相似热点簇数据（含实例列表和关系图键）。
+- `structure_hotspot.rows`：结构相似热点簇数据（含父模式名称、实例列表和关系图键）。
 - `semantic_hotspot.rows`：语义相似热点簇数据（含关联结构簇映射）。
 - `charts.subgraphs`：子图级关系图数据。
 
 其中 `charts.subgraphs[*]` 额外包含 `tree` 字段，供结构热点页的树形视图使用。
+处理 `structure_hotspot.rows` 时，脚本会读取 `parent_clusters[*].name`，并根据 `structure_cluster_ids` 映射生成 `parent_cluster_name` 字段，供结构热点页以标签形式展示。
 
 ## 项目结构
 
@@ -183,6 +184,16 @@ lowCode-Graph/
         "models_involved": { "type": "Integer", "description": "涉及的数据模型数量" }
       }
     },
+    "parent_clusters": {
+      "type": "Array[Object]",
+      "description": "父模式聚类结果，用于归类多个结构相似簇",
+      "items_properties": {
+        "parent_cluster_id": { "type": "Integer", "description": "父模式的唯一标识 ID" },
+        "name": { "type": "String", "description": "父模式名称，会映射到关联结构簇的 parent_cluster_name 字段" },
+        "difference": { "type": "String", "description": "该父模式下各结构簇之间的共性与差异说明" },
+        "structure_cluster_ids": { "type": "Array[Integer]", "description": "归属于该父模式的结构簇 ID 列表" }
+      }
+    },
     "structure_similar_clusters": {
       "type": "Array[Object]",
       "description": "基于结构相似度聚类的结果列表",
@@ -190,6 +201,7 @@ lowCode-Graph/
         "structure_cluster_id": { "type": "Integer", "description": "结构簇的唯一标识 ID" },
         "type": { "type": "String", "description": "簇的类别（如：页面、组件）" },
         "name": { "type": "String", "description": "该结构簇的业务名称" },
+        "parent_cluster_name": { "type": "String", "description": "由 parent_clusters.name 映射得到的父模式名称，展示在结构热点列表名称右侧" },
         "support": { "type": "Integer", "description": "支持度（该结构出现的频次或实例数）" },
         "size": { "type": "Integer", "description": "结构内部节点的规模" },
         "code_lines": { "type": "Integer", "description": "该结构涉及的代码行数" },
@@ -246,11 +258,20 @@ lowCode-Graph/
     "services_involved": 1,
     "models_involved": 1
   },
+  "parent_clusters": [
+    {
+      "parent_cluster_id": 0,
+      "name": "数据查询与展示组件",
+      "difference": "该父模式归纳了多个与数据查询、筛选和展示相关的结构簇。",
+      "structure_cluster_ids": [0, 1, 3]
+    }
+  ],
   "structure_similar_clusters": [
     {
       "structure_cluster_id": 0,
       "type": "页面",
       "name": "登录组件",
+      "parent_cluster_name": "数据查询与展示组件",
       "support": 2,
       "size": 5,
       "code_lines": 10,

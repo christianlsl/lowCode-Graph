@@ -20,8 +20,8 @@
                 <el-table-column prop="type" label="组件类型" min-width="120" />
                 <el-table-column prop="semantic_similar_cluster_id" label="语义cluster_id" min-width="130" />
                 <el-table-column prop="name" label="语义簇名称" min-width="180" show-overflow-tooltip />
-                <el-table-column prop="struc_cluster_num" label="包含的结构cluster_id个数" min-width="180" />
-                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" />
+                <el-table-column prop="struc_cluster_num" label="包含的结构cluster_id个数" min-width="180" sortable />
+                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" sortable />
             </el-table>
         </el-card>
 
@@ -37,7 +37,7 @@
                     <div class="card-header detail-header">
                         <span>{{ row.name || '未命名语义簇' }}</span>
                         <el-tag type="info" effect="plain" round>语义cluster_id: {{ row.semantic_similar_cluster_id
-                        }}</el-tag>
+                            }}</el-tag>
                     </div>
                 </template>
 

@@ -153,6 +153,7 @@ def _build_structure_rows(
 	node_type_dict: dict[int, str],
 	edge_relation_dict: dict[int, str],
 	subgraph_charts: dict[str, Any],
+	parent_cluster_name_map: dict[int, str],
 ) -> list[dict[str, Any]]:
 	rows: list[dict[str, Any]] = []
 
@@ -200,6 +201,7 @@ def _build_structure_rows(
 				"type": cluster.get("type", ""),
 				"structure_cluster_id": cluster_id,
 				"name": cluster.get("name", ""),
+				"parent_cluster_name": parent_cluster_name_map.get(cluster_id, ""),
 				"support": cluster.get("support", 0),
 				"size": cluster.get("size", 0),
 				"code_lines": cluster.get("code_lines", 0),
@@ -233,6 +235,23 @@ def _build_structure_cluster_name_map(clusters: list[dict[str, Any]]) -> dict[in
 	return {
 		int(cluster.get("structure_cluster_id", -1)): str(cluster.get("name", ""))
 		for cluster in clusters
+	}
+
+
+def _build_parent_cluster_name_map(parent_clusters: list[dict[str, Any]]) -> dict[int, str]:
+	parent_name_map: dict[int, list[str]] = {}
+
+	for parent_cluster in parent_clusters:
+		parent_name = str(parent_cluster.get("name", "")).strip()
+		for structure_cluster_id in parent_cluster.get("structure_cluster_ids", []):
+			cluster_id = int(structure_cluster_id)
+			parent_name_map.setdefault(cluster_id, [])
+			if parent_name and parent_name not in parent_name_map[cluster_id]:
+				parent_name_map[cluster_id].append(parent_name)
+
+	return {
+		cluster_id: " / ".join(parent_names)
+		for cluster_id, parent_names in parent_name_map.items()
 	}
 
 
@@ -274,18 +293,21 @@ def build_output() -> dict[str, Any]:
 	frequent_subgraphs_json = _load_json(INPUT_PATH)
 	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
 
+	parent_clusters = frequent_subgraphs_json.get("parent_clusters", [])
 	structure_clusters = frequent_subgraphs_json.get("structure_similar_clusters", [])
 	semantic_clusters = frequent_subgraphs_json.get("semantic_similar_clusters", [])
 
 	overview_stats = frequent_subgraphs_json.get("statistic", {})
 
 	subgraph_charts: dict[str, Any] = {}
+	parent_cluster_name_map = _build_parent_cluster_name_map(parent_clusters)
 
 	structure_rows = _build_structure_rows(
 		clusters=structure_clusters,
 		node_type_dict=node_type_dict,
 		edge_relation_dict=edge_relation_dict,
 		subgraph_charts=subgraph_charts,
+		parent_cluster_name_map=parent_cluster_name_map,
 	)
 	structure_cluster_name_map = _build_structure_cluster_name_map(structure_clusters)
 	semantic_rows = _build_semantic_rows(semantic_clusters, structure_cluster_name_map)
