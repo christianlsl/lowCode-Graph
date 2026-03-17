@@ -15,8 +15,8 @@
                 </div>
             </template>
 
-            <el-table :data="filteredRows" border row-key="structure_cluster_id" max-height="46vh" highlight-current-row
-                @current-change="handleCurrentChange">
+            <el-table :data="sortedRows" border row-key="structure_cluster_id" max-height="46vh" highlight-current-row
+                @current-change="handleCurrentChange" @sort-change="handleSortChange">
                 <el-table-column prop="type" label="簇类型" min-width="120" />
                 <el-table-column prop="structure_cluster_id" label="结构cluster_id" min-width="130" />
                 <el-table-column label="热点簇名称" min-width="280">
@@ -30,9 +30,9 @@
                     </template>
                 </el-table-column>
                 <!-- <el-table-column prop="support" label="复用次数" min-width="100" /> -->
-                <el-table-column prop="size" label="组件大小" min-width="100" sortable />
-                <el-table-column prop="code_lines" label="复用代码量" min-width="110" sortable />
-                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" sortable />
+                <el-table-column prop="size" label="组件大小" min-width="100" sortable="custom" />
+                <el-table-column prop="code_lines" label="复用代码量" min-width="110" sortable="custom" />
+                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" sortable="custom" />
                 <el-table-column label="关系图" min-width="120" fixed="right">
                     <template #default="scope">
                         <el-button type="success" plain @click="selectRow(scope.row)">查看关系图</el-button>
@@ -134,6 +134,7 @@ const detailSearchKeyword = ref('')
 const summaryDialogVisible = ref(false)
 const selectedSummary = ref('')
 const chartTitle = ref('请选择结构簇查看关系图')
+const sortState = ref({ prop: '', order: '' })
 const treeProps = { children: 'children', label: 'label' }
 let chartInstance = null
 
@@ -160,11 +161,30 @@ const filteredRows = computed(() => {
     })
 })
 
+const sortedRows = computed(() => {
+    const rows = [...filteredRows.value]
+    const { prop, order } = sortState.value
+
+    if (!prop || !order) return rows
+
+    const direction = order === 'ascending' ? 1 : -1
+    return rows.sort((left, right) => {
+        const leftValue = Number(left?.[prop] ?? 0)
+        const rightValue = Number(right?.[prop] ?? 0)
+
+        if (leftValue === rightValue) {
+            return Number(left?.structure_cluster_id ?? 0) - Number(right?.structure_cluster_id ?? 0)
+        }
+
+        return (leftValue - rightValue) * direction
+    })
+})
+
 const detailFilteredRows = computed(() => {
     const keyword = detailSearchKeyword.value.trim().toLowerCase()
-    if (!keyword) return filteredRows.value
+    if (!keyword) return sortedRows.value
 
-    return filteredRows.value
+    return sortedRows.value
         .map((row) => {
             const instances = Array.isArray(row.instances)
                 ? row.instances.filter((instance) =>
@@ -221,6 +241,13 @@ const handleCurrentChange = (row) => {
     }
 }
 
+const handleSortChange = ({ prop, order }) => {
+    sortState.value = {
+        prop: prop || '',
+        order: order || ''
+    }
+}
+
 const openSummaryDialog = (instance) => {
     selectedSummary.value = instance.instance_summary || ''
     summaryDialogVisible.value = true
@@ -239,8 +266,8 @@ const initSelection = async () => {
     }
 
     const currentId = selectedRow.value?.structure_cluster_id
-    const matched = filteredRows.value.find((row) => row.structure_cluster_id === currentId)
-    selectedRow.value = matched || filteredRows.value[0]
+    const matched = sortedRows.value.find((row) => row.structure_cluster_id === currentId)
+    selectedRow.value = matched || sortedRows.value[0]
 
     const payload = selectedPayload.value
     chartTitle.value = payload?.title || '关系图'
@@ -251,7 +278,7 @@ const initSelection = async () => {
 }
 
 watch(
-    filteredRows,
+    sortedRows,
     async () => {
         await initSelection()
     },
