@@ -5,7 +5,7 @@
                 <div class="card-header with-filter">
                     <span>结构相似热点组件</span>
                     <div class="filter-actions">
-                        <el-input v-model="searchKeyword" clearable placeholder="搜索热点簇名称/结构cluster_id"
+                        <el-input v-model="searchKeyword" clearable placeholder="搜索热点簇名称/结构cluster_id/父模式名称"
                             class="search-input" />
                         <el-select v-model="selectedType" class="type-select" placeholder="选择组件类型">
                             <el-option label="全部组件类型" value="all" />
@@ -15,27 +15,43 @@
                 </div>
             </template>
 
-            <el-table :data="sortedRows" border row-key="structure_cluster_id" max-height="46vh" highlight-current-row
-                @current-change="handleCurrentChange" @sort-change="handleSortChange">
-                <el-table-column prop="type" label="簇类型" min-width="120" />
-                <el-table-column prop="structure_cluster_id" label="结构cluster_id" min-width="130" />
-                <el-table-column label="热点簇名称" min-width="280">
+            <el-table :data="treeRows" border row-key="row_id" max-height="46vh" highlight-current-row
+                :tree-props="{ children: 'children' }" default-expand-all @current-change="handleCurrentChange">
+                <el-table-column label="簇类型" min-width="120">
                     <template #default="scope">
-                        <div class="name-cell">
-                            <span class="name-text">{{ scope.row.name || '-' }}</span>
-                            <el-tag v-if="scope.row.parent_cluster_name" type="warning" effect="light" round>
-                                {{ scope.row.parent_cluster_name }}
-                            </el-tag>
-                        </div>
+                        {{ scope.row._isParent ? '父模式' : (scope.row.type || '-') }}
                     </template>
                 </el-table-column>
-                <!-- <el-table-column prop="support" label="复用次数" min-width="100" /> -->
-                <el-table-column prop="size" label="组件大小" min-width="100" sortable="custom" />
-                <el-table-column prop="code_lines" label="复用代码量" min-width="110" sortable="custom" />
-                <el-table-column prop="relevent_projects_num" label="涉及工程个数" min-width="120" sortable="custom" />
+                <el-table-column label="结构cluster_id" min-width="130">
+                    <template #default="scope">
+                        {{ scope.row._isParent ? '-' : scope.row.structure_cluster_id }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="热点簇名称" min-width="300" show-overflow-tooltip>
+                    <template #default="scope">
+                        {{ scope.row.name || '-' }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="组件大小" min-width="100">
+                    <template #default="scope">
+                        {{ scope.row._isParent ? '-' : scope.row.size }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="复用代码量" min-width="110">
+                    <template #default="scope">
+                        {{ scope.row._isParent ? '-' : scope.row.code_lines }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="涉及工程个数" min-width="120">
+                    <template #default="scope">
+                        {{ scope.row._isParent ? '-' : scope.row.relevent_projects_num }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="关系图" min-width="120" fixed="right">
                     <template #default="scope">
-                        <el-button type="success" plain @click="selectRow(scope.row)">查看关系图</el-button>
+                        <el-button v-if="!scope.row._isParent" type="success" plain
+                            @click="selectRow(scope.row)">查看关系图</el-button>
+                        <span v-else>-</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -56,7 +72,6 @@
                 <el-tree :data="treeData" node-key="id" :props="treeProps" default-expand-all class="graph-tree" />
             </div>
             <div v-else ref="chartRef" class="graph-canvas"></div>
-            <!-- <div ref="chartRef" class="graph-canvas"></div> -->
         </el-card>
 
         <section class="detail-section">
@@ -134,57 +149,77 @@ const detailSearchKeyword = ref('')
 const summaryDialogVisible = ref(false)
 const selectedSummary = ref('')
 const chartTitle = ref('请选择结构簇查看关系图')
-const sortState = ref({ prop: '', order: '' })
 const treeProps = { children: 'children', label: 'label' }
 let chartInstance = null
 
 const componentTypeOptions = computed(() => {
     const typeSet = new Set()
-    for (const row of props.rows) {
-        if (row?.type) {
-            typeSet.add(row.type)
+    for (const parentRow of props.rows) {
+        const children = Array.isArray(parentRow?.children) ? parentRow.children : []
+        for (const child of children) {
+            if (child?.type) {
+                typeSet.add(child.type)
+            }
         }
     }
     return Array.from(typeSet)
 })
 
-const filteredRows = computed(() => {
+const treeRows = computed(() => {
     const keyword = searchKeyword.value.trim().toLowerCase()
-    return props.rows.filter((row) => {
-        const matchesType = selectedType.value === 'all' || row.type === selectedType.value
-        if (!matchesType) return false
 
-        if (!keyword) return true
-        const nameText = String(row.name || '').toLowerCase()
-        const clusterIdText = String(row.structure_cluster_id || '').toLowerCase()
-        return nameText.includes(keyword) || clusterIdText.includes(keyword)
-    })
+    return props.rows
+        .map((parentRow) => {
+            const parentName = String(parentRow?.name || '')
+            const parentNameText = parentName.toLowerCase()
+            const parentMatchesKeyword = !!keyword && parentNameText.includes(keyword)
+            const children = Array.isArray(parentRow?.children) ? parentRow.children : []
+
+            const filteredChildren = children.filter((child) => {
+                const matchesType = selectedType.value === 'all' || child?.type === selectedType.value
+                if (!matchesType) return false
+
+                if (!keyword) return true
+                if (parentMatchesKeyword) return true
+
+                const childNameText = String(child?.name || '').toLowerCase()
+                const clusterIdText = String(child?.structure_cluster_id || '').toLowerCase()
+                return childNameText.includes(keyword) || clusterIdText.includes(keyword)
+            })
+
+            if (!filteredChildren.length) return null
+
+            return {
+                row_id: `parent-${parentRow?.parent_cluster_id ?? parentName}`,
+                _isParent: true,
+                parent_cluster_id: parentRow?.parent_cluster_id ?? -1,
+                name: parentName,
+                difference: String(parentRow?.difference || ''),
+                children: filteredChildren.map((child) => ({
+                    ...child,
+                    row_id: `structure-${child?.structure_cluster_id ?? Math.random()}`,
+                    _isParent: false
+                }))
+            }
+        })
+        .filter(Boolean)
 })
 
-const sortedRows = computed(() => {
-    const rows = [...filteredRows.value]
-    const { prop, order } = sortState.value
-
-    if (!prop || !order) return rows
-
-    const direction = order === 'ascending' ? 1 : -1
-    return rows.sort((left, right) => {
-        const leftValue = Number(left?.[prop] ?? 0)
-        const rightValue = Number(right?.[prop] ?? 0)
-
-        if (leftValue === rightValue) {
-            return Number(left?.structure_cluster_id ?? 0) - Number(right?.structure_cluster_id ?? 0)
+const flattenedStructureRows = computed(() => {
+    const rows = []
+    for (const parent of treeRows.value) {
+        for (const child of parent.children || []) {
+            rows.push(child)
         }
-
-        return (leftValue - rightValue) * direction
-    })
+    }
+    return rows
 })
 
 const detailFilteredRows = computed(() => {
     const keyword = detailSearchKeyword.value.trim().toLowerCase()
-    if (!keyword) return sortedRows.value
+    if (!keyword) return flattenedStructureRows.value
 
-    return sortedRows.value
+    return flattenedStructureRows.value
         .map((row) => {
             const instances = Array.isArray(row.instances)
                 ? row.instances.filter((instance) =>
@@ -213,11 +248,10 @@ const ensureChart = () => {
 }
 
 const renderGraph = async () => {
-
     if (graphMode.value !== 'directed') return
     const payload = selectedPayload.value
     if (!payload) return
-    // console.log('Rendering graph with payload:', selectedPayload.value)
+
     await nextTick()
     ensureChart()
     if (!chartInstance) return
@@ -227,6 +261,8 @@ const renderGraph = async () => {
 }
 
 const selectRow = (row) => {
+    if (!row || row._isParent) return
+
     selectedRow.value = row
     const payload = selectedPayload.value
     chartTitle.value = payload?.title || '关系图'
@@ -236,15 +272,8 @@ const selectRow = (row) => {
 }
 
 const handleCurrentChange = (row) => {
-    if (row) {
+    if (row && !row._isParent) {
         selectRow(row)
-    }
-}
-
-const handleSortChange = ({ prop, order }) => {
-    sortState.value = {
-        prop: prop || '',
-        order: order || ''
     }
 }
 
@@ -259,15 +288,15 @@ const formatComponentList = (componentList) => {
 }
 
 const initSelection = async () => {
-    if (!filteredRows.value.length) {
+    if (!flattenedStructureRows.value.length) {
         selectedRow.value = null
         chartTitle.value = '请选择结构簇查看关系图'
         return
     }
 
     const currentId = selectedRow.value?.structure_cluster_id
-    const matched = sortedRows.value.find((row) => row.structure_cluster_id === currentId)
-    selectedRow.value = matched || sortedRows.value[0]
+    const matched = flattenedStructureRows.value.find((row) => row.structure_cluster_id === currentId)
+    selectedRow.value = matched || flattenedStructureRows.value[0]
 
     const payload = selectedPayload.value
     chartTitle.value = payload?.title || '关系图'
@@ -278,7 +307,7 @@ const initSelection = async () => {
 }
 
 watch(
-    sortedRows,
+    flattenedStructureRows,
     async () => {
         await initSelection()
     },
@@ -364,22 +393,11 @@ onBeforeUnmount(() => {
 }
 
 .search-input {
-    width: 260px;
+    width: 320px;
 }
 
 .type-select {
     width: 180px;
-}
-
-.name-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.name-text {
-    min-width: 0;
 }
 
 .tree-wrap {
@@ -411,10 +429,6 @@ onBeforeUnmount(() => {
 
 .detail-descriptions {
     margin-bottom: 8px;
-}
-
-.difference-box {
-    margin-top: 10px;
 }
 
 .detail-section {

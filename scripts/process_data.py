@@ -231,6 +231,58 @@ def _sort_structure_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 	)
 
 
+def _build_parent_cluster_rows(
+	parent_clusters: list[dict[str, Any]],
+	sorted_structure_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+	structure_row_map = {
+		int(row.get("structure_cluster_id", -1)): row
+		for row in sorted_structure_rows
+	}
+
+	used_cluster_ids: set[int] = set()
+	grouped_rows: list[dict[str, Any]] = []
+
+	for parent in parent_clusters:
+		parent_id = int(parent.get("parent_cluster_id", -1))
+		child_ids = [int(cluster_id) for cluster_id in parent.get("structure_cluster_ids", [])]
+		children = [
+			structure_row_map[cluster_id]
+			for cluster_id in child_ids
+			if cluster_id in structure_row_map
+		]
+
+		if not children:
+			continue
+
+		used_cluster_ids.update([int(child.get("structure_cluster_id", -1)) for child in children])
+		grouped_rows.append(
+			{
+				"parent_cluster_id": parent_id,
+				"name": str(parent.get("name", "")),
+				"difference": str(parent.get("difference", "")),
+				"children": children,
+			}
+		)
+
+	orphan_children = [
+		row
+		for row in sorted_structure_rows
+		if int(row.get("structure_cluster_id", -1)) not in used_cluster_ids
+	]
+	if orphan_children:
+		grouped_rows.append(
+			{
+				"parent_cluster_id": -1,
+				"name": "未分组结构簇",
+				"difference": "",
+				"children": orphan_children,
+			}
+		)
+
+	return grouped_rows
+
+
 def _build_structure_cluster_name_map(clusters: list[dict[str, Any]]) -> dict[int, str]:
 	return {
 		int(cluster.get("structure_cluster_id", -1)): str(cluster.get("name", ""))
@@ -313,6 +365,7 @@ def build_output() -> dict[str, Any]:
 	semantic_rows = _build_semantic_rows(semantic_clusters, structure_cluster_name_map)
 
 	sorted_structure_rows = _sort_structure_rows(structure_rows)
+	grouped_structure_rows = _build_parent_cluster_rows(parent_clusters, sorted_structure_rows)
 
 	return {
 		"meta": {
@@ -324,7 +377,7 @@ def build_output() -> dict[str, Any]:
 		},
 		"overview_stats": overview_stats,
 		"structure_hotspot": {
-			"rows": sorted_structure_rows,
+			"rows": grouped_structure_rows,
 		},
 		"semantic_hotspot": {
 			"rows": semantic_rows,
