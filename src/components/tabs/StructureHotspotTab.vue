@@ -16,15 +16,17 @@
             </template>
 
             <el-table :data="treeRows" border row-key="row_id" max-height="46vh" highlight-current-row
-                :tree-props="{ children: 'children' }" default-expand-all @current-change="handleCurrentChange">
+                :tree-props="{ children: 'children' }" @current-change="handleCurrentChange"
+                :row-class-name="tableRowClassName">
                 <el-table-column label="簇类型" min-width="120">
                     <template #default="scope">
-                        {{ scope.row._isParent ? '父模式' : (scope.row.type || '-') }}
+                        {{ scope.row._isParent ? (scope.row.children?.length ? scope.row.children[0].type : '-') :
+                            (scope.row.type || '-') }}
                     </template>
                 </el-table-column>
                 <el-table-column label="结构cluster_id" min-width="130">
                     <template #default="scope">
-                        {{ scope.row._isParent ? '-' : scope.row.structure_cluster_id }}
+                        {{ scope.row._isParent ? scope.row.parent_cluster_id : scope.row.structure_cluster_id }}
                     </template>
                 </el-table-column>
                 <el-table-column label="热点簇名称" min-width="300" show-overflow-tooltip>
@@ -34,17 +36,18 @@
                 </el-table-column>
                 <el-table-column label="组件大小" min-width="100">
                     <template #default="scope">
-                        {{ scope.row._isParent ? '-' : scope.row.size }}
+                        {{ scope.row._isParent ? getRange(scope.row.children, 'size') : scope.row.size }}
                     </template>
                 </el-table-column>
-                <el-table-column label="复用代码量" min-width="110">
+                <el-table-column label="复用次数" min-width="110">
                     <template #default="scope">
-                        {{ scope.row._isParent ? '-' : scope.row.code_lines }}
+                        {{ scope.row._isParent ? getRange(scope.row.children, 'support') : scope.row.support }}
                     </template>
                 </el-table-column>
                 <el-table-column label="涉及工程个数" min-width="120">
                     <template #default="scope">
-                        {{ scope.row._isParent ? '-' : scope.row.relevent_projects_num }}
+                        {{ scope.row._isParent ? getRange(scope.row.children, 'relevent_projects_num') :
+                            scope.row.relevent_projects_num }}
                     </template>
                 </el-table-column>
                 <el-table-column label="关系图" min-width="120" fixed="right">
@@ -100,22 +103,21 @@
                     <el-table-column prop="project_name" label="项目名" min-width="140" show-overflow-tooltip />
                     <el-table-column prop="module_name" label="模块名" min-width="140" show-overflow-tooltip />
                     <el-table-column prop="page_name" label="页面名" min-width="160" show-overflow-tooltip />
-                    <el-table-column label="语义描述" min-width="120">
+                    <el-table-column prop="instance_summary" label="语义描述" min-width="120" show-overflow-tooltip />
+                    <el-table-column label="包含组件" min-width="120" align="center">
                         <template #default="scope">
-                            <el-button type="primary" link @click="openSummaryDialog(scope.row)">查看</el-button>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="包含组件" min-width="180" show-overflow-tooltip>
-                        <template #default="scope">
-                            {{ formatComponentList(scope.row.component_id_list) }}
+                            <el-button type="primary" link @click="openComponentListDialog(scope.row)">查看</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </el-card>
         </section>
 
-        <el-dialog v-model="summaryDialogVisible" title="语义描述" width="50%">
-            <div class="dialog-content">{{ selectedSummary || '暂无语义描述' }}</div>
+        <el-dialog v-model="componentListDialogVisible" title="包含组件" width="50%">
+            <el-table :data="selectedComponentList" border size="small" max-height="50vh">
+                <el-table-column type="index" label="序号" width="60" align="center" />
+                <el-table-column label="组件ID" prop="id" />
+            </el-table>
         </el-dialog>
     </div>
 </template>
@@ -146,8 +148,8 @@ const selectedRow = ref(null)
 const searchKeyword = ref('')
 const selectedType = ref('all')
 const detailSearchKeyword = ref('')
-const summaryDialogVisible = ref(false)
-const selectedSummary = ref('')
+const componentListDialogVisible = ref(false)
+const selectedComponentList = ref([])
 const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
 let chartInstance = null
@@ -277,14 +279,25 @@ const handleCurrentChange = (row) => {
     }
 }
 
-const openSummaryDialog = (instance) => {
-    selectedSummary.value = instance.instance_summary || ''
-    summaryDialogVisible.value = true
+const openComponentListDialog = (row) => {
+    selectedComponentList.value = (row.component_id_list || []).map(id => ({ id }))
+    componentListDialogVisible.value = true
 }
 
-const formatComponentList = (componentList) => {
-    if (!Array.isArray(componentList) || componentList.length === 0) return '-'
-    return componentList.join(', ')
+const getRange = (children, key) => {
+    if (!children || !children.length) return '-'
+    const values = children.map(child => child[key]).filter(v => v !== undefined && v !== null && !isNaN(v))
+    if (!values.length) return '-'
+    const min = Math.min(...values)
+    const max = Math.max(...values)
+    return min === max ? `${min}` : `${min}~${max}`
+}
+
+const tableRowClassName = ({ row }) => {
+    if (row._isParent) {
+        return 'parent-cluster-row'
+    }
+    return ''
 }
 
 const initSelection = async () => {
@@ -473,6 +486,10 @@ onBeforeUnmount(() => {
 
 .detail-descriptions :deep(.el-descriptions__label) {
     font-weight: 700;
+}
+
+:deep(.parent-cluster-row) {
+    background-color: #f0f9ff !important;
 }
 
 @media (max-width: 992px) {
