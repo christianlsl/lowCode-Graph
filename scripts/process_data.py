@@ -260,7 +260,6 @@ def _build_parent_cluster_rows(
 			{
 				"parent_cluster_id": parent_id,
 				"name": str(parent.get("name", "")),
-				"difference": str(parent.get("difference", "")),
 				"children": children,
 			}
 		)
@@ -275,7 +274,6 @@ def _build_parent_cluster_rows(
 			{
 				"parent_cluster_id": -1,
 				"name": "未分组结构簇",
-				"difference": "",
 				"children": orphan_children,
 			}
 		)

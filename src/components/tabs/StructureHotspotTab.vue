@@ -99,12 +99,12 @@
 
                 <div class="instance-title">实例列表</div>
                 <el-table :data="row.instances || []" border size="small" max-height="36vh">
-                    <el-table-column prop="instance_id" label="id" min-width="80" />
-                    <el-table-column prop="project_name" label="项目名" min-width="140" show-overflow-tooltip />
-                    <el-table-column prop="module_name" label="模块名" min-width="140" show-overflow-tooltip />
-                    <el-table-column prop="page_name" label="页面名" min-width="160" show-overflow-tooltip />
-                    <el-table-column prop="instance_summary" label="语义描述" min-width="120" show-overflow-tooltip />
-                    <el-table-column label="包含组件" min-width="120" align="center">
+                    <el-table-column prop="instance_id" label="id" min-width="30" />
+                    <el-table-column prop="project_name" label="项目名" min-width="80" show-overflow-tooltip />
+                    <el-table-column prop="module_name" label="模块名" min-width="80" show-overflow-tooltip />
+                    <el-table-column prop="page_name" label="页面名" min-width="130" show-overflow-tooltip />
+                    <el-table-column prop="instance_summary" label="语义描述" min-width="180" show-overflow-tooltip />
+                    <el-table-column label="包含组件" min-width="40" align="center">
                         <template #default="scope">
                             <el-button type="primary" link @click="openComponentListDialog(scope.row)">查看</el-button>
                         </template>
