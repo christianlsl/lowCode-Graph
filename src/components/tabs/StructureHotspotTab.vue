@@ -41,13 +41,12 @@
                 </el-table-column>
                 <el-table-column label="复用次数" min-width="110">
                     <template #default="scope">
-                        {{ scope.row._isParent ? getRange(scope.row.children, 'support') : scope.row.support }}
+                        {{ scope.row.support }}
                     </template>
                 </el-table-column>
                 <el-table-column label="涉及工程个数" min-width="120">
                     <template #default="scope">
-                        {{ scope.row._isParent ? getRange(scope.row.children, 'relevent_projects_num') :
-                            scope.row.relevent_projects_num }}
+                        {{ scope.row.relevent_projects_num }}
                     </template>
                 </el-table-column>
                 <el-table-column label="关系图" min-width="120" fixed="right">
@@ -100,9 +99,11 @@
                 <div class="instance-title">实例列表</div>
                 <el-table :data="row.instances || []" border size="small" max-height="36vh">
                     <el-table-column prop="instance_id" label="id" min-width="30" />
-                    <el-table-column prop="project_name" label="项目名" min-width="80" show-overflow-tooltip />
-                    <el-table-column prop="module_name" label="模块名" min-width="80" show-overflow-tooltip />
-                    <el-table-column prop="page_name" label="页面名" min-width="130" show-overflow-tooltip />
+                    <el-table-column label="page_path" min-width="260" show-overflow-tooltip>
+                        <template #default="scope">
+                            {{ formatPagePath(scope.row.page_path) }}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="instance_summary" label="语义描述" min-width="180" show-overflow-tooltip />
                     <el-table-column label="包含组件" min-width="40" align="center">
                         <template #default="scope">
@@ -192,6 +193,7 @@ const treeRows = computed(() => {
             if (!filteredChildren.length) return null
 
             return {
+                ...parentRow,
                 row_id: `parent-${parentRow?.parent_cluster_id ?? parentName}`,
                 _isParent: true,
                 parent_cluster_id: parentRow?.parent_cluster_id ?? -1,
@@ -282,6 +284,16 @@ const handleCurrentChange = (row) => {
 const openComponentListDialog = (row) => {
     selectedComponentList.value = (row.component_id_list || []).map(id => ({ id }))
     componentListDialogVisible.value = true
+}
+
+const formatPagePath = (pagePath) => {
+    if (Array.isArray(pagePath)) {
+        return pagePath.join('; ')
+    }
+    if (typeof pagePath === 'string') {
+        return pagePath
+    }
+    return '-'
 }
 
 const getRange = (children, key) => {

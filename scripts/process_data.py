@@ -10,12 +10,29 @@ from typing import Any
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data"
 OUTPUT_PATH = ROOT_DIR / "src" / "assets" / "graph_table_data.json"
-INPUT_PATH = DATA_DIR / "data.json"
+INPUT_GLOB = "data_*.json"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
 	with path.open("r", encoding="utf-8") as file:
 		return json.load(file)
+
+
+def _load_all_source_payloads(data_dir: Path) -> list[dict[str, Any]]:
+	payloads: list[dict[str, Any]] = []
+	for path in sorted(data_dir.glob(INPUT_GLOB)):
+		if not path.is_file():
+			continue
+		payloads.append(_load_json(path))
+
+	if payloads:
+		return payloads
+
+	legacy_path = data_dir / "data.json"
+	if legacy_path.exists() and legacy_path.is_file():
+		return [_load_json(legacy_path)]
+
+	raise FileNotFoundError(f"No input data files found under {data_dir} by pattern {INPUT_GLOB}")
 
 
 def _parse_mapping_block(raw_text: str, var_name: str) -> dict[int, str]:
@@ -95,12 +112,20 @@ def _parse_graph_structure(
 	return nodes, edges, node_type_by_id
 
 
-def _split_page_path(page_path: str) -> tuple[str, str, str]:
-	parts = [item for item in str(page_path).split("/") if item]
-	project = parts[0] if len(parts) > 0 else ""
-	module = parts[1] if len(parts) > 1 else ""
-	page = parts[2] if len(parts) > 2 else ""
-	return project, module, page
+def _normalize_page_path_list(page_path: Any) -> list[str]:
+	if isinstance(page_path, list):
+		return [str(item) for item in page_path if str(item).strip()]
+
+	if isinstance(page_path, str):
+		value = page_path.strip()
+		return [value] if value else []
+
+	return []
+
+
+def _extract_top_level_name(component_id: Any) -> str:
+	parts = [part for part in str(component_id).split("/") if part]
+	return parts[0] if parts else ""
 
 
 def _build_tree_payload(
@@ -180,17 +205,13 @@ def _build_structure_rows(
 		instance_rows: list[dict[str, Any]] = []
 		for instance in instances:
 			instance_id = instance.get("instance_id")
-			page_path = str(instance.get("page_path", ""))
-			project_name, module_name, page_name = _split_page_path(page_path)
+			page_path_list = _normalize_page_path_list(instance.get("page_path", []))
 			component_ids = instance.get("component_id_list", instance.get("component_list", []))
 
 			instance_rows.append(
 				{
 					"instance_id": instance_id,
-					"page_path": page_path,
-					"project_name": project_name,
-					"module_name": module_name,
-					"page_name": page_name,
+					"page_path": page_path_list,
 					"instance_summary": instance.get("instance_summary", ""),
 					"component_id_list": component_ids if isinstance(component_ids, list) else [],
 				}
@@ -255,11 +276,22 @@ def _build_parent_cluster_rows(
 		if not children:
 			continue
 
+		support_sum = sum(int(child.get("support", 0)) for child in children)
+		project_names: set[str] = set()
+		for child in children:
+			for instance in child.get("instances", []):
+				for component_id in instance.get("component_id_list", []):
+					top_level = _extract_top_level_name(component_id)
+					if top_level:
+						project_names.add(top_level)
+
 		used_cluster_ids.update([int(child.get("structure_cluster_id", -1)) for child in children])
 		grouped_rows.append(
 			{
 				"parent_cluster_id": parent_id,
 				"name": str(parent.get("name", "")),
+				"support": support_sum,
+				"relevent_projects_num": len(project_names),
 				"children": children,
 			}
 		)
@@ -270,10 +302,21 @@ def _build_parent_cluster_rows(
 		if int(row.get("structure_cluster_id", -1)) not in used_cluster_ids
 	]
 	if orphan_children:
+		support_sum = sum(int(child.get("support", 0)) for child in orphan_children)
+		project_names: set[str] = set()
+		for child in orphan_children:
+			for instance in child.get("instances", []):
+				for component_id in instance.get("component_id_list", []):
+					top_level = _extract_top_level_name(component_id)
+					if top_level:
+						project_names.add(top_level)
+
 		grouped_rows.append(
 			{
 				"parent_cluster_id": -1,
 				"name": "未分组结构簇",
+				"support": support_sum,
+				"relevent_projects_num": len(project_names),
 				"children": orphan_children,
 			}
 		)
@@ -339,15 +382,58 @@ def _build_semantic_rows(
 	)
 
 
+def _merge_statistic_blocks(statistics: list[dict[str, Any]]) -> dict[str, Any]:
+	merged: dict[str, Any] = {}
+	for stat in statistics:
+		for key, value in stat.items():
+			if isinstance(value, (int, float)):
+				merged[key] = merged.get(key, 0) + value
+			elif key not in merged:
+				merged[key] = value
+	return merged
+
+
+def _merge_covered_repositories(meta_blocks: list[dict[str, Any]]) -> list[str]:
+	repositories: set[str] = set()
+	for meta in meta_blocks:
+		for repository in meta.get("covered_repositories", []):
+			name = str(repository).strip()
+			if name:
+				repositories.add(name)
+	return sorted(repositories)
+
+
+def _latest_meta_field(meta_blocks: list[dict[str, Any]], key: str) -> str:
+	for meta in reversed(meta_blocks):
+		value = str(meta.get(key, "")).strip()
+		if value:
+			return value
+	return ""
+
+
 def build_output() -> dict[str, Any]:
-	frequent_subgraphs_json = _load_json(INPUT_PATH)
+	payloads = _load_all_source_payloads(DATA_DIR)
 	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
 
-	parent_clusters = frequent_subgraphs_json.get("parent_clusters", [])
-	structure_clusters = frequent_subgraphs_json.get("structure_similar_clusters", [])
-	semantic_clusters = frequent_subgraphs_json.get("semantic_similar_clusters", [])
+	parent_clusters = [
+		cluster
+		for payload in payloads
+		for cluster in payload.get("parent_clusters", [])
+	]
+	structure_clusters = [
+		cluster
+		for payload in payloads
+		for cluster in payload.get("structure_similar_clusters", [])
+	]
+	semantic_clusters = [
+		cluster
+		for payload in payloads
+		for cluster in payload.get("semantic_similar_clusters", [])
+	]
+	meta_blocks = [payload.get("meta_data", {}) for payload in payloads]
+	statistics = [payload.get("statistic", {}) for payload in payloads]
 
-	overview_stats = frequent_subgraphs_json.get("statistic", {})
+	overview_stats = _merge_statistic_blocks(statistics)
 
 	subgraph_charts: dict[str, Any] = {}
 	parent_cluster_name_map = _build_parent_cluster_name_map(parent_clusters)
@@ -368,10 +454,10 @@ def build_output() -> dict[str, Any]:
 	return {
 		"meta": {
 			"generated_at": datetime.now(timezone.utc).isoformat(),
-			"report_date": frequent_subgraphs_json.get("meta_data", {}).get("report_date", ""),
-			"report_version": frequent_subgraphs_json.get("meta_data", {}).get("report_version", ""),
-			"generator_tool_version": frequent_subgraphs_json.get("meta_data", {}).get("generator_tool_version", ""),
-			"covered_repositories": frequent_subgraphs_json.get("meta_data", {}).get("covered_repositories", []),
+			"report_date": _latest_meta_field(meta_blocks, "report_date"),
+			"report_version": _latest_meta_field(meta_blocks, "report_version"),
+			"generator_tool_version": _latest_meta_field(meta_blocks, "generator_tool_version"),
+			"covered_repositories": _merge_covered_repositories(meta_blocks),
 		},
 		"overview_stats": overview_stats,
 		"structure_hotspot": {
