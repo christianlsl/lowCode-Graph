@@ -45,13 +45,18 @@ def _parse_mapping_block(raw_text: str, var_name: str) -> dict[int, str]:
 	return {int(key): value for key, value in entries}
 
 
-def _parse_node_edge_defs(path: Path) -> tuple[dict[int, str], dict[int, str]]:
+def _parse_node_edge_defs(path: Path) -> tuple[dict[int, str], dict[int, str], dict[int, str]]:
 	with path.open("r", encoding="utf-8") as file:
 		content = file.read()
 
 	node_type_dict = _parse_mapping_block(content, "node_type_dict")
+	# Keep backward compatibility with current typo in source files.
+	try:
+		flow_node_type_dict = _parse_mapping_block(content, "flow_ndoe_type_dict")
+	except ValueError:
+		flow_node_type_dict = _parse_mapping_block(content, "flow_node_type_dict")
 	edge_relation_dict = _parse_mapping_block(content, "edge_relation_dict")
-	return node_type_dict, edge_relation_dict
+	return node_type_dict, flow_node_type_dict, edge_relation_dict
 
 
 def _parse_graph_structure(
@@ -176,6 +181,7 @@ def _build_tree_payload(
 def _build_structure_rows(
 	clusters: list[dict[str, Any]],
 	node_type_dict: dict[int, str],
+	flow_node_type_dict: dict[int, str],
 	edge_relation_dict: dict[int, str],
 	subgraph_charts: dict[str, Any],
 	parent_cluster_name_map: dict[int, str],
@@ -186,10 +192,12 @@ def _build_structure_rows(
 		cluster_id = int(cluster.get("structure_cluster_id", -1))
 		graph_structure_data = cluster.get("graph_structure_data", [])
 		instances = cluster.get("instances", [])
+		cluster_type = str(cluster.get("type", "")).strip()
+		active_node_type_dict = flow_node_type_dict if cluster_type == "流程" else node_type_dict
 
 		base_nodes, base_edges, node_type_by_id = _parse_graph_structure(
 			graph_structure_data,
-			node_type_dict,
+			active_node_type_dict,
 			edge_relation_dict,
 		)
 
@@ -413,7 +421,9 @@ def _latest_meta_field(meta_blocks: list[dict[str, Any]], key: str) -> str:
 
 def build_output() -> dict[str, Any]:
 	payloads = _load_all_source_payloads(DATA_DIR)
-	node_type_dict, edge_relation_dict = _parse_node_edge_defs(DATA_DIR / "edge_and_vertex_mapping.txt")
+	node_type_dict, flow_node_type_dict, edge_relation_dict = _parse_node_edge_defs(
+		DATA_DIR / "edge_and_vertex_mapping.txt"
+	)
 
 	parent_clusters = [
 		cluster
@@ -441,6 +451,7 @@ def build_output() -> dict[str, Any]:
 	structure_rows = _build_structure_rows(
 		clusters=structure_clusters,
 		node_type_dict=node_type_dict,
+		flow_node_type_dict=flow_node_type_dict,
 		edge_relation_dict=edge_relation_dict,
 		subgraph_charts=subgraph_charts,
 		parent_cluster_name_map=parent_cluster_name_map,
