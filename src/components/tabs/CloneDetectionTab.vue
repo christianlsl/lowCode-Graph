@@ -110,7 +110,8 @@
                             </div>
                         </template>
 
-                        <pre v-if="isCodeExpanded(func.record_key)" class="code-block"><code class="hljs language-javascript" v-html="func.highlighted_code"></code></pre>
+                        <pre v-if="isCodeExpanded(func.record_key)" class="code-block"><code class="hljs language-javascript"
+                        v-html="func.highlighted_code"></code></pre>
                     </el-card>
                 </div>
 

@@ -3,8 +3,9 @@ dist/
 .vscode/
 .DS_Store
 *.log
-data/*
+
 assets/
+package-lock.json
 
 # js code clone result
 !data/clone_detection_result.json

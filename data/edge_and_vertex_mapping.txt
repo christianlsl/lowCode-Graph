@@ -1,0 +1,33 @@
+node_type_dict = {
+    0000: "PAGE",
+    1000: "COMPONENT",
+    1001: "COMPONENT_TOOLBAR",  
+    1002: "COMPONENT_DATAGRID",
+    1003: "COMPONENT_SELECT",
+    1004: "COMPONENT_TEXTINPUT",
+    1005: "COMPONENT_BUTTON",
+    1006: "COMPONENT_DATEINPUT",
+    1007: "COMPONENT_DARCHART",
+    2000: "MODEL",
+    3000: "SERNODE",
+    4000: "FLOWNODE"
+}
+
+flow_ndoe_type_dict = {
+    0000: "flow_node1",
+    1000: "flow_node2",
+    1001: "flow_node3",  
+    1002: "flow_node4"
+}
+
+edge_relation_dict = {
+    0: "trigger",
+    1: "sync",
+    2: "com_invoke",
+    3: "flow_invoke",
+    4: "ser_invoke",
+    5: "ser_enter",
+    6: "flow_enter",
+    7: "dependency",
+    8: "include"
+}

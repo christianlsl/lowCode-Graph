@@ -1,0 +1,638 @@
+{
+  "meta_data": {
+    "report_date": "2026-3-11",
+    "report_version": "v1.0",
+    "generator_tool_version": "v1.0",
+    "covered_repositories": [
+      "SQM",
+      "Trouble_ticket"
+    ]
+  },
+  "statistic": {
+    "hotspot_clusters": 1,
+    "hotspot_instances": 2,
+    "projects_involved": 1,
+    "pages_involved": 1,
+    "components_involved": 1,
+    "services_involved": 1,
+    "models_involved": 1
+  },
+  "parent_clusters": [
+    {
+      "parent_cluster_id": 0,
+      "name": "数据查询与筛选组件模式",
+      "structure_cluster_ids": [
+        0,
+        1
+      ]
+    },
+    {
+      "parent_cluster_id": 1,
+      "name": "事件驱动页面结构模式",
+      "structure_cluster_ids": [
+        2
+      ]
+    },
+    {
+      "parent_cluster_id": 2,
+      "name": "数据表格展示组件",
+      "structure_cluster_ids": [
+        3
+      ]
+    },
+    {
+      "parent_cluster_id": 3,
+      "name": "业务表单组件模式",
+      "structure_cluster_ids": [
+        9
+      ]
+    }
+  ],
+  "structure_similar_clusters": [
+    {
+      "structure_cluster_id": 0,
+      "type": "页面",
+      "name": "搜索窗口数据表格模式",
+      "support": 17,
+      "size": 8,
+      "code_lines": 136,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 4014",
+        "v 1 4003",
+        "v 2 4039",
+        "v 3 4048",
+        "v 4 4020",
+        "v 5 4009",
+        "v 6 4022",
+        "v 7 0",
+        "e 0 1 8",
+        "e 0 2 8",
+        "e 3 0 8",
+        "e 3 4 8",
+        "e 5 3 8",
+        "e 4 6 4",
+        "e 7 5 8"
+      ],
+      "summary": "该组件提供了一个包含搜索、数据展示和业务服务调用功能的页面，典型用于数据查询与操作的业务管理场景。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": ["TroubleTicket/TroubleTicket/affectedsite_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/cmdb_site_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 1,
+          "page_path": ["TroubleTicket/TroubleTicket/alarmtype_search_window","SQM/TroubleTicket/alarmtype_search_window2"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/ds_customization_options_alarmtype_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和展示故障工单信息。"
+        },
+        {
+          "instance_id": 2,
+          "page_path": ["TroubleTicket/TroubleTicket/cable_device_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/tt_optical_cable_device",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和管理故障工单信息。"
+        },
+        {
+          "instance_id": 3,
+          "page_path": ["TroubleTicket/TroubleTicket/vendor_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/customization_options_vendor_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 4,
+          "page_path": ["TroubleTicket/TroubleTicket/device_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_8",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_7",
+            "//TroubleTicket/TroubleTicket/cmdb_device_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选设备故障工单信息。"
+        },
+        {
+          "instance_id": 5,
+          "page_path": ["TroubleTicket/TroubleTicket/domain_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/cmdb_domain_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 6,
+          "page_path": ["TroubleTicket/TroubleTicket/ems_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/cmdb_ems_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和展示故障工单信息。"
+        },
+        {
+          "instance_id": 7,
+          "page_path": ["TroubleTicket/TroubleTicket/faultlevel_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/cmdb_fault_level_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 8,
+          "page_path": ["TroubleTicket/TroubleTicket/impactedservice_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/ds_customization_options_impactedserviceid_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 9,
+          "page_path": ["TroubleTicket/TroubleTicket/moduletype_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//DataSource/msup_customization_options/customization_options_moduletype_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 10,
+          "page_path": ["TroubleTicket/TroubleTicket/networktype_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_7",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_5",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_6",
+            "//TroubleTicket/TroubleTicket/cmdb_network_type_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 11,
+          "page_path": ["TroubleTicket/TroubleTicket/netype_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/cmdb_ne_type_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和展示故障工单信息。"
+        },
+        {
+          "instance_id": 12,
+          "page_path": ["TroubleTicket/TroubleTicket/producttype_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/tt_cmdb_product_type_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 13,
+          "page_path": ["TroubleTicket/TroubleTicket/region_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_7",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_5",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_6",
+            "//TroubleTicket/TroubleTicket/cmdb_region_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 14,
+          "page_path": ["TroubleTicket/TroubleTicket/siteid_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_8",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_7",
+            "//TroubleTicket/TroubleTicket/cmdb_site_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        },
+        {
+          "instance_id": 15,
+          "page_path": ["TroubleTicket/TroubleTicket/troublesource_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/ds_customization_options_troublesource_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和展示故障工单信息。"
+        },
+        {
+          "instance_id": 16,
+          "page_path": ["TroubleTicket/TroubleTicket/ttsatisfaction_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/searchWindow_2",
+            "/TroubleTicket/TroubleTicket/datagrid_6",
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "//TroubleTicket/TroubleTicket/ds_customization_options_satisfaction_getList",
+            "/TroubleTicket/TroubleTicket/page_0"
+          ],
+          "instance_summary": "支持用户根据条件查询和筛选故障工单信息。"
+        }
+      ],
+      "instance_defference": "主要差异在于部分实例特别强调对“设备故障工单”的操作，而其他实例则未明确限定设备类型。"
+    },
+    {
+      "structure_cluster_id": 1,
+      "type": "页面",
+      "name": "工具栏搜索",
+      "support": 4,
+      "size": 4,
+      "code_lines": 16,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 4014",
+        "v 1 4003",
+        "v 2 4039",
+        "v 3 4076",
+        "e 0 1 8",
+        "e 0 2 8",
+        "e 0 3 8"
+      ],
+      "summary": "该组件提供了一个包含文本输入、搜索按钮和下拉选项组的工具栏，用于数据查询和筛选操作。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_grid"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_2",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "/TroubleTicket/TroubleTicket/dropdownOptionGroup_3"
+          ],
+          "instance_summary": "支持用户根据输入条件进行故障工单的查询和筛选。"
+        },
+        {
+          "instance_id": 1,
+          "page_path": ["TroubleTicket/TroubleTicket/region_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/textInput_5",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_6",
+            "/TroubleTicket/TroubleTicket/dropdownOptionGroup_4"
+          ],
+          "instance_summary": "支持用户根据文本条件和下拉选项进行故障工单的搜索和筛选。"
+        },
+        {
+          "instance_id": 2,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_alarm_id_name_type_grid"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_2",
+            "/TroubleTicket/TroubleTicket/textInput_4",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_5",
+            "/TroubleTicket/TroubleTicket/dropdownOptionGroup_3"
+          ],
+          "instance_summary": "支持用户根据输入条件进行故障工单的查询和筛选。"
+        },
+        {
+          "instance_id": 3,
+          "page_path": ["TroubleTicket/TroubleTicket/networktype_search_window"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/toolbar_3",
+            "/TroubleTicket/TroubleTicket/textInput_5",
+            "/TroubleTicket/TroubleTicket/toolbarSearchButton_6",
+            "/TroubleTicket/TroubleTicket/dropdownOptionGroup_4"
+          ],
+          "instance_summary": "支持用户根据文本条件和下拉选项进行故障工单的搜索和筛选。"
+        }
+      ],
+      "instance_defference": "这些实例之间的主要差异在于部分实例强调“查询和筛选”，而另一部分则具体说明是“根据文本条件和下拉选项进行搜索和筛选”。"
+    },
+    {
+      "structure_cluster_id": 2,
+      "type": "页面",
+      "name": "事件总线页面结构",
+      "support": 3,
+      "size": 3,
+      "code_lines": 9,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 4009",
+        "v 1 0",
+        "v 2 4066",
+        "e 1 0 8",
+        "e 0 2 8"
+      ],
+      "summary": "该组件提供一个页面结构，通过事件总线机制实现组件间通信，常用于构建具有复杂交互逻辑的业务页面。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": ["TroubleTicket/TroubleTicket/ID_799_1510131121023_modifyTicket"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/page_0",
+            "/TroubleTicket/TroubleTicket/eventBus_2"
+          ],
+          "instance_summary": "支持用户进行故障工单相关业务操作与事件处理。"
+        },
+        {
+          "instance_id": 1,
+          "page_path": ["TroubleTicket/TroubleTicket/sid-ID_1450489199984-TT10"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/page_0",
+            "/TroubleTicket/TroubleTicket/eventBus_2"
+          ],
+          "instance_summary": "支持用户进行故障工单相关业务操作与事件处理。"
+        },
+        {
+          "instance_id": 2,
+          "page_path": ["TroubleTicket/TroubleTicket/sid-ID_1450489199984-TT11_batch_process"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/default_1",
+            "/TroubleTicket/TroubleTicket/page_0",
+            "/TroubleTicket/TroubleTicket/eventBus_2"
+          ],
+          "instance_summary": "支持用户进行故障工单相关业务操作与事件处理。"
+        }
+      ],
+      "instance_defference": "这些组件实例在功能描述上完全一致，未体现出主要差异。"
+    },
+    {
+      "structure_cluster_id": 3,
+      "type": "页面",
+      "name": "表单数据服务",
+      "support": 3,
+      "size": 3,
+      "code_lines": 9,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 4041",
+        "v 1 4020",
+        "v 2 4022",
+        "e 1 0 8",
+        "e 1 2 4"
+      ],
+      "summary": "该组件用于在页面中展示数据表格，并通过服务调用加载数据，常用于数据展示与管理场景。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": ["TroubleTicket/TroubleTicket/HistoryTicket"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/linkColumn_4",
+            "/TroubleTicket/TroubleTicket/datagrid_3",
+            "//TroubleTicket/TroubleTicket/tt_troubleticket_getList_historyBySiteDeviceID"
+          ],
+          "instance_summary": "支持用户查看与设备相关的故障工单历史记录信息。"
+        },
+        {
+          "instance_id": 1,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_grid"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/linkColumn_12",
+            "/TroubleTicket/TroubleTicket/datagrid_11",
+            "//TroubleTicket/TroubleTicket/tt_troubleticket_getList2"
+          ],
+          "instance_summary": "支持用户查看和管理故障工单信息。"
+        },
+        {
+          "instance_id": 2,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_alarm_id_name_type_grid"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/linkColumn_12",
+            "/TroubleTicket/TroubleTicket/datagrid_11",
+            "//TroubleTicket/TroubleTicket/tt_alarm_id_name_type_getList"
+          ],
+          "instance_summary": "支持用户查看和管理故障工单信息。"
+        }
+      ],
+      "instance_defference": "主要差异在于第一个实例专注于设备相关故障工单的历史记录查看，而其他实例则提供更全面的故障工单管理功能。"
+    },
+    {
+      "structure_cluster_id": 9,
+      "type": "页面",
+      "name": "表单输入布局",
+      "support": 6,
+      "size": 8,
+      "code_lines": 48,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 4073",
+        "v 1 4004",
+        "v 2 4005",
+        "v 3 4008",
+        "v 4 4005",
+        "v 5 4002",
+        "v 6 4049",
+        "v 7 4004",
+        "e 1 0 8",
+        "e 2 1 8",
+        "e 3 2 8",
+        "e 3 4 8",
+        "e 3 5 8",
+        "e 6 3 8",
+        "e 4 7 8"
+      ],
+      "summary": "该组件用于构建包含文件上传、表单验证和数据展示的业务表单页面。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": ["TroubleTicket/TroubleTicket/sid-ID_1450489199984-TT9"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_56",
+            "/TroubleTicket/TroubleTicket/formPanel_45",
+            "/TroubleTicket/TroubleTicket/col_55",
+            "/TroubleTicket/TroubleTicket/row_54",
+            "/TroubleTicket/TroubleTicket/row_47",
+            "/TroubleTicket/TroubleTicket/validations_46",
+            "/TroubleTicket/TroubleTicket/centerPanel_42",
+            "/TroubleTicket/TroubleTicket/col_48"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单相关材料。"
+        },
+        {
+          "instance_id": 1,
+          "page_path": ["TroubleTicket/TroubleTicket/sid-ID_1450489199984-TT9_batch_submit"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_14",
+            "/TroubleTicket/TroubleTicket/formPanel_3",
+            "/TroubleTicket/TroubleTicket/col_13",
+            "/TroubleTicket/TroubleTicket/row_12",
+            "/TroubleTicket/TroubleTicket/row_5",
+            "/TroubleTicket/TroubleTicket/validations_4",
+            "/TroubleTicket/TroubleTicket/centerPanel_2",
+            "/TroubleTicket/TroubleTicket/col_6"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单相关事务。"
+        },
+        {
+          "instance_id": 2,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_create"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_54",
+            "/TroubleTicket/TroubleTicket/formPanel_3",
+            "/TroubleTicket/TroubleTicket/col_53",
+            "/TroubleTicket/TroubleTicket/row_52",
+            "/TroubleTicket/TroubleTicket/row_6",
+            "/TroubleTicket/TroubleTicket/validations_4",
+            "/TroubleTicket/TroubleTicket/centerPanel_2",
+            "/TroubleTicket/TroubleTicket/col_7"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单相关附件信息。"
+        },
+        {
+          "instance_id": 3,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_create"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_62",
+            "/TroubleTicket/TroubleTicket/formPanel_3",
+            "/TroubleTicket/TroubleTicket/col_61",
+            "/TroubleTicket/TroubleTicket/row_60",
+            "/TroubleTicket/TroubleTicket/row_6",
+            "/TroubleTicket/TroubleTicket/validations_4",
+            "/TroubleTicket/TroubleTicket/centerPanel_2",
+            "/TroubleTicket/TroubleTicket/col_7"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单相关事务。"
+        },
+        {
+          "instance_id": 4,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_create"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_84",
+            "/TroubleTicket/TroubleTicket/formPanel_3",
+            "/TroubleTicket/TroubleTicket/col_83",
+            "/TroubleTicket/TroubleTicket/row_82",
+            "/TroubleTicket/TroubleTicket/row_6",
+            "/TroubleTicket/TroubleTicket/validations_4",
+            "/TroubleTicket/TroubleTicket/centerPanel_2",
+            "/TroubleTicket/TroubleTicket/col_7"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单信息。"
+        },
+        {
+          "instance_id": 5,
+          "page_path": ["TroubleTicket/TroubleTicket/tt_troubleticket_create"],
+          "component_id_list": [
+            "/TroubleTicket/TroubleTicket/fileInput_321",
+            "/TroubleTicket/TroubleTicket/formPanel_3",
+            "/TroubleTicket/TroubleTicket/col_320",
+            "/TroubleTicket/TroubleTicket/row_319",
+            "/TroubleTicket/TroubleTicket/row_6",
+            "/TroubleTicket/TroubleTicket/validations_4",
+            "/TroubleTicket/TroubleTicket/centerPanel_2",
+            "/TroubleTicket/TroubleTicket/col_7"
+          ],
+          "instance_summary": "支持用户上传文件以处理故障工单相关材料。"
+        }
+      ],
+      "instance_defference": "这些实例之间的主要差异在于上传文件所关联的具体内容，如材料、事务、附件信息和工单信息等。"
+    }
+  ],
+  "semantic_similar_clusters": [
+    {
+      "semantic_similar_cluster_id": 0,
+      "type": "页面",
+      "name": "通信基站查询组件组合",
+      "struc_cluster_num": 10,
+      "relevent_projects_num": 2,
+      "description": "都是关于通信基站的查询操作",
+      "structure_cluster_id": [
+        0
+      ],
+      "instance_defference": "有些是使用按钮和表格的结实现，有些是使用工具栏和表格的结构实现"
+    }
+  ]
+}
