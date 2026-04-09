@@ -3,5 +3,8 @@ dist/
 .vscode/
 .DS_Store
 *.log
-data/
+data/*
 assets/
+
+# js code clone result
+!data/clone_detection_result.json

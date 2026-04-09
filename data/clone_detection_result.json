@@ -1,0 +1,87 @@
+[
+  {
+    "func_group": [
+      {
+        "file_path": "2.inf_cent/angular-locale_gv.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);"
+      },
+      {
+        "file_path": "01.datahub/modules/split/angular-locale_en-fi.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"AM\",\n      \"PM\"\n    ],\n    \"DAY\": [\n      \"Sunday\",\n      \"Monday\",\n      \"Tuesday\",\n      \"Wednesday\",\n      \"Thursday\",\n      \"Friday\",\n      \"Saturday\"\n    ],\n    \"ERANAMES\": [\n      \"Before Christ\",\n      \"Anno Domini\"\n    ],\n    \"ERAS\": [\n      \"BC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"SHORTDAY\": [\n      \"Sun\",\n      \"Mon\",\n      \"Tue\",\n      \"Wed\",\n      \"Thu\",\n      \"Fri\",\n      \"Sat\"\n    ],\n    \"SHORTMONTH\": [\n      \"Jan\",\n      \"Feb\",\n      \"Mar\",\n      \"Apr\",\n      \"May\",\n      \"Jun\",\n      \"Jul\",\n      \"Aug\",\n      \"Sep\",\n      \"Oct\",\n      \"Nov\",\n      \"Dec\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"EEEE, d MMMM y\",\n    \"longDate\": \"d MMMM y\",\n    \"medium\": \"d MMM y H.mm.ss\",\n    \"mediumDate\": \"d MMM y\",\n    \"mediumTime\": \"H.mm.ss\",\n    \"short\": \"dd/MM/y H.mm\",\n    \"shortDate\": \"dd/MM/y\",\n    \"shortTime\": \"H.mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u20ac\",\n    \"DECIMAL_SEP\": \",\",\n    \"GROUP_SEP\": \"\\u00a0\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"en-fi\",\n  \"localeID\": \"en_FI\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);"
+      }
+    ],
+    "relevent_projects": [
+      "datahub",
+      "inf_cent"
+    ],
+    "pair_similarity": [
+      {
+        "index_pair": [
+          "2.inf_cent/angular-locale_gv.js_2_143",
+          "01.datahub/modules/split/angular-locale_en-fi.js_2_143"
+        ],
+        "similarity": 0.59163344
+      }
+    ]
+  },
+  {
+    "func_group": [
+      {
+        "file_path": "02.sdm_df/messageFormatParser.js",
+        "start_line": 373,
+        "end_line": 378,
+        "code": "MessageFormatParser.prototype.ruleInterpolationEndMustache = function ruleInterpolationEndMustache() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolation;\n};"
+      },
+      {
+        "file_path": "02.sdm_df/messageFormatParser.js",
+        "start_line": 386,
+        "end_line": 391,
+        "code": "MessageFormatParser.prototype.ruleEndMustacheInInterpolationOrMessage = function ruleEndMustacheInInterpolationOrMessage() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolationOrMessageText;\n};"
+      }
+    ],
+    "relevent_projects": [
+      "sdm_df"
+    ],
+    "pair_similarity": [
+      {
+        "index_pair": [
+          "02.sdm_df/messageFormatParser.js_373_378",
+          "02.sdm_df/messageFormatParser.js_386_391"
+        ],
+        "similarity": 0.9354839
+      }
+    ]
+  },
+  {
+    "func_group": [
+      {
+        "file_path": "01.datahub/modules/split/ngModel.js",
+        "start_line": 396,
+        "end_line": 401,
+        "code": "  $setPristine: function() {\n    this.$dirty = false;\n    this.$pristine = true;\n    this.$$animate.removeClass(this.$$element, DIRTY_CLASS);\n    this.$$animate.addClass(this.$$element, PRISTINE_CLASS);\n  },"
+      },
+      {
+        "file_path": "01.datahub/modules/split/ngModel.js",
+        "start_line": 414,
+        "end_line": 420,
+        "code": "  $setDirty: function() {\n    this.$dirty = true;\n    this.$pristine = false;\n    this.$$animate.removeClass(this.$$element, PRISTINE_CLASS);\n    this.$$animate.addClass(this.$$element, DIRTY_CLASS);\n    this.$$parentForm.$setDirty();\n  },"
+      }
+    ],
+    "relevent_projects": [
+      "datahub"
+    ],
+    "pair_similarity": [
+      {
+        "index_pair": [
+          "01.datahub/modules/split/ngModel.js_396_401",
+          "01.datahub/modules/split/ngModel.js_414_420"
+        ],
+        "similarity": 0.5744681
+      }
+    ]
+  }
+]

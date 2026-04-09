@@ -22,6 +22,10 @@
                 <el-tab-pane label="语义相似热点组件" name="semantic-hotspot">
                     <SemanticHotspotTab :rows="semanticHotspot.rows || []" />
                 </el-tab-pane>
+
+                <el-tab-pane label="js脚本相似函数" name="clone-detection">
+                    <CloneDetectionTab />
+                </el-tab-pane>
             </el-tabs>
         </el-main>
     </el-container>
@@ -34,6 +38,7 @@ import OverviewTab from './components/tabs/OverviewTab.vue'
 import DefinitionsTab from './components/tabs/DefinitionsTab.vue'
 import StructureHotspotTab from './components/tabs/StructureHotspotTab.vue'
 import SemanticHotspotTab from './components/tabs/SemanticHotspotTab.vue'
+import CloneDetectionTab from './components/tabs/CloneDetectionTab.vue'
 
 const activeTab = ref('overview')
 
