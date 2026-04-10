@@ -20,13 +20,20 @@
     ],
     "pair_similarity": [
       {
-        "index_pair": [
+        "func_pair": [
           "2.inf_cent/angular-locale_gv.js_2_143",
           "01.datahub/modules/split/angular-locale_en-fi.js_2_143"
         ],
         "similarity": 0.59163344
       }
-    ]
+    ],
+    "summary": {
+      "函数组名称": "Angular国际化本地化配置模块",
+      "共同职责": "为Angular应用提供特定地区的本地化配置，包括日期时间格式、数字格式、复数规则等国际化支持",
+      "共同功能": "- 定义复数分类常量\n- 实现数字小数位数计算函数`getDecimals`\n- 实现数字格式化辅助函数`getVF`\n- 通过`$provide.value`注册本地化配置对象\n- 提供日期时间格式、星期、月份、纪元等本地化数据",
+      "主要差异点": "- **语言地区**：函数1为盖尔语(gv)配置，函数2为芬兰英语(en-fi)配置\n- **本地化数据**：星期名称、月份名称、AM/PM标识、纪元名称等具体文本内容完全不同\n- **文化特征**：反映不同语言文化的日期时间表示习惯和命名规范",
+      "可能的复用方向": "- 提取通用的本地化模块模板，将具体的本地化数据作为参数传入\n- 抽象出本地化配置生成器，通过配置文件批量生成不同语言的本地化模块\n- 复用数字处理函数`getDecimals`和`getVF`到其他需要数字格式化的场景\n- 建立本地化数据管理系统，统一管理多语言配置"
+    }
   },
   {
     "func_group": [
@@ -48,13 +55,20 @@
     ],
     "pair_similarity": [
       {
-        "index_pair": [
+        "func_pair": [
           "02.sdm_df/messageFormatParser.js_373_378",
           "02.sdm_df/messageFormatParser.js_386_391"
         ],
         "similarity": 0.9354839
       }
-    ]
+    ],
+    "summary": {
+      "函数组名称": "MessageFormatParser 插值结束处理函数组",
+      "共同职责": "处理消息格式解析器中插值表达式的结束逻辑",
+      "共同功能": "获取解析后的表达式函数、弹出状态栈、将表达式函数添加到插值部分集合中、设置下一个解析规则",
+      "主要差异点": "设置的下一个解析规则不同：第一个函数设置为 `ruleInInterpolation`，第二个函数设置为 `ruleInInterpolationOrMessageText`",
+      "可能的复用方向": "可以提取公共的插值结束处理逻辑，通过参数传入不同的下一个规则状态，减少代码重复"
+    }
   },
   {
     "func_group": [
@@ -76,12 +90,19 @@
     ],
     "pair_similarity": [
       {
-        "index_pair": [
+        "func_pair": [
           "01.datahub/modules/split/ngModel.js_396_401",
           "01.datahub/modules/split/ngModel.js_414_420"
         ],
         "similarity": 0.5744681
       }
-    ]
+    ],
+    "summary": {
+      "函数组名称": "表单状态切换函数组",
+      "共同职责": "管理表单元素的dirty/pristine状态，包括内部状态标志的更新和对应CSS类的切换",
+      "共同功能": "- 更新表单元素的dirty和pristine布尔状态标志\n- 通过animate服务移除和添加相应的CSS类来反映状态变化\n- 维护表单元素的视觉状态表示",
+      "主要差异点": "- `$setPristine`将元素设置为未修改状态（pristine=true, dirty=false），添加PRISTINE_CLASS，移除DIRTY_CLASS\n- `$setDirty`将元素设置为已修改状态（dirty=true, pristine=false），添加DIRTY_CLASS，移除PRISTINE_CLASS，并额外调用父表单的$setDirty()方法",
+      "可能的复用方向": "- 提取通用的状态切换逻辑，创建一个接受状态参数的通用函数\n- 抽象CSS类切换操作为可配置的状态管理器\n- 将父表单通知逻辑作为可选的回调机制进行统一处理"
+    }
   }
 ]

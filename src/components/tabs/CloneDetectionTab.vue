@@ -28,6 +28,11 @@
                         {{ scope.row.group_index }}
                     </template>
                 </el-table-column>
+                <el-table-column label="函数组名称" min-width="220" show-overflow-tooltip>
+                    <template #default="scope">
+                        {{ scope.row.groupName || '-' }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="涉及工程" min-width="180">
                     <template #default="scope">
                         <div class="tag-list">
@@ -58,12 +63,23 @@
                 shadow="hover">
                 <template #header>
                     <div class="card-header detail-header">
-                        <span>相似函数组 {{ group.group_index }}</span>
+                        <span>相似函数组 {{ group.group_index }} - {{ group.groupName || '-' }}</span>
                         <el-tag type="info" effect="plain" round>
                             {{ group.func_group.length }} 个函数，{{ group.pair_similarity.length }} 个相似对
                         </el-tag>
                     </div>
                 </template>
+
+                <el-descriptions :column="1" border class="detail-descriptions">
+                    <el-descriptions-item label="共同职责">
+                        <div class="summary-entry-value markdown-content"
+                            v-html="group.summaryMap['共同职责']?.html || '-'"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="共同功能">
+                        <div class="summary-entry-value markdown-content"
+                            v-html="group.summaryMap['共同功能']?.html || '-'"></div>
+                    </el-descriptions-item>
+                </el-descriptions>
 
                 <el-descriptions :column="1" border class="detail-descriptions">
                     <el-descriptions-item label="涉及工程">
@@ -88,6 +104,15 @@
                                 {{ similarity.label }}
                             </el-tag>
                             <span v-if="!group.pairSimilarityLabels.length">-</span>
+                        </div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="主要差异点">
+                        <div class="summary-entry-value markdown-content"
+                            v-html="group.summaryMap['主要差异点']?.html || '-'"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="可能的复用方向">
+                        <div class="summary-entry-value markdown-content"
+                            v-html="group.summaryMap['可能的复用方向']?.html || '-'">
                         </div>
                     </el-descriptions-item>
                 </el-descriptions>
@@ -168,6 +193,8 @@ const normalizedGroups = computed(() => {
         const funcGroup = Array.isArray(group.func_group) ? group.func_group : []
         const pairSimilarity = Array.isArray(group.pair_similarity) ? group.pair_similarity : []
         const projects = Array.isArray(group.relevent_projects) ? group.relevent_projects : []
+        const summary = group?.summary && typeof group.summary === 'object' ? group.summary : {}
+        const groupName = String(summary['函数组名称'] || '').trim()
 
         const normalizedFuncGroup = funcGroup.map((item, funcIndex) => ({
             ...item,
@@ -180,8 +207,9 @@ const normalizedGroups = computed(() => {
             .map((item) => Number(item?.similarity))
             .filter((value) => Number.isFinite(value))
         const pairSimilarityParsed = pairSimilarity.map((item, pairIndex) => {
-            const leftRaw = Array.isArray(item?.index_pair) ? item.index_pair[0] : ''
-            const rightRaw = Array.isArray(item?.index_pair) ? item.index_pair[1] : ''
+            const pairItems = Array.isArray(item?.func_pair) ? item.func_pair : []
+            const leftRaw = pairItems[0] || ''
+            const rightRaw = pairItems[1] || ''
 
             return {
                 key: `${index}-${pairIndex}`,
@@ -199,6 +227,20 @@ const normalizedGroups = computed(() => {
             pair_similarity: pairSimilarity,
             pair_similarity_parsed: pairSimilarityParsed,
             projects,
+            summary,
+            groupName,
+            summaryMap: buildSummaryMap(summary),
+            summaryEntries: Object.entries(summary)
+                .filter(([label, value]) => label !== '函数组名称'
+                    && label
+                    && value !== null
+                    && value !== undefined
+                    && String(value).trim())
+                .map(([label, value]) => ({
+                    label,
+                    value: String(value),
+                    html: renderMarkdown(String(value))
+                })),
             filePaths,
             pairSimilarityLabels: pairSimilarity.map((item, pairIndex) => ({
                 key: `${index}-${pairIndex}-${item?.similarity ?? 'na'}`,
@@ -217,10 +259,12 @@ const filteredGroups = computed(() => {
 
     return normalizedGroups.value.filter((group) => {
         const haystack = [
+            group.groupName,
             group.projects.join(' '),
             group.filePaths.join(' '),
+            group.summaryEntries.map((item) => `${item.label} ${item.value}`).join(' '),
             group.func_group.map((item) => item.code || '').join(' '),
-            group.pair_similarity.map((item) => item.index_pair?.join(' ') || '').join(' '),
+            group.pair_similarity.map((item) => item.func_pair?.join(' ') || '').join(' '),
             group.pair_similarity.map((item) => String(item?.similarity ?? '')).join(' ')
         ]
             .join(' ')
@@ -294,6 +338,64 @@ function formatSimilarity(value) {
     const num = Number(value)
     if (!Number.isFinite(num)) return '-'
     return `${(num * 100).toFixed(2)}%`
+}
+
+function renderMarkdown(source) {
+    const normalized = String(source || '').replace(/\r\n/g, '\n').trim()
+    if (!normalized) return ''
+
+    const blocks = normalized.split(/\n{2,}/)
+
+    return blocks.map((block) => {
+        const lines = block.split('\n').map((line) => line.trimEnd())
+        const isList = lines.every((line) => /^\s*[-*]\s+/.test(line))
+
+        if (isList) {
+            const items = lines
+                .map((line) => line.replace(/^\s*[-*]\s+/, '').trim())
+                .filter(Boolean)
+                .map((line) => `<li>${renderInlineMarkdown(line)}</li>`)
+                .join('')
+
+            return `<ul>${items}</ul>`
+        }
+
+        const html = lines
+            .map((line) => renderInlineMarkdown(line))
+            .join('<br>')
+
+        return `<p>${html}</p>`
+    }).join('')
+}
+
+function buildSummaryMap(summary) {
+    const labels = ['共同职责', '共同功能', '主要差异点', '可能的复用方向']
+
+    return labels.reduce((acc, label) => {
+        const value = String(summary?.[label] || '').trim()
+        acc[label] = {
+            value,
+            html: value ? renderMarkdown(value) : '-'
+        }
+        return acc
+    }, {})
+}
+
+function renderInlineMarkdown(source) {
+    const escaped = escapeHtml(source)
+
+    return escaped
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+}
+
+function escapeHtml(source) {
+    return String(source)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
 }
 </script>
 
@@ -395,6 +497,60 @@ function formatSimilarity(value) {
 .file-item {
     color: #334155;
     word-break: break-all;
+}
+
+.summary-entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.summary-entry-label {
+    color: #475569;
+    font-weight: 700;
+}
+
+.summary-entry-value {
+    color: #334155;
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+.markdown-content :deep(p) {
+    margin: 0;
+}
+
+.markdown-content :deep(p + p) {
+    margin-top: 8px;
+}
+
+.markdown-content :deep(ul) {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.markdown-content :deep(li + li) {
+    margin-top: 4px;
+}
+
+.markdown-content :deep(code) {
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    color: #0f172a;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+}
+
+.markdown-content :deep(strong) {
+    color: #0f172a;
+    font-weight: 700;
 }
 
 .subsection-title {
