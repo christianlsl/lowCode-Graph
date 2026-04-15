@@ -5,35 +5,74 @@
         "file_path": "2.inf_cent/angular-locale_gv.js",
         "start_line": 2,
         "end_line": 143,
-        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);"
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
       },
       {
         "file_path": "01.datahub/modules/split/angular-locale_en-fi.js",
         "start_line": 2,
         "end_line": 143,
-        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"AM\",\n      \"PM\"\n    ],\n    \"DAY\": [\n      \"Sunday\",\n      \"Monday\",\n      \"Tuesday\",\n      \"Wednesday\",\n      \"Thursday\",\n      \"Friday\",\n      \"Saturday\"\n    ],\n    \"ERANAMES\": [\n      \"Before Christ\",\n      \"Anno Domini\"\n    ],\n    \"ERAS\": [\n      \"BC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"SHORTDAY\": [\n      \"Sun\",\n      \"Mon\",\n      \"Tue\",\n      \"Wed\",\n      \"Thu\",\n      \"Fri\",\n      \"Sat\"\n    ],\n    \"SHORTMONTH\": [\n      \"Jan\",\n      \"Feb\",\n      \"Mar\",\n      \"Apr\",\n      \"May\",\n      \"Jun\",\n      \"Jul\",\n      \"Aug\",\n      \"Sep\",\n      \"Oct\",\n      \"Nov\",\n      \"Dec\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"EEEE, d MMMM y\",\n    \"longDate\": \"d MMMM y\",\n    \"medium\": \"d MMM y H.mm.ss\",\n    \"mediumDate\": \"d MMM y\",\n    \"mediumTime\": \"H.mm.ss\",\n    \"short\": \"dd/MM/y H.mm\",\n    \"shortDate\": \"dd/MM/y\",\n    \"shortTime\": \"H.mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u20ac\",\n    \"DECIMAL_SEP\": \",\",\n    \"GROUP_SEP\": \"\\u00a0\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"en-fi\",\n  \"localeID\": \"en_FI\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);"
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"AM\",\n      \"PM\"\n    ],\n    \"DAY\": [\n      \"Sunday\",\n      \"Monday\",\n      \"Tuesday\",\n      \"Wednesday\",\n      \"Thursday\",\n      \"Friday\",\n      \"Saturday\"\n    ],\n    \"ERANAMES\": [\n      \"Before Christ\",\n      \"Anno Domini\"\n    ],\n    \"ERAS\": [\n      \"BC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"SHORTDAY\": [\n      \"Sun\",\n      \"Mon\",\n      \"Tue\",\n      \"Wed\",\n      \"Thu\",\n      \"Fri\",\n      \"Sat\"\n    ],\n    \"SHORTMONTH\": [\n      \"Jan\",\n      \"Feb\",\n      \"Mar\",\n      \"Apr\",\n      \"May\",\n      \"Jun\",\n      \"Jul\",\n      \"Aug\",\n      \"Sep\",\n      \"Oct\",\n      \"Nov\",\n      \"Dec\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"EEEE, d MMMM y\",\n    \"longDate\": \"d MMMM y\",\n    \"medium\": \"d MMM y H.mm.ss\",\n    \"mediumDate\": \"d MMM y\",\n    \"mediumTime\": \"H.mm.ss\",\n    \"short\": \"dd/MM/y H.mm\",\n    \"shortDate\": \"dd/MM/y\",\n    \"shortTime\": \"H.mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u20ac\",\n    \"DECIMAL_SEP\": \",\",\n    \"GROUP_SEP\": \"\\u00a0\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"en-fi\",\n  \"localeID\": \"en_FI\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
       }
     ],
     "relevent_projects": [
       "datahub",
       "inf_cent"
     ],
-    "pair_similarity": [
+    "type1_group": [
       {
-        "func_pair": [
-          "2.inf_cent/angular-locale_gv.js_2_143",
-          "01.datahub/modules/split/angular-locale_en-fi.js_2_143"
-        ],
-        "similarity": 0.59163344
+        "group_name": "Angular国际化语言包",
+        "functionality": "为Angular应用提供马恩岛语(gv)的本地化配置，包括日期时间格式、月份日期名称、数字格式、复数规则等多语言支持功能",
+        "functions": [
+          {
+            "file_path": "2.inf_cent/angular-locale_gv.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          }
+        ]
+      },
+      {
+        "group_name": "AngularJS英语芬兰地区本地化模块",
+        "functionality": "为AngularJS应用提供英语-芬兰地区的本地化配置，包括日期时间格式、数字格式、货币符号、复数规则等本地化信息",
+        "functions": [
+          {
+            "file_path": "01.datahub/modules/split/angular-locale_en-fi.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"AM\",\n      \"PM\"\n    ],\n    \"DAY\": [\n      \"Sunday\",\n      \"Monday\",\n      \"Tuesday\",\n      \"Wednesday\",\n      \"Thursday\",\n      \"Friday\",\n      \"Saturday\"\n    ],\n    \"ERANAMES\": [\n      \"Before Christ\",\n      \"Anno Domini\"\n    ],\n    \"ERAS\": [\n      \"BC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"SHORTDAY\": [\n      \"Sun\",\n      \"Mon\",\n      \"Tue\",\n      \"Wed\",\n      \"Thu\",\n      \"Fri\",\n      \"Sat\"\n    ],\n    \"SHORTMONTH\": [\n      \"Jan\",\n      \"Feb\",\n      \"Mar\",\n      \"Apr\",\n      \"May\",\n      \"Jun\",\n      \"Jul\",\n      \"Aug\",\n      \"Sep\",\n      \"Oct\",\n      \"Nov\",\n      \"Dec\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"January\",\n      \"February\",\n      \"March\",\n      \"April\",\n      \"May\",\n      \"June\",\n      \"July\",\n      \"August\",\n      \"September\",\n      \"October\",\n      \"November\",\n      \"December\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"EEEE, d MMMM y\",\n    \"longDate\": \"d MMMM y\",\n    \"medium\": \"d MMM y H.mm.ss\",\n    \"mediumDate\": \"d MMM y\",\n    \"mediumTime\": \"H.mm.ss\",\n    \"short\": \"dd/MM/y H.mm\",\n    \"shortDate\": \"dd/MM/y\",\n    \"shortTime\": \"H.mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u20ac\",\n    \"DECIMAL_SEP\": \",\",\n    \"GROUP_SEP\": \"\\u00a0\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"en-fi\",\n  \"localeID\": \"en_FI\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          }
+        ]
       }
     ],
     "summary": {
-      "函数组名称": "Angular国际化本地化配置模块",
-      "共同职责": "为Angular应用提供特定地区的本地化配置，包括日期时间格式、数字格式、复数规则等国际化支持",
-      "共同功能": "- 定义复数分类常量\n- 实现数字小数位数计算函数`getDecimals`\n- 实现数字格式化辅助函数`getVF`\n- 通过`$provide.value`注册本地化配置对象\n- 提供日期时间格式、星期、月份、纪元等本地化数据",
-      "主要差异点": "- **语言地区**：函数1为盖尔语(gv)配置，函数2为芬兰英语(en-fi)配置\n- **本地化数据**：星期名称、月份名称、AM/PM标识、纪元名称等具体文本内容完全不同\n- **文化特征**：反映不同语言文化的日期时间表示习惯和命名规范",
-      "可能的复用方向": "- 提取通用的本地化模块模板，将具体的本地化数据作为参数传入\n- 抽象出本地化配置生成器，通过配置文件批量生成不同语言的本地化模块\n- 复用数字处理函数`getDecimals`和`getVF`到其他需要数字格式化的场景\n- 建立本地化数据管理系统，统一管理多语言配置"
-    }
+      "group_name": "AngularJS国际化本地化模块",
+      "overall_functionality": "为AngularJS应用提供不同语言和地区的本地化配置模块，包含日期时间格式、数字格式、货币符号、复数规则等完整的国际化支持功能",
+      "type1_group_differences": "两个Type-1组的主要差异在于目标语言和地区：\n- **Type-1组1**：提供马恩岛语(gv)的本地化配置，使用马恩岛语的月份名称（如Jerrey-geuree、Toshiaght-arree）、星期名称（如Jedoonee、Jelhein）等\n- **Type-1组2**：提供英语-芬兰地区的本地化配置，使用标准英语的月份名称（January、February等）、星期名称（Sunday、Monday等）\n\n两组在代码结构、复数规则处理函数、配置字段完全相同，仅在具体的本地化数据内容上有差异",
+      "reuse_opportunities": "**高度可重用的代码结构**：\n- 可以提取通用的本地化模块模板，将语言特定的配置数据作为参数传入\n- 复数规则处理函数（getDecimals、getVF）完全相同，可以抽取为公共工具函数\n- 模块结构和配置字段标准化，可以创建本地化配置生成器\n- 建议创建统一的国际化框架，通过配置文件管理不同语言的本地化数据，避免重复的模块定义代码"
+    },
+    "type1_group_similarity": [
+      {
+        "group_a_index": 0,
+        "group_b_index": 1,
+        "similarity": 0.5913
+      }
+    ]
   },
   {
     "func_group": [
@@ -41,34 +80,69 @@
         "file_path": "02.sdm_df/messageFormatParser.js",
         "start_line": 373,
         "end_line": 378,
-        "code": "MessageFormatParser.prototype.ruleInterpolationEndMustache = function ruleInterpolationEndMustache() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolation;\n};"
+        "code": "MessageFormatParser.prototype.ruleInterpolationEndMustache = function ruleInterpolationEndMustache() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolation;\n};",
+        "function_name": [
+          "ruleInterpolationEndMustache"
+        ]
       },
       {
         "file_path": "02.sdm_df/messageFormatParser.js",
         "start_line": 386,
         "end_line": 391,
-        "code": "MessageFormatParser.prototype.ruleEndMustacheInInterpolationOrMessage = function ruleEndMustacheInInterpolationOrMessage() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolationOrMessageText;\n};"
+        "code": "MessageFormatParser.prototype.ruleEndMustacheInInterpolationOrMessage = function ruleEndMustacheInInterpolationOrMessage() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolationOrMessageText;\n};",
+        "function_name": [
+          "ruleEndMustacheInInterpolationOrMessage"
+        ]
       }
     ],
     "relevent_projects": [
       "sdm_df"
     ],
-    "pair_similarity": [
+    "type1_group": [
       {
-        "func_pair": [
-          "02.sdm_df/messageFormatParser.js_373_378",
-          "02.sdm_df/messageFormatParser.js_386_391"
-        ],
-        "similarity": 0.9354839
+        "group_name": "ruleInterpolationEndMustache",
+        "functionality": "处理插值表达式结束标记，弹出状态栈，将解析的表达式函数添加到插值部分，并切换到插值内部规则",
+        "functions": [
+          {
+            "file_path": "02.sdm_df/messageFormatParser.js",
+            "start_line": 373,
+            "end_line": 378,
+            "code": "MessageFormatParser.prototype.ruleInterpolationEndMustache = function ruleInterpolationEndMustache() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolation;\n};",
+            "function_name": [
+              "ruleInterpolationEndMustache"
+            ]
+          }
+        ]
+      },
+      {
+        "group_name": "ruleEndMustacheInInterpolationOrMessage",
+        "functionality": "结束插值或消息中的Mustache表达式解析，弹出状态栈，添加表达式函数到插值部分，并切换到插值或消息文本解析规则",
+        "functions": [
+          {
+            "file_path": "02.sdm_df/messageFormatParser.js",
+            "start_line": 386,
+            "end_line": 391,
+            "code": "MessageFormatParser.prototype.ruleEndMustacheInInterpolationOrMessage = function ruleEndMustacheInInterpolationOrMessage() {\n  var expressionFn = this.parsedFn;\n  this.popState();\n  this.interpolationParts.addExpressionFn(expressionFn);\n  this.rule = this.ruleInInterpolationOrMessageText;\n};",
+            "function_name": [
+              "ruleEndMustacheInInterpolationOrMessage"
+            ]
+          }
+        ]
       }
     ],
     "summary": {
-      "函数组名称": "MessageFormatParser 插值结束处理函数组",
-      "共同职责": "处理消息格式解析器中插值表达式的结束逻辑",
-      "共同功能": "获取解析后的表达式函数、弹出状态栈、将表达式函数添加到插值部分集合中、设置下一个解析规则",
-      "主要差异点": "设置的下一个解析规则不同：第一个函数设置为 `ruleInInterpolation`，第二个函数设置为 `ruleInInterpolationOrMessageText`",
-      "可能的复用方向": "可以提取公共的插值结束处理逻辑，通过参数传入不同的下一个规则状态，减少代码重复"
-    }
+      "group_name": "Mustache表达式结束处理函数组",
+      "overall_functionality": "处理插值表达式中Mustache标记的结束逻辑，包括状态栈管理、表达式函数添加和规则切换",
+      "type1_group_differences": "两个函数组的核心逻辑完全相同，都执行相同的四个步骤：获取解析函数、弹出状态栈、添加表达式函数、切换解析规则。唯一区别在于切换的目标规则不同：第一组切换到 `ruleInInterpolation`，第二组切换到 `ruleInInterpolationOrMessageText`，反映了它们在不同解析上下文中的应用场景",
+      "reuse_opportunities": "两个函数组具有高度相似的结构和逻辑，可以通过参数化目标规则来合并为一个通用函数，或者提取公共的状态管理和表达式处理逻辑到基础方法中，减少代码重复并提高维护性"
+    },
+    "type1_group_similarity": [
+      {
+        "group_a_index": 0,
+        "group_b_index": 1,
+        "similarity": 0.8277
+      }
+    ]
   },
   {
     "func_group": [
@@ -76,33 +150,130 @@
         "file_path": "01.datahub/modules/split/ngModel.js",
         "start_line": 396,
         "end_line": 401,
-        "code": "  $setPristine: function() {\n    this.$dirty = false;\n    this.$pristine = true;\n    this.$$animate.removeClass(this.$$element, DIRTY_CLASS);\n    this.$$animate.addClass(this.$$element, PRISTINE_CLASS);\n  },"
+        "code": "  $setPristine: function () {\n    this.$dirty = false;\n    this.$pristine = true;\n    this.$$animate.removeClass(this.$$element, DIRTY_CLASS);\n    this.$$animate.addClass(this.$$element, PRISTINE_CLASS);\n  },",
+        "function_name": [
+          "setPristine"
+        ]
       },
       {
         "file_path": "01.datahub/modules/split/ngModel.js",
         "start_line": 414,
         "end_line": 420,
-        "code": "  $setDirty: function() {\n    this.$dirty = true;\n    this.$pristine = false;\n    this.$$animate.removeClass(this.$$element, PRISTINE_CLASS);\n    this.$$animate.addClass(this.$$element, DIRTY_CLASS);\n    this.$$parentForm.$setDirty();\n  },"
+        "code": "  $setDirty: function () {\n    this.$dirty = true;\n    this.$pristine = false;\n    this.$$animate.removeClass(this.$$element, PRISTINE_CLASS);\n    this.$$animate.addClass(this.$$element, DIRTY_CLASS);\n    this.$$parentForm.$setDirty();\n  },",
+        "function_name": [
+          "setDirty"
+        ]
       }
     ],
     "relevent_projects": [
       "datahub"
     ],
-    "pair_similarity": [
+    "type1_group": [
       {
-        "func_pair": [
-          "01.datahub/modules/split/ngModel.js_396_401",
-          "01.datahub/modules/split/ngModel.js_414_420"
-        ],
-        "similarity": 0.5744681
+        "group_name": "setPristine状态重置方法",
+        "functionality": "将表单控件状态重置为原始状态，设置dirty为false、pristine为true，并更新对应的CSS类名",
+        "functions": [
+          {
+            "file_path": "01.datahub/modules/split/ngModel.js",
+            "start_line": 396,
+            "end_line": 401,
+            "code": "  $setPristine: function () {\n    this.$dirty = false;\n    this.$pristine = true;\n    this.$$animate.removeClass(this.$$element, DIRTY_CLASS);\n    this.$$animate.addClass(this.$$element, PRISTINE_CLASS);\n  },",
+            "function_name": [
+              "setPristine"
+            ]
+          }
+        ]
+      },
+      {
+        "group_name": "表单控件设置脏状态",
+        "functionality": "将表单控件标记为已修改状态，设置dirty为true、pristine为false，更新CSS类名，并通知父表单",
+        "functions": [
+          {
+            "file_path": "01.datahub/modules/split/ngModel.js",
+            "start_line": 414,
+            "end_line": 420,
+            "code": "  $setDirty: function () {\n    this.$dirty = true;\n    this.$pristine = false;\n    this.$$animate.removeClass(this.$$element, PRISTINE_CLASS);\n    this.$$animate.addClass(this.$$element, DIRTY_CLASS);\n    this.$$parentForm.$setDirty();\n  },",
+            "function_name": [
+              "setDirty"
+            ]
+          }
+        ]
       }
     ],
     "summary": {
-      "函数组名称": "表单状态切换函数组",
-      "共同职责": "管理表单元素的dirty/pristine状态，包括内部状态标志的更新和对应CSS类的切换",
-      "共同功能": "- 更新表单元素的dirty和pristine布尔状态标志\n- 通过animate服务移除和添加相应的CSS类来反映状态变化\n- 维护表单元素的视觉状态表示",
-      "主要差异点": "- `$setPristine`将元素设置为未修改状态（pristine=true, dirty=false），添加PRISTINE_CLASS，移除DIRTY_CLASS\n- `$setDirty`将元素设置为已修改状态（dirty=true, pristine=false），添加DIRTY_CLASS，移除PRISTINE_CLASS，并额外调用父表单的$setDirty()方法",
-      "可能的复用方向": "- 提取通用的状态切换逻辑，创建一个接受状态参数的通用函数\n- 抽象CSS类切换操作为可配置的状态管理器\n- 将父表单通知逻辑作为可选的回调机制进行统一处理"
-    }
+      "group_name": "表单控件状态管理方法组",
+      "overall_functionality": "提供表单控件的状态管理功能，包括设置原始状态和脏状态，通过布尔值标记和CSS类名更新来反映控件的修改状态",
+      "type1_group_differences": "**setPristine方法**：将控件重置为原始未修改状态，设置`$dirty=false`和`$pristine=true`，移除DIRTY_CLASS并添加PRISTINE_CLASS；**setDirty方法**：将控件标记为已修改状态，设置`$dirty=true`和`$pristine=false`，移除PRISTINE_CLASS并添加DIRTY_CLASS，同时调用`$$parentForm.$setDirty()`通知父表单",
+      "reuse_opportunities": "两个方法具有相似的结构模式，可以抽象出通用的状态切换函数，接受目标状态参数来统一处理布尔值设置、CSS类名切换和可选的父表单通知逻辑"
+    },
+    "type1_group_similarity": [
+      {
+        "group_a_index": 0,
+        "group_b_index": 1,
+        "similarity": 0.5333
+      }
+    ]
+  },
+  {
+    "func_group": [
+      {
+        "file_path": "01.datahub/modules/split/ngModel.js",
+        "start_line": 1075,
+        "end_line": 1100,
+        "code": "function setupModelWatcher(ctrl) {\n  // model -> value\n  // Note: we cannot use a normal scope.$watch as we want to detect the following:\n  // 1. scope value is 'a'\n  // 2. user enters 'b'\n  // 3. ng-change kicks in and reverts scope value to 'a'\n  //    -> scope value did not change since the last digest as\n  //       ng-change executes in apply phase\n  // 4. view should be changed back to 'a'\n  ctrl.$$scope.$watch(function ngModelWatch(scope) {\n    var modelValue = ctrl.$$ngModelGet(scope);\n\n    // if scope model value and ngModel value are out of sync\n    // This cannot be moved to the action function, because it would not catch the\n    // case where the model is changed in the ngChange function or the model setter\n    if (modelValue !== ctrl.$modelValue &&\n      // checks for NaN is needed to allow setting the model to NaN when there's an asyncValidator\n      // eslint-disable-next-line no-self-compare\n      (ctrl.$modelValue === ctrl.$modelValue || modelValue === modelValue)\n    ) {\n      ctrl.$$setModelValue(modelValue);\n    }\n\n    return modelValue;\n  });\n}",
+        "function_name": [
+          "setupModelWatcher",
+          "ngModelWatch"
+        ]
+      },
+      {
+        "file_path": "01.datahub/modules/split/ngModel.js",
+        "start_line": 1101,
+        "end_line": 1114,
+        "code": "function setupModelWatcher(ctrl) {\n  ctrl.$$scope.$watch(function ngModelWatch(scope) {\n    var modelValue = ctrl.$$ngModelGet(scope);\n    if (modelValue !== ctrl.$modelValue &&\n      // checks for NaN is needed to allow setting the model to NaN when there's an asyncValidator\n      // eslint-disable-next-line no-self-compare\n      (ctrl.$modelValue === ctrl.$modelValue || modelValue === modelValue)\n    ) {\n      ctrl.$$setModelValue(modelValue);\n    }\n\n    return modelValue;\n  });\n}",
+        "function_name": [
+          "setupModelWatcher",
+          "ngModelWatch"
+        ]
+      }
+    ],
+    "relevent_projects": [
+      "datahub"
+    ],
+    "type1_group": [
+      {
+        "group_name": "setupModelWatcher",
+        "functionality": "设置模型监听器，监控作用域中的模型值变化，当模型值与ngModel控制器的当前值不同步时，更新控制器的模型值，并处理NaN值的特殊情况",
+        "functions": [
+          {
+            "file_path": "01.datahub/modules/split/ngModel.js",
+            "start_line": 1075,
+            "end_line": 1100,
+            "code": "function setupModelWatcher(ctrl) {\n  // model -> value\n  // Note: we cannot use a normal scope.$watch as we want to detect the following:\n  // 1. scope value is 'a'\n  // 2. user enters 'b'\n  // 3. ng-change kicks in and reverts scope value to 'a'\n  //    -> scope value did not change since the last digest as\n  //       ng-change executes in apply phase\n  // 4. view should be changed back to 'a'\n  ctrl.$$scope.$watch(function ngModelWatch(scope) {\n    var modelValue = ctrl.$$ngModelGet(scope);\n\n    // if scope model value and ngModel value are out of sync\n    // This cannot be moved to the action function, because it would not catch the\n    // case where the model is changed in the ngChange function or the model setter\n    if (modelValue !== ctrl.$modelValue &&\n      // checks for NaN is needed to allow setting the model to NaN when there's an asyncValidator\n      // eslint-disable-next-line no-self-compare\n      (ctrl.$modelValue === ctrl.$modelValue || modelValue === modelValue)\n    ) {\n      ctrl.$$setModelValue(modelValue);\n    }\n\n    return modelValue;\n  });\n}",
+            "function_name": [
+              "setupModelWatcher",
+              "ngModelWatch"
+            ]
+          },
+          {
+            "file_path": "01.datahub/modules/split/ngModel.js",
+            "start_line": 1101,
+            "end_line": 1114,
+            "code": "function setupModelWatcher(ctrl) {\n  ctrl.$$scope.$watch(function ngModelWatch(scope) {\n    var modelValue = ctrl.$$ngModelGet(scope);\n    if (modelValue !== ctrl.$modelValue &&\n      // checks for NaN is needed to allow setting the model to NaN when there's an asyncValidator\n      // eslint-disable-next-line no-self-compare\n      (ctrl.$modelValue === ctrl.$modelValue || modelValue === modelValue)\n    ) {\n      ctrl.$$setModelValue(modelValue);\n    }\n\n    return modelValue;\n  });\n}",
+            "function_name": [
+              "setupModelWatcher",
+              "ngModelWatch"
+            ]
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "group_name": "setupModelWatcher",
+      "overall_functionality": "设置模型监听器，监控作用域中的模型值变化，当模型值与ngModel控制器的当前值不同步时，更新控制器的模型值，并处理NaN值的特殊情况",
+      "type1_group_differences": "由于只有一个Type-1组，无法进行组间差异比较。该组包含2个功能完全相同的函数，都实现了相同的模型监听逻辑。",
+      "reuse_opportunities": "该函数组已经展现了良好的代码复用，可以考虑将其提取为通用的模型监听器工具函数，供其他需要监控模型值变化的组件使用。同时可以考虑将NaN值处理逻辑封装为独立的工具方法。"
+    },
+    "type1_group_similarity": []
   }
 ]

@@ -16,15 +16,12 @@
 
                 <el-tab-pane label="结构相似热点组件" name="structure-hotspot">
                     <StructureHotspotTab :rows="structureHotspot.rows || []" :charts="charts"
+                        :clone-rows="cloneDetection.rows || []" :clone-groups="cloneDetection.groups || []"
                         :is-active="activeTab === 'structure-hotspot'" />
                 </el-tab-pane>
 
                 <el-tab-pane label="语义相似热点组件" name="semantic-hotspot">
                     <SemanticHotspotTab :rows="semanticHotspot.rows || []" />
-                </el-tab-pane>
-
-                <el-tab-pane label="js脚本相似函数" name="clone-detection">
-                    <CloneDetectionTab />
                 </el-tab-pane>
             </el-tabs>
         </el-main>
@@ -38,13 +35,13 @@ import OverviewTab from './components/tabs/OverviewTab.vue'
 import DefinitionsTab from './components/tabs/DefinitionsTab.vue'
 import StructureHotspotTab from './components/tabs/StructureHotspotTab.vue'
 import SemanticHotspotTab from './components/tabs/SemanticHotspotTab.vue'
-import CloneDetectionTab from './components/tabs/CloneDetectionTab.vue'
 
 const activeTab = ref('overview')
 
 const meta = processedData.meta || {}
 const stats = processedData.overview_stats || {}
 const structureHotspot = processedData.structure_hotspot || {}
+const cloneDetection = processedData.clone_detection || {}
 const semanticHotspot = processedData.semantic_hotspot || {}
 const charts = processedData.charts || { subgraphs: {} }
 </script>

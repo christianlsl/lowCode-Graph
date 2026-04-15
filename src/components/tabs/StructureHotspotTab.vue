@@ -5,23 +5,38 @@
                 <div class="card-header with-filter">
                     <span>结构相似热点组件</span>
                     <div class="filter-actions">
-                        <el-input v-model="searchKeyword" clearable placeholder="搜索热点簇名称/结构cluster_id/父模式名称"
-                            class="search-input" />
+                        <el-input
+                            v-model="searchKeyword"
+                            clearable
+                            placeholder="搜索热点簇名称/结构cluster_id/脚本函数组"
+                            class="search-input"
+                        />
                         <el-select v-model="selectedType" class="type-select" placeholder="选择组件类型">
                             <el-option label="全部组件类型" value="all" />
-                            <el-option v-for="type in componentTypeOptions" :key="type" :label="type" :value="type" />
+                            <el-option
+                                v-for="type in componentTypeOptions"
+                                :key="type"
+                                :label="type"
+                                :value="type"
+                            />
                         </el-select>
                     </div>
                 </div>
             </template>
 
-            <el-table :data="treeRows" border row-key="row_id" max-height="46vh" highlight-current-row
-                :tree-props="{ children: 'children' }" @current-change="handleCurrentChange"
-                :row-class-name="tableRowClassName">
+            <el-table
+                :data="treeRows"
+                border
+                row-key="row_id"
+                max-height="46vh"
+                highlight-current-row
+                :tree-props="{ children: 'children' }"
+                @current-change="handleCurrentChange"
+                :row-class-name="tableRowClassName"
+            >
                 <el-table-column label="簇类型" min-width="120">
                     <template #default="scope">
-                        {{ scope.row._isParent ? (scope.row.children?.length ? scope.row.children[0].type : '-') :
-                            (scope.row.type || '-') }}
+                        {{ getRowType(scope.row) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="结构cluster_id" min-width="130">
@@ -36,23 +51,29 @@
                 </el-table-column>
                 <el-table-column label="组件大小" min-width="100">
                     <template #default="scope">
-                        {{ scope.row._isParent ? getRange(scope.row.children, 'size') : scope.row.size }}
+                        {{ formatDisplayValue(scope.row._isParent ? getRange(scope.row.children, 'size') : scope.row.size) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="复用次数" min-width="110">
                     <template #default="scope">
-                        {{ scope.row.support }}
+                        {{ formatDisplayValue(scope.row.support) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="涉及工程个数" min-width="120">
                     <template #default="scope">
-                        {{ scope.row.relevent_projects_num }}
+                        {{ formatDisplayValue(scope.row.relevent_projects_num) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="关系图" min-width="120" fixed="right">
+                <el-table-column label="详情" min-width="150" fixed="right">
                     <template #default="scope">
-                        <el-button v-if="!scope.row._isParent" type="success" plain
-                            @click="selectRow(scope.row)">查看关系图</el-button>
+                        <el-button
+                            v-if="getActionLabel(scope.row)"
+                            :type="scope.row._source === 'clone' ? 'warning' : 'success'"
+                            plain
+                            @click="handleDetailAction(scope.row)"
+                        >
+                            {{ getActionLabel(scope.row) }}
+                        </el-button>
                         <span v-else>-</span>
                     </template>
                 </el-table-column>
@@ -62,27 +83,179 @@
         <el-card class="panel-card chart-card" shadow="hover">
             <template #header>
                 <div class="card-header with-action">
-                    <span>{{ chartTitle }}</span>
-                    <el-radio-group v-model="graphMode" size="small">
+                    <span>{{ panelTitle }}</span>
+                    <el-radio-group v-if="panelMode === 'graph'" v-model="graphMode" size="small">
                         <el-radio-button value="tree">树</el-radio-button>
                         <el-radio-button value="directed">有向图</el-radio-button>
                     </el-radio-group>
                 </div>
             </template>
 
-            <div v-if="graphMode === 'tree'" class="tree-wrap">
-                <el-tree :data="treeData" node-key="id" :props="treeProps" default-expand-all class="graph-tree" />
-            </div>
-            <div v-else ref="chartRef" class="graph-canvas"></div>
+            <template v-if="panelMode === 'diff'">
+                <div v-if="activeCloneGroup" class="diff-panel">
+                    <div class="diff-selector-grid">
+                        <div class="diff-selector-column">
+                            <div class="selector-label">左侧函数组</div>
+                            <div class="selector-list">
+                                <el-button
+                                    v-for="(group, index) in activeCloneGroup.type1_group"
+                                    :key="`left-${group.detail_key}`"
+                                    :type="leftDiffIndex === index ? 'primary' : 'default'"
+                                    size="small"
+                                    @click="leftDiffIndex = index"
+                                >
+                                    {{ group.group_name || `函数组 ${index + 1}` }}
+                                </el-button>
+                            </div>
+                            <div class="selector-code-meta">
+                                {{ getDiffGroupMeta(leftDiffGroup) }}
+                            </div>
+                        </div>
+                        <div class="diff-selector-column">
+                            <div class="selector-label">右侧函数组</div>
+                            <div class="selector-list">
+                                <el-button
+                                    v-for="(group, index) in activeCloneGroup.type1_group"
+                                    :key="`right-${group.detail_key}`"
+                                    :type="rightDiffIndex === index ? 'primary' : 'default'"
+                                    size="small"
+                                    @click="rightDiffIndex = index"
+                                >
+                                    {{ group.group_name || `函数组 ${index + 1}` }}
+                                </el-button>
+                            </div>
+                            <div class="selector-code-meta">
+                                {{ getDiffGroupMeta(rightDiffGroup) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diff-view-wrap">
+                        <CodeDiff
+                            :old-string="leftDiffCode"
+                            :new-string="rightDiffCode"
+                            language="javascript"
+                            :context="20"
+                            output-format="side-by-side"
+                            diff-style="word"
+                            :hide-header="true"
+                            :hide-stat="true"
+                            max-height="72vh"
+                            :filename="diffFileName"
+                        />
+                    </div>
+                </div>
+                <el-empty v-else description="请选择脚本函数组查看代码差异" />
+            </template>
+
+            <template v-else>
+                <div v-if="graphMode === 'tree'" class="tree-wrap">
+                    <el-tree :data="treeData" node-key="id" :props="treeProps" default-expand-all class="graph-tree" />
+                </div>
+                <div v-else ref="chartRef" class="graph-canvas"></div>
+            </template>
         </el-card>
 
         <section class="detail-section">
             <div class="section-title with-detail-search">
                 <span>结构相似热点组件详情</span>
-                <el-input v-model="detailSearchKeyword" clearable placeholder="搜索语义描述关键词" class="detail-search-input" />
+                <el-input
+                    v-model="detailSearchKeyword"
+                    clearable
+                    placeholder="搜索脚本函数组说明或结构实例语义"
+                    class="detail-search-input"
+                />
             </div>
-            <el-card v-for="row in detailFilteredRows" :key="row.structure_cluster_id"
-                class="panel-card detail-item-card" shadow="hover">
+
+            <el-card
+                v-for="group in detailFilteredCloneGroups"
+                :key="group.group_key"
+                :ref="(el) => setCloneDetailRef(group.group_key, el)"
+                class="panel-card detail-item-card clone-detail-card"
+                shadow="hover"
+                :class="{ 'is-active-card': activeDetailGroupKey === group.group_key }"
+            >
+                <template #header>
+                    <div class="card-header detail-header">
+                        <span>{{ group.summary.group_name || '未命名函数组' }}</span>
+                        <el-tag type="warning" effect="plain" round>
+                            结构cluster_id: {{ group.parent_cluster_id }}
+                        </el-tag>
+                    </div>
+                </template>
+
+                <el-descriptions :column="1" border class="detail-descriptions">
+                    <el-descriptions-item label="函数组名称">
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.group_name)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="整体功能">
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.overall_functionality)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="Type-1组差异">
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.type1_group_differences)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="复用机会">
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.reuse_opportunities)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="涉及工程">
+                        <div class="tag-list">
+                            <el-tag v-for="project in group.relevent_projects" :key="project" size="small" effect="plain">
+                                {{ project }}
+                            </el-tag>
+                            <span v-if="!group.relevent_projects.length">-</span>
+                        </div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="相似度范围">
+                        {{ formatSimilarityRange(group.similarity_range) }}
+                    </el-descriptions-item>
+                </el-descriptions>
+
+                <div class="subsection-title">Type-1 函数组</div>
+                <div class="function-list">
+                    <el-card
+                        v-for="typeGroup in group.type1_group"
+                        :key="typeGroup.detail_key"
+                        class="function-card"
+                        shadow="never"
+                    >
+                        <template #header>
+                            <div class="function-header">
+                                <div class="function-header-text">
+                                    <div class="function-group-title markdown-content" v-html="renderMarkdown(typeGroup.group_name)"></div>
+                                    <div class="function-group-desc markdown-content" v-html="renderMarkdown(typeGroup.functionality)"></div>
+                                </div>
+                                <el-button type="primary" link @click="toggleCloneTypeGroup(typeGroup.detail_key)">
+                                    {{ isCloneTypeGroupExpanded(typeGroup.detail_key) ? '收起代码' : '展开代码' }}
+                                </el-button>
+                            </div>
+                        </template>
+
+                        <div
+                            v-for="(func, index) in typeGroup.functions"
+                            :key="`${typeGroup.detail_key}-${index}-${func.file_path || 'code'}`"
+                            class="function-snippet"
+                        >
+                            <div class="function-meta">
+                                <span>{{ func.file_path || '-' }}</span>
+                                <el-tag size="small" type="info" effect="plain">
+                                    {{ formatLineRange(func.start_line, func.end_line) }}
+                                </el-tag>
+                            </div>
+                            <pre
+                                v-if="isCloneTypeGroupExpanded(typeGroup.detail_key)"
+                                class="code-block"
+                            ><code class="hljs language-javascript" v-html="highlightJsCode(func.code)"></code></pre>
+                        </div>
+                    </el-card>
+                </div>
+            </el-card>
+
+            <el-card
+                v-for="row in detailFilteredStructureRows"
+                :key="row.structure_cluster_id"
+                class="panel-card detail-item-card"
+                shadow="hover"
+            >
                 <template #header>
                     <div class="card-header detail-header">
                         <span>{{ row.name || '未命名结构簇' }}</span>
@@ -91,9 +264,15 @@
                 </template>
 
                 <el-descriptions :column="1" :border="false" class="detail-descriptions">
-                    <el-descriptions-item label="组件类型">{{ row.type || '-' }}</el-descriptions-item>
-                    <el-descriptions-item label="摘要">{{ row.summary || '-' }}</el-descriptions-item>
-                    <el-descriptions-item label="关键差异点（语义）">{{ row.instance_defference || '-' }}</el-descriptions-item>
+                    <el-descriptions-item label="组件类型">
+                        <div class="markdown-content" v-html="renderMarkdown(row.type)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="摘要">
+                        <div class="markdown-content" v-html="renderMarkdown(row.summary)"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="关键差异点（语义）">
+                        <div class="markdown-content" v-html="renderMarkdown(row.instance_defference)"></div>
+                    </el-descriptions-item>
                 </el-descriptions>
 
                 <div class="instance-title">实例列表</div>
@@ -126,10 +305,24 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
+import hljs from 'highlight.js/lib/core'
+import javascript from 'highlight.js/lib/languages/javascript'
+import { CodeDiff } from 'v-code-diff'
 import { buildGraphOption } from '../../utils/graphOption'
+import 'highlight.js/styles/github-dark.css'
+
+hljs.registerLanguage('javascript', javascript)
 
 const props = defineProps({
     rows: {
+        type: Array,
+        default: () => []
+    },
+    cloneRows: {
+        type: Array,
+        default: () => []
+    },
+    cloneGroups: {
         type: Array,
         default: () => []
     },
@@ -145,7 +338,9 @@ const props = defineProps({
 
 const chartRef = ref(null)
 const graphMode = ref('tree')
-const selectedRow = ref(null)
+const panelMode = ref('graph')
+const selectedStructureRow = ref(null)
+const selectedCloneParentId = ref(null)
 const searchKeyword = ref('')
 const selectedType = ref('all')
 const detailSearchKeyword = ref('')
@@ -153,13 +348,52 @@ const componentListDialogVisible = ref(false)
 const selectedComponentList = ref([])
 const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
+const leftDiffIndex = ref(0)
+const rightDiffIndex = ref(1)
+const expandedCloneCodeMap = ref({})
+const activeDetailGroupKey = ref('')
+const cloneDetailRefs = new Map()
 let chartInstance = null
+
+const normalizedRows = computed(() => {
+    const structureRows = props.rows.map((parentRow, parentIndex) => ({
+        ...parentRow,
+        row_id: `structure-parent-${parentRow?.parent_cluster_id ?? parentIndex}`,
+        _isParent: true,
+        _source: 'structure',
+        children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
+            ...child,
+            row_id: `structure-child-${child?.structure_cluster_id ?? `${parentIndex}-${childIndex}`}`,
+            _isParent: false,
+            _source: 'structure'
+        }))
+    }))
+
+    const cloneRows = props.cloneRows.map((parentRow, parentIndex) => ({
+        ...parentRow,
+        row_id: `clone-parent-${parentRow?.parent_cluster_id ?? parentIndex}`,
+        _isParent: true,
+        _source: 'clone',
+        children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
+            ...child,
+            parent_cluster_id: parentRow?.parent_cluster_id ?? null,
+            row_id: `clone-child-${child?.structure_cluster_id ?? `${parentIndex}-${childIndex}`}`,
+            _isParent: false,
+            _source: 'clone'
+        }))
+    }))
+
+    return [...structureRows, ...cloneRows]
+})
 
 const componentTypeOptions = computed(() => {
     const typeSet = new Set()
-    for (const parentRow of props.rows) {
-        const children = Array.isArray(parentRow?.children) ? parentRow.children : []
-        for (const child of children) {
+    for (const parentRow of normalizedRows.value) {
+        if (parentRow?._source === 'clone') {
+            typeSet.add('脚本')
+            continue
+        }
+        for (const child of parentRow.children || []) {
             if (child?.type) {
                 typeSet.add(child.type)
             }
@@ -171,19 +405,18 @@ const componentTypeOptions = computed(() => {
 const treeRows = computed(() => {
     const keyword = searchKeyword.value.trim().toLowerCase()
 
-    return props.rows
+    return normalizedRows.value
         .map((parentRow) => {
-            const parentName = String(parentRow?.name || '')
-            const parentNameText = parentName.toLowerCase()
-            const parentMatchesKeyword = !!keyword && parentNameText.includes(keyword)
-            const children = Array.isArray(parentRow?.children) ? parentRow.children : []
+            const parentNameText = String(parentRow?.name || '').toLowerCase()
+            const parentClusterText = String(parentRow?.parent_cluster_id || '').toLowerCase()
+            const parentMatchesKeyword = !!keyword
+                && (parentNameText.includes(keyword) || parentClusterText.includes(keyword))
 
-            const filteredChildren = children.filter((child) => {
-                const matchesType = selectedType.value === 'all' || child?.type === selectedType.value
+            const filteredChildren = (parentRow.children || []).filter((child) => {
+                const childType = getRowType(child)
+                const matchesType = selectedType.value === 'all' || childType === selectedType.value
                 if (!matchesType) return false
-
-                if (!keyword) return true
-                if (parentMatchesKeyword) return true
+                if (!keyword || parentMatchesKeyword) return true
 
                 const childNameText = String(child?.name || '').toLowerCase()
                 const clusterIdText = String(child?.structure_cluster_id || '').toLowerCase()
@@ -194,16 +427,7 @@ const treeRows = computed(() => {
 
             return {
                 ...parentRow,
-                row_id: `parent-${parentRow?.parent_cluster_id ?? parentName}`,
-                _isParent: true,
-                parent_cluster_id: parentRow?.parent_cluster_id ?? -1,
-                name: parentName,
-                difference: String(parentRow?.difference || ''),
-                children: filteredChildren.map((child) => ({
-                    ...child,
-                    row_id: `structure-${child?.structure_cluster_id ?? Math.random()}`,
-                    _isParent: false
-                }))
+                children: filteredChildren
             }
         })
         .filter(Boolean)
@@ -212,6 +436,7 @@ const treeRows = computed(() => {
 const flattenedStructureRows = computed(() => {
     const rows = []
     for (const parent of treeRows.value) {
+        if (parent._source !== 'structure') continue
         for (const child of parent.children || []) {
             rows.push(child)
         }
@@ -219,7 +444,7 @@ const flattenedStructureRows = computed(() => {
     return rows
 })
 
-const detailFilteredRows = computed(() => {
+const detailFilteredStructureRows = computed(() => {
     const keyword = detailSearchKeyword.value.trim().toLowerCase()
     if (!keyword) return flattenedStructureRows.value
 
@@ -235,15 +460,60 @@ const detailFilteredRows = computed(() => {
         .filter((row) => row.instances.length > 0)
 })
 
-const selectedVisualization = computed(() => selectedRow.value?.visualization || null)
+const normalizedCloneGroups = computed(() => {
+    return props.cloneGroups.map((group, groupIndex) => ({
+        ...group,
+        group_key: group.group_key || `clone-group-${groupIndex}`,
+        summary: group?.summary && typeof group.summary === 'object' ? group.summary : {},
+        relevent_projects: Array.isArray(group?.relevent_projects) ? group.relevent_projects : [],
+        type1_group: Array.isArray(group?.type1_group) ? group.type1_group : []
+    }))
+})
+
+const detailFilteredCloneGroups = computed(() => {
+    const keyword = detailSearchKeyword.value.trim().toLowerCase()
+    if (!keyword) return normalizedCloneGroups.value
+
+    return normalizedCloneGroups.value.filter((group) => {
+        const summaryValues = Object.values(group.summary || {}).map((value) => String(value || '').toLowerCase())
+        const summaryMatched = summaryValues.some((value) => value.includes(keyword))
+        if (summaryMatched) return true
+
+        return group.type1_group.some((typeGroup) =>
+            String(typeGroup.group_name || '').toLowerCase().includes(keyword)
+            || String(typeGroup.functionality || '').toLowerCase().includes(keyword)
+        )
+    })
+})
 
 const selectedPayload = computed(() => {
-    const visualization = selectedVisualization.value
+    const visualization = selectedStructureRow.value?.visualization || null
     if (!visualization || visualization.kind !== 'subgraph') return null
     return props.charts.subgraphs?.[visualization.key] || null
 })
 
 const treeData = computed(() => selectedPayload.value?.tree || [])
+
+const activeCloneGroup = computed(() => {
+    return normalizedCloneGroups.value.find((group) => group.parent_cluster_id === selectedCloneParentId.value) || null
+})
+
+const leftDiffGroup = computed(() => activeCloneGroup.value?.type1_group?.[leftDiffIndex.value] || null)
+const rightDiffGroup = computed(() => activeCloneGroup.value?.type1_group?.[rightDiffIndex.value] || null)
+const leftDiffCode = computed(() => getTypeGroupCode(leftDiffGroup.value))
+const rightDiffCode = computed(() => getTypeGroupCode(rightDiffGroup.value))
+const diffFileName = computed(() => {
+    const leftName = leftDiffGroup.value?.group_name || '左侧函数组'
+    const rightName = rightDiffGroup.value?.group_name || '右侧函数组'
+    return `${leftName} vs ${rightName}`
+})
+
+const panelTitle = computed(() => {
+    if (panelMode.value === 'diff') {
+        return '代码差异'
+    }
+    return chartTitle.value
+})
 
 const ensureChart = () => {
     if (chartRef.value && !chartInstance) {
@@ -252,7 +522,7 @@ const ensureChart = () => {
 }
 
 const renderGraph = async () => {
-    if (graphMode.value !== 'directed') return
+    if (panelMode.value !== 'graph' || graphMode.value !== 'directed') return
     const payload = selectedPayload.value
     if (!payload) return
 
@@ -264,25 +534,88 @@ const renderGraph = async () => {
     chartInstance.setOption(buildGraphOption(payload), true)
 }
 
-const selectRow = (row) => {
-    if (!row || row._isParent) return
+const getRowType = (row) => {
+    if (!row) return '-'
+    if (row._source === 'clone') return '脚本'
+    if (row._isParent) {
+        return row.children?.length ? (row.children[0].type || '-') : '-'
+    }
+    return row.type || '-'
+}
 
-    selectedRow.value = row
+const formatDisplayValue = (value) => {
+    if (value === null || value === undefined || value === '' || value === 'none') {
+        return 'none'
+    }
+    return value
+}
+
+const getActionLabel = (row) => {
+    if (!row) return ''
+    if (row._source === 'clone' && row._isParent) return '查看函数组对比'
+    if (row._source === 'clone' && !row._isParent) return '查看函数组详情'
+    if (!row._isParent) return '查看关系图'
+    return ''
+}
+
+const selectStructureRow = async (row) => {
+    if (!row || row._isParent || row._source !== 'structure') return
+
+    panelMode.value = 'graph'
+    selectedStructureRow.value = row
     const payload = selectedPayload.value
     chartTitle.value = payload?.title || '关系图'
+
     if (graphMode.value === 'directed') {
-        renderGraph()
+        await renderGraph()
     }
 }
 
-const handleCurrentChange = (row) => {
-    if (row && !row._isParent) {
-        selectRow(row)
+const openCloneDiff = (row) => {
+    selectedCloneParentId.value = row.parent_cluster_id
+    panelMode.value = 'diff'
+}
+
+const setCloneDetailRef = (groupKey, element) => {
+    if (element) {
+        cloneDetailRefs.set(groupKey, element.$el || element)
+    } else {
+        cloneDetailRefs.delete(groupKey)
+    }
+}
+
+const openCloneDetail = async (row) => {
+    const cloneGroup = normalizedCloneGroups.value.find((group) => group.parent_cluster_id === row.parent_cluster_id)
+    if (!cloneGroup) return
+
+    activeDetailGroupKey.value = cloneGroup.group_key
+    await nextTick()
+    cloneDetailRefs.get(cloneGroup.group_key)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    })
+}
+
+const handleDetailAction = async (row) => {
+    if (row._source === 'clone' && row._isParent) {
+        openCloneDiff(row)
+        return
+    }
+    if (row._source === 'clone') {
+        await openCloneDetail(row)
+        return
+    }
+    await selectStructureRow(row)
+}
+
+const handleCurrentChange = async (row) => {
+    if (row && !row._isParent && row._source === 'structure') {
+        await selectStructureRow(row)
     }
 }
 
 const openComponentListDialog = (row) => {
-    selectedComponentList.value = (row.component_id_list || []).map(id => ({ id }))
+    selectedComponentList.value = (row.component_id_list || []).map((id) => ({ id }))
     componentListDialogVisible.value = true
 }
 
@@ -296,37 +629,140 @@ const formatPagePath = (pagePath) => {
     return '-'
 }
 
+const formatLineRange = (startLine, endLine) => {
+    if (startLine && endLine) return `${startLine} - ${endLine}`
+    if (startLine) return `${startLine}`
+    return '-'
+}
+
+const highlightJsCode = (code) => {
+    const source = String(code || '')
+    if (!source.trim()) return ''
+    return hljs.highlight(source, { language: 'javascript' }).value
+}
+
+const escapeHtml = (value) => String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+const applyInlineMarkdown = (text) => {
+    return text
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+}
+
+const renderMarkdown = (value) => {
+    const source = String(value || '').trim()
+    if (!source) return '-'
+
+    const escaped = escapeHtml(source)
+    const lines = escaped.split('\n')
+    const parts = []
+    let listBuffer = []
+
+    const flushList = () => {
+        if (!listBuffer.length) return
+        parts.push(`<ul>${listBuffer.map((item) => `<li>${applyInlineMarkdown(item)}</li>`).join('')}</ul>`)
+        listBuffer = []
+    }
+
+    for (const rawLine of lines) {
+        const line = rawLine.trim()
+        if (!line) {
+            flushList()
+            continue
+        }
+
+        const unorderedMatch = line.match(/^[-*]\s+(.+)$/)
+        if (unorderedMatch) {
+            listBuffer.push(unorderedMatch[1])
+            continue
+        }
+
+        flushList()
+        parts.push(`<p>${applyInlineMarkdown(line)}</p>`)
+    }
+
+    flushList()
+    return parts.join('') || '-'
+}
+
 const getRange = (children, key) => {
     if (!children || !children.length) return '-'
-    const values = children.map(child => child[key]).filter(v => v !== undefined && v !== null && !isNaN(v))
-    if (!values.length) return '-'
+    const values = children
+        .map((child) => child[key])
+        .filter((value) => value !== undefined && value !== null && value !== 'none' && !Number.isNaN(Number(value)))
+        .map((value) => Number(value))
+    if (!values.length) return 'none'
     const min = Math.min(...values)
     const max = Math.max(...values)
     return min === max ? `${min}` : `${min}~${max}`
 }
 
+const formatSimilarity = (value) => {
+    const numeric = Number(value)
+    return Number.isFinite(numeric) ? numeric.toFixed(4) : '-'
+}
+
+const formatSimilarityRange = (range) => {
+    if (!range || range.min === null || range.max === null || range.min === undefined || range.max === undefined) {
+        return '-'
+    }
+    return `${formatSimilarity(range.min)} ~ ${formatSimilarity(range.max)}`
+}
+
+const getTypeGroupCode = (group) => {
+    if (!group || !Array.isArray(group.functions) || !group.functions.length) {
+        return ''
+    }
+    return String(group.functions[0]?.code || '')
+}
+
+const getDiffGroupMeta = (group) => {
+    if (!group || !Array.isArray(group.functions) || !group.functions.length) {
+        return '未找到可对比代码'
+    }
+    const func = group.functions[0]
+    return `${func.file_path || '-'} · ${formatLineRange(func.start_line, func.end_line)}`
+}
+
 const tableRowClassName = ({ row }) => {
+    if (row._isParent && row._source === 'clone') {
+        return 'clone-parent-row'
+    }
     if (row._isParent) {
         return 'parent-cluster-row'
     }
     return ''
 }
 
+const toggleCloneTypeGroup = (detailKey) => {
+    expandedCloneCodeMap.value = {
+        ...expandedCloneCodeMap.value,
+        [detailKey]: !expandedCloneCodeMap.value[detailKey]
+    }
+}
+
+const isCloneTypeGroupExpanded = (detailKey) => !!expandedCloneCodeMap.value[detailKey]
+
 const initSelection = async () => {
     if (!flattenedStructureRows.value.length) {
-        selectedRow.value = null
+        selectedStructureRow.value = null
         chartTitle.value = '请选择结构簇查看关系图'
         return
     }
 
-    const currentId = selectedRow.value?.structure_cluster_id
+    const currentId = selectedStructureRow.value?.structure_cluster_id
     const matched = flattenedStructureRows.value.find((row) => row.structure_cluster_id === currentId)
-    selectedRow.value = matched || flattenedStructureRows.value[0]
+    selectedStructureRow.value = matched || flattenedStructureRows.value[0]
 
     const payload = selectedPayload.value
     chartTitle.value = payload?.title || '关系图'
 
-    if (graphMode.value === 'directed' && props.isActive) {
+    if (panelMode.value === 'graph' && graphMode.value === 'directed' && props.isActive) {
         await renderGraph()
     }
 }
@@ -338,6 +774,12 @@ watch(
     },
     { immediate: true }
 )
+
+watch(activeCloneGroup, (group) => {
+    if (!group) return
+    leftDiffIndex.value = 0
+    rightDiffIndex.value = group.type1_group.length > 1 ? 1 : 0
+})
 
 watch(graphMode, async (value) => {
     if (value !== 'directed') {
@@ -355,12 +797,23 @@ watch(graphMode, async (value) => {
 watch(
     () => props.isActive,
     async (value) => {
-        if (value && graphMode.value === 'directed') {
+        if (value && panelMode.value === 'graph' && graphMode.value === 'directed') {
             await renderGraph()
         }
     },
     { flush: 'post' }
 )
+
+watch(panelMode, async (value) => {
+    if (value !== 'graph' && chartInstance) {
+        chartInstance.dispose()
+        chartInstance = null
+        return
+    }
+    if (value === 'graph' && graphMode.value === 'directed' && props.isActive) {
+        await renderGraph()
+    }
+})
 
 const handleResize = () => {
     if (chartInstance) {
@@ -446,7 +899,53 @@ onBeforeUnmount(() => {
     min-height: 360px;
 }
 
-.instance-title {
+.diff-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.diff-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.diff-selector-column {
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.selector-label {
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.selector-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.selector-code-meta {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.diff-view-wrap {
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 8px;
+}
+
+.instance-title,
+.subsection-title {
     margin: 12px 0 8px;
     font-weight: 600;
     color: #334155;
@@ -476,7 +975,7 @@ onBeforeUnmount(() => {
 }
 
 .detail-search-input {
-    width: 260px;
+    width: 280px;
 }
 
 .detail-item-card {
@@ -490,10 +989,115 @@ onBeforeUnmount(() => {
     gap: 12px;
 }
 
-.dialog-content {
+.clone-detail-card {
+    scroll-margin-top: 20px;
+}
+
+.is-active-card {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.22);
+}
+
+.multiline-text {
     white-space: pre-wrap;
     line-height: 1.7;
+}
+
+.markdown-content {
+    line-height: 1.7;
     color: #334155;
+}
+
+.markdown-content :deep(p) {
+    margin: 0;
+}
+
+.markdown-content :deep(p + p) {
+    margin-top: 8px;
+}
+
+.markdown-content :deep(ul) {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
+.markdown-content :deep(li + li) {
+    margin-top: 4px;
+}
+
+.markdown-content :deep(code) {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.markdown-content :deep(strong) {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.function-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.function-card {
+    border-radius: 10px;
+    background: #fbfdff;
+}
+
+.function-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.function-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.function-group-title {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.function-group-desc {
+    color: #475569;
+    line-height: 1.6;
+}
+
+.function-snippet + .function-snippet {
+    margin-top: 12px;
+}
+
+.function-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: #334155;
+}
+
+.code-block {
+    margin: 0;
+    padding: 14px;
+    overflow: auto;
+    border-radius: 10px;
+    background: #0f172a;
+    max-height: 72vh;
+    min-height: 240px;
 }
 
 .detail-descriptions :deep(.el-descriptions__label) {
@@ -504,13 +1108,26 @@ onBeforeUnmount(() => {
     background-color: #f0f9ff !important;
 }
 
-@media (max-width: 992px) {
-    .with-action {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+:deep(.clone-parent-row) {
+    background-color: #fffbeb !important;
+}
 
-    .with-filter {
+:deep(.v-code-diff) {
+    font-size: 13px;
+}
+
+:deep(.v-code-diff pre) {
+    max-height: 72vh;
+}
+
+:deep(.v-code-diff .file-diff) {
+    margin-bottom: 0;
+}
+
+@media (max-width: 992px) {
+    .with-action,
+    .with-filter,
+    .with-detail-search {
         flex-direction: column;
         align-items: flex-start;
     }
@@ -518,31 +1135,16 @@ onBeforeUnmount(() => {
     .filter-actions {
         width: 100%;
         flex-direction: column;
-        align-items: stretch;
     }
 
     .search-input,
-    .type-select {
-        width: 100%;
-    }
-
-    .detail-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .with-detail-search {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
+    .type-select,
     .detail-search-input {
         width: 100%;
     }
 
-    .graph-canvas {
-        height: 52vh;
-        min-height: 320px;
+    .diff-selector-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>

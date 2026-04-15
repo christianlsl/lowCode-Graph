@@ -11,11 +11,22 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data"
 OUTPUT_PATH = ROOT_DIR / "src" / "assets" / "graph_table_data.json"
 INPUT_GLOB = "data_*.json"
+CLONE_DETECTION_PATH = DATA_DIR / "clone_detection_result.json"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
 	with path.open("r", encoding="utf-8") as file:
 		return json.load(file)
+
+
+def _load_json_array(path: Path) -> list[dict[str, Any]]:
+	with path.open("r", encoding="utf-8") as file:
+		payload = json.load(file)
+
+	if not isinstance(payload, list):
+		raise ValueError(f"Expected a JSON array in {path}")
+
+	return [item for item in payload if isinstance(item, dict)]
 
 
 def _load_all_source_payloads(data_dir: Path) -> list[dict[str, Any]]:
@@ -130,6 +141,11 @@ def _normalize_page_path_list(page_path: Any) -> list[str]:
 
 def _extract_top_level_name(component_id: Any) -> str:
 	parts = [part for part in str(component_id).split("/") if part]
+	return parts[0] if parts else ""
+
+
+def _extract_top_level_dir(file_path: Any) -> str:
+	parts = [part for part in str(file_path).split("/") if part]
 	return parts[0] if parts else ""
 
 
@@ -332,6 +348,118 @@ def _build_parent_cluster_rows(
 	return grouped_rows
 
 
+def _build_clone_detection_payload(
+	clone_groups: list[dict[str, Any]],
+	sorted_structure_rows: list[dict[str, Any]],
+	parent_clusters: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+	used_ids: set[int] = set()
+
+	for row in sorted_structure_rows:
+		cluster_id = int(row.get("structure_cluster_id", -1))
+		if cluster_id >= 0:
+			used_ids.add(cluster_id)
+
+	for parent in parent_clusters:
+		parent_id = int(parent.get("parent_cluster_id", -1))
+		if parent_id >= 0:
+			used_ids.add(parent_id)
+		for cluster_id in parent.get("structure_cluster_ids", []):
+			value = int(cluster_id)
+			if value >= 0:
+				used_ids.add(value)
+
+	max_type1_group_count = max(
+		(len(group.get("type1_group", [])) for group in clone_groups),
+		default=0,
+	)
+	block_size = max(max_type1_group_count + 1, 10)
+	base_parent_id = (max(used_ids) if used_ids else 0) + block_size
+
+	table_rows: list[dict[str, Any]] = []
+	detail_groups: list[dict[str, Any]] = []
+
+	for group_index, group in enumerate(clone_groups):
+		summary = group.get("summary", {}) if isinstance(group.get("summary"), dict) else {}
+		type1_groups = group.get("type1_group", []) if isinstance(group.get("type1_group"), list) else []
+		relevant_projects = [
+			str(project)
+			for project in group.get("relevent_projects", [])
+			if str(project).strip()
+		]
+		parent_cluster_id = base_parent_id + group_index * block_size
+		parent_name = str(summary.get("group_name", "")).strip() or f"脚本函数组 {group_index + 1}"
+
+		children: list[dict[str, Any]] = []
+		detail_type1_groups: list[dict[str, Any]] = []
+
+		for child_index, type1_group in enumerate(type1_groups, start=1):
+			functions = type1_group.get("functions", []) if isinstance(type1_group.get("functions"), list) else []
+			project_dirs = {
+				_extract_top_level_dir(function_item.get("file_path", ""))
+				for function_item in functions
+				if _extract_top_level_dir(function_item.get("file_path", ""))
+			}
+			structure_cluster_id = parent_cluster_id + child_index
+			child_row = {
+				"type": "脚本",
+				"structure_cluster_id": structure_cluster_id,
+				"name": str(type1_group.get("group_name", "")).strip() or f"函数组 {child_index}",
+				"size": None,
+				"support": None,
+				"relevent_projects_num": len(project_dirs),
+				"clone_group_index": group_index,
+				"type1_group_index": child_index - 1,
+				"detail_key": f"clone-detail-{group_index}-{child_index - 1}",
+			}
+			children.append(child_row)
+			detail_type1_groups.append(
+				{
+					"group_name": child_row["name"],
+					"functionality": str(type1_group.get("functionality", "")).strip(),
+					"functions": functions,
+					"structure_cluster_id": structure_cluster_id,
+					"detail_key": child_row["detail_key"],
+				}
+			)
+
+		table_rows.append(
+			{
+				"parent_cluster_id": parent_cluster_id,
+				"name": parent_name,
+				"type": "脚本",
+				"size": None,
+				"support": None,
+				"relevent_projects_num": len(relevant_projects),
+				"clone_group_index": group_index,
+				"children": children,
+				"source": "clone-detection",
+			}
+		)
+
+		similarity_values = [
+			float(item.get("similarity"))
+			for item in group.get("type1_group_similarity", [])
+			if isinstance(item, dict) and isinstance(item.get("similarity"), (int, float))
+		]
+		detail_groups.append(
+			{
+				"group_key": f"clone-group-{group_index}",
+				"parent_cluster_id": parent_cluster_id,
+				"summary": summary,
+				"relevent_projects": relevant_projects,
+				"similarity_range": {
+					"min": min(similarity_values) if similarity_values else None,
+					"max": max(similarity_values) if similarity_values else None,
+				},
+				"type1_group_similarity": group.get("type1_group_similarity", []),
+				"type1_group": detail_type1_groups,
+			}
+		)
+
+	return table_rows, detail_groups
+
+
 def _build_structure_cluster_name_map(clusters: list[dict[str, Any]]) -> dict[int, str]:
 	return {
 		int(cluster.get("structure_cluster_id", -1)): str(cluster.get("name", ""))
@@ -421,6 +549,7 @@ def _latest_meta_field(meta_blocks: list[dict[str, Any]], key: str) -> str:
 
 def build_output() -> dict[str, Any]:
 	payloads = _load_all_source_payloads(DATA_DIR)
+	clone_groups = _load_json_array(CLONE_DETECTION_PATH) if CLONE_DETECTION_PATH.exists() else []
 	node_type_dict, flow_node_type_dict, edge_relation_dict = _parse_node_edge_defs(
 		DATA_DIR / "edge_and_vertex_mapping.txt"
 	)
@@ -461,6 +590,11 @@ def build_output() -> dict[str, Any]:
 
 	sorted_structure_rows = _sort_structure_rows(structure_rows)
 	grouped_structure_rows = _build_parent_cluster_rows(parent_clusters, sorted_structure_rows)
+	clone_detection_rows, clone_detection_groups = _build_clone_detection_payload(
+		clone_groups=clone_groups,
+		sorted_structure_rows=sorted_structure_rows,
+		parent_clusters=parent_clusters,
+	)
 
 	return {
 		"meta": {
@@ -473,6 +607,10 @@ def build_output() -> dict[str, Any]:
 		"overview_stats": overview_stats,
 		"structure_hotspot": {
 			"rows": grouped_structure_rows,
+		},
+		"clone_detection": {
+			"rows": clone_detection_rows,
+			"groups": clone_detection_groups,
 		},
 		"semantic_hotspot": {
 			"rows": semantic_rows,
