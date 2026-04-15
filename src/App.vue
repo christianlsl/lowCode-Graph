@@ -21,7 +21,8 @@
                 </el-tab-pane>
 
                 <el-tab-pane label="语义相似热点组件" name="semantic-hotspot">
-                    <SemanticHotspotTab :rows="semanticHotspot.rows || []" />
+                    <SemanticHotspotTab :rows="semanticHotspot.rows || []" :charts="charts"
+                        :is-active="activeTab === 'semantic-hotspot'" />
                 </el-tab-pane>
             </el-tabs>
         </el-main>

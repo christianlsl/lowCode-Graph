@@ -149,6 +149,11 @@ def _extract_top_level_dir(file_path: Any) -> str:
 	return parts[0] if parts else ""
 
 
+def _extract_top_level_page(page_path: Any) -> str:
+	parts = [part for part in str(page_path).split("/") if part]
+	return parts[0] if parts else ""
+
+
 def _build_tree_payload(
 	nodes: list[dict[str, Any]],
 	edges: list[dict[str, Any]],
@@ -485,35 +490,111 @@ def _build_parent_cluster_name_map(parent_clusters: list[dict[str, Any]]) -> dic
 
 
 def _build_semantic_rows(
-	clusters: list[dict[str, Any]],
-	structure_cluster_name_map: dict[int, str],
+	joint_clusters: list[dict[str, Any]],
+	structure_clusters: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-	rows = [
-		{
-			"type": cluster.get("type", ""),
-			"semantic_similar_cluster_id": cluster.get("semantic_similar_cluster_id", -1),
-			"name": cluster.get("name", ""),
-			"struc_cluster_num": cluster.get("struc_cluster_num", 0),
-			"relevent_projects_num": cluster.get("relevent_projects_num", 0),
-			"description": cluster.get("description", ""),
-			"structure_clusters": [
+	structure_cluster_map: dict[int, dict[str, Any]] = {
+		int(cluster.get("structure_cluster_id", -1)): cluster
+		for cluster in structure_clusters
+	}
+
+	rows: list[dict[str, Any]] = []
+	for cluster in joint_clusters:
+		cluster_id = int(cluster.get("cluster_id", -1))
+		items = cluster.get("items", [])
+
+		unique_structure_ids: set[int] = set()
+		unique_instance_ids: set[int] = set()
+		covered_projects: set[str] = set()
+		available_structure_cluster_ids: list[int] = []
+		items_expanded: list[dict[str, Any]] = []
+
+		for item in items:
+			structure_cluster_id = int(item.get("structure_cluster_id", -1))
+			instance_ids_raw = item.get("instance_ids", [])
+			instance_ids: list[int] = []
+			for instance_id in instance_ids_raw:
+				try:
+					instance_id_int = int(instance_id)
+				except (TypeError, ValueError):
+					continue
+				instance_ids.append(instance_id_int)
+
+			unique_structure_ids.add(structure_cluster_id)
+			unique_instance_ids.update(instance_ids)
+
+			structure_cluster = structure_cluster_map.get(structure_cluster_id, {})
+			instances = structure_cluster.get("instances", []) if isinstance(structure_cluster, dict) else []
+			instance_map = {
+				int(instance.get("instance_id", -1)): instance
+				for instance in instances
+			}
+
+			matched_instances: list[dict[str, Any]] = []
+			item_projects: set[str] = set()
+			for instance_id in instance_ids:
+				instance = instance_map.get(instance_id)
+				if not instance:
+					continue
+
+				page_path_list = _normalize_page_path_list(instance.get("page_path", []))
+				for page_path in page_path_list:
+					top_level_page = _extract_top_level_page(page_path)
+					if top_level_page:
+						item_projects.add(top_level_page)
+						covered_projects.add(top_level_page)
+
+				component_ids = instance.get("component_id_list", instance.get("component_list", []))
+				matched_instances.append(
+					{
+						"instance_id": instance_id,
+						"page_path": page_path_list,
+						"instance_summary": str(instance.get("instance_summary", "")),
+						"component_id_list": component_ids if isinstance(component_ids, list) else [],
+					}
+				)
+
+			if structure_cluster_id in structure_cluster_map and structure_cluster_id not in available_structure_cluster_ids:
+				available_structure_cluster_ids.append(structure_cluster_id)
+
+			items_expanded.append(
 				{
-					"id": structure_cluster_id,
-					"name": structure_cluster_name_map.get(structure_cluster_id, ""),
+					"structure_cluster_id": structure_cluster_id,
+					"domain_cluster_id": int(item.get("domain_cluster_id", -1)),
+					"instance_ids": sorted(set(instance_ids)),
+					"structure_name": str(structure_cluster.get("name", "")),
+					"type": str(structure_cluster.get("type", cluster.get("type", ""))),
+					"reuse_count": len(set(instance_ids)),
+					"covered_projects_count": len(item_projects),
+					"visualization": {
+						"kind": "subgraph",
+						"key": f"structure:{structure_cluster_id}",
+					},
+					"instances": matched_instances,
 				}
-				for structure_cluster_id in cluster.get("structure_cluster_id", [])
-			],
-			"instance_defference": cluster.get("instance_defference", ""),
-		}
-		for cluster in clusters
-	]
+			)
+
+		rows.append(
+			{
+				"cluster_id": cluster_id,
+				"structure_name": str(cluster.get("structure_name", "")),
+				"domain_name": str(cluster.get("domain_name", "")),
+				"type": str(cluster.get("type", "")),
+				"structure_variant_count": len(unique_structure_ids),
+				"reuse_count": len(unique_instance_ids),
+				"covered_projects_count": len(covered_projects),
+				"available_structure_cluster_ids": available_structure_cluster_ids,
+				"items_expanded": items_expanded,
+			}
+		)
 
 	return sorted(
 		rows,
 		key=lambda row: (
-			-int(row.get("relevent_projects_num", 0)),
-			-int(row.get("struc_cluster_num", 0)),
-			-int(row.get("semantic_similar_cluster_id", -1)),
+			str(row.get("domain_name", "")),
+			-int(row.get("reuse_count", 0)),
+			-int(row.get("covered_projects_count", 0)),
+			int(row.get("cluster_id", -1)),
 		),
 	)
 
@@ -564,10 +645,10 @@ def build_output() -> dict[str, Any]:
 		for payload in payloads
 		for cluster in payload.get("structure_similar_clusters", [])
 	]
-	semantic_clusters = [
+	joint_clusters = [
 		cluster
 		for payload in payloads
-		for cluster in payload.get("semantic_similar_clusters", [])
+		for cluster in payload.get("structure_domain_joint_clusters", [])
 	]
 	meta_blocks = [payload.get("meta_data", {}) for payload in payloads]
 	statistics = [payload.get("statistic", {}) for payload in payloads]
@@ -585,8 +666,7 @@ def build_output() -> dict[str, Any]:
 		subgraph_charts=subgraph_charts,
 		parent_cluster_name_map=parent_cluster_name_map,
 	)
-	structure_cluster_name_map = _build_structure_cluster_name_map(structure_clusters)
-	semantic_rows = _build_semantic_rows(semantic_clusters, structure_cluster_name_map)
+	semantic_rows = _build_semantic_rows(joint_clusters, structure_clusters)
 
 	sorted_structure_rows = _sort_structure_rows(structure_rows)
 	grouped_structure_rows = _build_parent_cluster_rows(parent_clusters, sorted_structure_rows)

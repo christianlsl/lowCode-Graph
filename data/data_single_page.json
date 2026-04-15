@@ -1,0 +1,148 @@
+{
+  "parent_clusters": [
+    {
+      "parent_cluster_id": 0,
+      "name": "表单操作组件",
+      "structure_cluster_ids": [
+        0
+      ]
+    }
+  ],
+  "structure_similar_clusters": [
+    {
+      "structure_cluster_id": 0,
+      "type": "单页面",
+      "name": "表单操作组件",
+      "support": 2,
+      "size": 8,
+      "code_lines": 16,
+      "relevent_projects_num": 1,
+      "graph_structure_data": [
+        "v 0 1001",
+        "v 1 0",
+        "v 2 1002",
+        "v 3 1003",
+        "v 4 1004",
+        "v 5 1005",
+        "v 6 3000",
+        "v 7 3000",
+        "e 1 0 8",
+        "e 0 3 8",
+        "e 0 4 8",
+        "e 0 5 8",
+        "e 1 2 8",
+        "e 4 7 4",
+        "e 5 6 4"
+      ],
+      "summary": "该组件结构主要用于创建一个包含多个输入字段和功能按钮的表单界面，适用于数据录入和提交的场景。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": [
+            "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
+          ],
+          "component_id_list": [
+            "/AbnormalBusinessTrips/Management/Toolbar/MainToolbar",
+            "/AbnormalBusinessTrips/Management/Page",
+            "/AbnormalBusinessTrips/Management/Toolbar/TripReasonInput",
+            "/AbnormalBusinessTrips/Management/Toolbar/QueryButton",
+            "/AbnormalBusinessTrips/Management/DataGrid/BusinessTripTable",
+            "/AbnormalBusinessTrips/Management/Toolbar/DepartmentSelect",
+            "/AbnormalBusinessTrips/Service/QueryButtonService",
+            "/AbnormalBusinessTrips/Service/business_trip_city_info_update_time"
+          ],
+          "instance_summary": "支持用户管理和查询异常出差信息。",
+          "domain": "财务管理"
+        },
+        {
+          "instance_id": 1,
+          "page_path": [
+            "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_clock_point_management"
+          ],
+          "component_id_list": [
+            "/AbnormalClockPoint/Management/Toolbar/MainToolbar",
+            "/AbnormalClockPoint/Management/Page",
+            "/AbnormalClockPoint/Management/Toolbar/SubTxtInput",
+            "/AbnormalClockPoint/Management/Toolbar/QueryButton",
+            "/AbnormalClockPoint/Management/DataGrid/ClockPointTable",
+            "/AbnormalClockPoint/Management/Toolbar/PermanentCitySelect",
+            "/AbnormalClockPoint/Service/QueryButtonService",
+            "/AbnormalClockPoint/Service/sign_point_info_update_time"
+          ],
+          "instance_summary": "支持用户管理和查询异常时钟点信息。",
+          "domain": "财务管理"
+        }
+      ],
+      "instance_defference": "这两个组件实例的主要差异在于一个关注异常出差信息，另一个则关注异常时钟点信息。",
+      "domain_clusters": [
+        {
+          "cluster_id": 0,
+          "instance_ids": [
+            0,
+            1
+          ],
+          "domain_summary": "财务管理"
+        }
+      ]
+    }
+  ],
+  "structure_name_clusters": [
+    {
+      "cluster_id": 0,
+      "items": [
+        0
+      ],
+      "summary": "表单操作组件"
+    }
+  ],
+  "structure_domain_clusters": [
+    {
+      "cluster_id": 0,
+      "items": [
+        {
+          "structure_cluster_id": 0,
+          "domain_cluster_id": 0
+        }
+      ],
+      "summary": "财务管理"
+    }
+  ],
+  "structure_domain_joint_clusters": [
+    {
+      "cluster_id": 0,
+      "structure_name_cluster_id": 0,
+      "structure_name": "表单操作组件",
+      "domain_cluster_id": 0,
+      "domain_name": "财务管理",
+      "type": "单页面",
+      "items": [
+        {
+          "structure_cluster_id": 0,
+          "domain_cluster_id": 0,
+          "instance_ids": [
+            0,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "meta_data": {
+    "report_date": "2026-3-11",
+    "report_version": "v1.0",
+    "generator_tool_version": "v1.0",
+    "covered_repositories": [
+      "SQM",
+      "Trouble_ticket"
+    ]
+  },
+  "statistic": {
+    "hotspot_clusters": 1,
+    "hotspot_instances": 2,
+    "projects_involved": 1,
+    "pages_involved": 1,
+    "components_involved": 1,
+    "services_involved": 1,
+    "models_involved": 1
+  }
+}
