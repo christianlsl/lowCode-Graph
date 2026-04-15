@@ -1,20 +1,26 @@
 # lowCode-Graph
 
-一个用于展示低代码热点组件分析结果的可视化项目。
+低代码热点组件分析可视化项目，包含 Python 预处理脚本和 Vue 前端展示。
+
+## 项目概览
 
 项目由两部分组成：
 
-- Python 数据处理脚本：将原始热点子图数据转换成前端可直接消费的结构化 JSON。
-- Vue 可视化前端：基于 Vue 3、Element Plus 和 ECharts 展示概览、定义、结构相似热点和语义相似热点。
+- 数据预处理：通过 [scripts/process_data.py](scripts/process_data.py) 聚合输入数据，生成前端统一数据文件。
+- 前端可视化：基于 Vue 3、Element Plus、ECharts 展示分析概览、定义、结构热点和语义热点。
 
 ## 页面功能
 
-当前界面包含 4 个主要标签页：
+当前界面包含 4 个标签页：
 
-- 分析概览：展示报告元信息和热点组件统计。
-- 相关定义：展示热点组件挖掘定义、相似性维度和支持度规则。
-- 结构相似热点组件：查看结构热点簇列表、父模式标签、实例详情，并支持树形图 / 有向图切换。
-- 语义相似热点组件：查看语义热点簇及其关联的结构簇、语义描述与关键差异点。
+- 分析概览：报告元信息和统计指标。
+- 相关定义：热点定义、相似性维度和支持度规则。
+- 结构相似热点组件：
+  - 结构热点树表和关系图（树形 / 有向图）。
+  - 脚本函数相似（code clone）结果融合在该页，支持函数组对比和代码差异查看。
+- 语义相似热点组件：
+  - 顶部表格展示联合簇（`structure_domain_joint_clusters`）聚合指标。
+  - 明细联动到图卡片，并按“联合簇 -> items -> 实例”展示。
 
 ## 技术栈
 
@@ -30,23 +36,15 @@
 
 ## 快速开始
 
-### 1. 安装前端依赖
+1. 安装依赖
 
 ```bash
 npm install
 ```
 
-### 2. 准备数据文件
+2. 准备输入数据（见“输入文件说明”）
 
-项目当前使用以下输入文件：
-
-- `data/data.json`：热点簇主数据，包含父模式聚类、结构相似与语义相似聚类、统计信息、报告元信息等。
-- `data/edge_and_vertex_mapping.txt`：节点类型与边关系编码映射。
-- `data/defs.json`：相关定义（静态数据）。
-
-如果你已经有现成的 `src/assets/graph_table_data.json`，可以跳过数据处理，直接启动前端。
-
-### 3. 生成前端数据
+3. 生成前端数据
 
 ```bash
 npm run process-data
@@ -58,61 +56,88 @@ npm run process-data
 python scripts/process_data.py
 ```
 
-该步骤会生成或覆盖：
-
-- `src/assets/graph_table_data.json`
-
-### 4. 启动开发环境
+4. 启动开发
 
 ```bash
 npm run dev
 ```
 
-### 5. 构建与预览
+5. 构建与预览
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## 数据流说明
+## 输入文件说明
 
-处理脚本为：
+数据脚本会读取 `data` 目录中的以下文件：
 
-- `scripts/process_data.py`
+- `data/data_*.json`：主输入数据，支持多份合并。
+  - 若不存在 `data_*.json`，会回退读取 `data/data.json`。
+- `data/edge_and_vertex_mapping.txt`：节点类型和边关系编码映射。
+- `data/clone_detection_result.json`：脚本函数相似（code clone）输入，数组结构，可选。
+- `data/defs.json`：定义页静态说明（前端直接使用）。
 
-输入文件：
+## 输出文件说明
 
-- `data/data.json`
-- `data/edge_and_vertex_mapping.txt`
+预处理产物：
 
-静态说明数据：
+- [src/assets/graph_table_data.json](src/assets/graph_table_data.json)
 
-- `data/defs.json`：定义页展示内容和支持度规则。
+主要输出字段：
 
-输出文件：
+- `meta`：报告日期、版本、覆盖仓库等元信息。
+- `overview_stats`：全局统计指标。
+- `structure_hotspot.rows`：结构热点父子分组数据。
+- `clone_detection.rows`：脚本函数组表格数据（挂接到结构热点页）。
+- `clone_detection.groups`：脚本函数组详情和相似度区间。
+- `semantic_hotspot.rows`：语义热点联合簇聚合结果。
+- `charts.subgraphs`：结构子图数据（含 `tree` 字段供树视图展示）。
 
-- `src/assets/graph_table_data.json`
+## 语义热点数据模型（当前实现）
 
-输出 JSON 主要包含：
+`semantic_hotspot.rows` 每一项来自输入 `structure_domain_joint_clusters` 的一个联合簇，核心字段如下：
 
-- `meta`：报告日期、版本、生成工具版本、覆盖仓库等元信息。
-- `overview_stats`：热点簇数量、实例数量、项目数、页面数和组件类型统计。
-- `structure_hotspot.rows`：结构相似热点簇数据（含父模式名称、实例列表和关系图键）。
-- `semantic_hotspot.rows`：语义相似热点簇数据（含关联结构簇映射）。
-- `charts.subgraphs`：子图级关系图数据。
+- `cluster_id`
+- `structure_name`
+- `domain_name`
+- `type`
+- `structure_variant_count`：`items.structure_cluster_id` 去重计数
+- `reuse_count`：`items.instance_ids` 去重计数
+- `covered_projects_count`：命中实例 `page_path` 一级目录去重计数
+- `available_structure_cluster_ids`：可联动图卡片的结构簇 ID 列表
+- `items_expanded`：按 item 展开的明细，含 `instances`
 
-其中 `charts.subgraphs[*]` 额外包含 `tree` 字段，供结构热点页的树形视图使用。
-处理 `structure_hotspot.rows` 时，脚本会读取 `parent_clusters[*].name`，并根据 `structure_cluster_ids` 映射生成 `parent_cluster_name` 字段，供结构热点页以标签形式展示。
+排序规则：
+
+1. `domain_name` 分组（升序）
+2. `reuse_count` 降序
+3. `covered_projects_count` 降序
+4. `cluster_id` 升序
+
+## Code Clone 数据模型（当前实现）
+
+`clone_detection_result.json` 会被转换为：
+
+- `clone_detection.rows`：结构页顶部表格可展示的脚本函数组父子行
+- `clone_detection.groups`：结构页详情区可展开的 type1 函数组、函数源码与相似度信息
+
+结构页中“脚本”类型行支持：
+
+- 函数组左右对比
+- 函数源码展开
+- 高亮差异查看
 
 ## 项目结构
 
 ```text
 lowCode-Graph/
 ├─ data/
+│  ├─ clone_detection_result.json
 │  ├─ defs.json
 │  ├─ edge_and_vertex_mapping.txt
-│  └─ data.json
+│  └─ data_*.json
 ├─ scripts/
 │  └─ process_data.py
 ├─ src/
@@ -137,195 +162,17 @@ lowCode-Graph/
 
 ## 常用命令
 
-- `npm run process-data`：执行数据转换脚本。
-- `npm run dev`：启动 Vite 开发服务器。
+- `npm run process-data`：执行预处理脚本，生成前端数据。
+- `npm run dev`：启动开发服务器。
 - `npm run build`：构建生产版本。
-- `npm run preview`：本地预览构建产物。
+- `npm run preview`：预览构建产物。
 
 ## 部署说明
 
-`vite.config.js` 中已配置 `base: './'`，适合将构建产物部署为相对路径静态站点。
+[vite.config.js](vite.config.js) 已配置 `base: './'`，适合相对路径静态部署。
 
 ## 注意事项
 
-- `npm run process-data` 依赖当前环境中的 `python` 命令，请确保它指向可用的 Python 3。
-- 更新 `data/data.json` 或 `data/edge_and_vertex_mapping.txt` 后，需要重新执行 `npm run process-data`。
-- 如果页面数据与最新分析结果不一致，优先检查 `src/assets/graph_table_data.json` 是否已重新生成。
-
-## 文件结构
-
-### `data.json`
-
-#### 字段定义文档
-
-```json
-{
-  "fields_definition": {
-    "meta_data": {
-      "type": "Object",
-      "description": "报告的元数据信息",
-      "properties": {
-        "report_date": { "type": "String", "description": "报告生成的日期 (YYYY-MM-DD)" },
-        "report_version": { "type": "String", "description": "报告的版本号" },
-        "generator_tool_version": { "type": "String", "description": "生成该报告的工具版本" },
-        "covered_repositories": { "type": "Array[String]", "description": "报告覆盖的代码仓库名称列表" }
-      }
-    },
-    "statistic": {
-      "type": "Object",
-      "description": "全局统计数据摘要",
-      "properties": {
-        "hotspot_clusters": { "type": "Integer", "description": "识别出的热点簇总数" },
-        "hotspot_instances": { "type": "Integer", "description": "热点实例总数" },
-        "projects_involved": { "type": "Integer", "description": "涉及的项目数量" },
-        "pages_involved": { "type": "Integer", "description": "涉及的页面数量" },
-        "components_involved": { "type": "Integer", "description": "涉及的组件数量" },
-        "services_involved": { "type": "Integer", "description": "涉及的服务接口数量" },
-        "models_involved": { "type": "Integer", "description": "涉及的数据模型数量" }
-      }
-    },
-    "parent_clusters": {
-      "type": "Array[Object]",
-      "description": "父模式聚类结果，用于归类多个结构相似簇",
-      "items_properties": {
-        "parent_cluster_id": { "type": "Integer", "description": "父模式的唯一标识 ID" },
-        "name": { "type": "String", "description": "父模式名称，会映射到关联结构簇的 parent_cluster_name 字段" },
-        "difference": { "type": "String", "description": "该父模式下各结构簇之间的共性与差异说明" },
-        "structure_cluster_ids": { "type": "Array[Integer]", "description": "归属于该父模式的结构簇 ID 列表" }
-      }
-    },
-    "structure_similar_clusters": {
-      "type": "Array[Object]",
-      "description": "基于结构相似度聚类的结果列表",
-      "items_properties": {
-        "structure_cluster_id": { "type": "Integer", "description": "结构簇的唯一标识 ID" },
-        "type": { "type": "String", "description": "簇的类别（如：页面、组件）" },
-        "name": { "type": "String", "description": "该结构簇的业务名称" },
-        "parent_cluster_name": { "type": "String", "description": "由 parent_clusters.name 映射得到的父模式名称，展示在结构热点列表名称右侧" },
-        "support": { "type": "Integer", "description": "支持度（该结构出现的频次或实例数）" },
-        "size": { "type": "Integer", "description": "结构内部节点的规模" },
-        "code_lines": { "type": "Integer", "description": "该结构涉及的代码行数" },
-        "relevent_projects_num": { "type": "Integer", "description": "涉及的项目总数" },
-        "graph_structure_data": { "type": "Array[String]", "description": "图结构数据，包含顶点(v)和边(e)的拓扑信息" },
-        "summary": { "type": "String", "description": "该结构的功能与应用场景总结" },
-        "instances": {
-          "type": "Array[Object]",
-          "description": "该结构簇下的具体实现实例",
-          "properties": {
-            "instance_id": { "type": "Integer", "description": "实例唯一 ID" },
-            "page_path": { "type": "String", "description": "实例所在的源代码路径" },
-            "component_id_list": { "type": "Array[String]", "description": "该实例包含的组件或服务 ID 列表" },
-            "instance_summary": { "type": "String", "description": "该特定实例的功能描述" }
-          }
-        },
-        "instance_defference": { "type": "String", "description": "描述该簇下不同实例之间的主要差异点" }
-      }
-    },
-    "semantic_similar_clusters": {
-      "type": "Array[Object]",
-      "description": "基于语义相似度（业务逻辑）聚类的结果列表",
-      "items_properties": {
-        "semantic_similar_cluster_id": { "type": "Integer", "description": "语义簇的唯一标识 ID" },
-        "type": { "type": "String", "description": "簇的类别" },
-        "name": { "type": "String", "description": "语义聚类的名称" },
-        "struc_cluster_num": { "type": "Integer", "description": "包含的结构簇数量" },
-        "relevent_projects_num": { "type": "Integer", "description": "涉及的项目数量" },
-        "description": { "type": "String", "description": "业务语义的详细描述" },
-        "structure_cluster_id": { "type": "Array[Integer]", "description": "该语义簇关联的结构簇 ID 列表" },
-        "instance_defference": { "type": "String", "description": "不同实现方式（如按钮与工具栏）的语义差异描述" }
-      }
-    }
-  }
-}
-```
-
-#### example
-
-```json
-{
-  "meta_data":{
-      "report_date": "2026-3-11",
-      "report_version": "v1.0",
-      "generator_tool_version": "v1.0",
-      "covered_repositories": ["SQM","Trouble_ticket"]
-  },
-  "statistic":{
-    "hotspot_clusters": 1,
-    "hotspot_instances": 2,
-    "projects_involved": 1,
-    "pages_involved": 1,
-    "components_involved": 1,
-    "services_involved": 1,
-    "models_involved": 1
-  },
-  "parent_clusters": [
-    {
-      "parent_cluster_id": 0,
-      "name": "数据查询与展示组件",
-      "difference": "该父模式归纳了多个与数据查询、筛选和展示相关的结构簇。",
-      "structure_cluster_ids": [0, 1, 3]
-    }
-  ],
-  "structure_similar_clusters": [
-    {
-      "structure_cluster_id": 0,
-      "type": "页面",
-      "name": "登录组件",
-      "parent_cluster_name": "数据查询与展示组件",
-      "support": 2,
-      "size": 5,
-      "code_lines": 10,
-      "relevent_projects_num": 2,
-      "graph_structure_data": [
-        "v 0 1001",
-        "v 1 0",
-        "v 2 1002",
-        "v 3 1003",
-        "v 4 1004",
-        "v 5 1005",
-        "v 6 3000",
-        "v 7 3000",
-        "e 1 0 8",
-        "e 0 3 8",
-        "e 0 4 8",
-        "e 0 5 8",
-        "e 1 2 8",
-        "e 4 7 4",
-        "e 5 6 4"
-      ],
-      "summary": "用于登录的组件，包括xxxxxx",
-      "instance_defference": "instance_defference",
-      "instances": [
-        {
-          "instance_id": 0,
-          "page_path": "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management",
-          "component_id_list": ["",""],
-          "instance_summary": "instance_summary_0_1"
-        },
-        {
-          "instance_id": 1,
-          "page_path": "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management",
-          "component_list": ["",""],
-          "instance_summary": "instance_summary_0_2"
-        }
-      ]    
-    }
-  ],
-  "semantic_similar_clusters": [
-    {
-      "semantic_similar_cluster_id": 0,
-      "type": "页面",
-      "name": "通信基站查询组件组合",
-      "struc_cluster_num": 10,
-      "relevent_projects_num": 2,
-      "description": "都是关于通信基站的查询操作",
-      "structure_cluster_id":[1,2,3],
-      "instance_defference":"有些是使用按钮和表格的结实现，有些是使用工具栏和表格的结构实现"
-    }
-  ]
-}
-```
-
-### `edge_and_vertex_mapping.txt`
-
-node和edge的定义dict
+- `npm run process-data` 依赖当前环境中的 `python` 命令。
+- 修改 `data/data_*.json`、`data/clone_detection_result.json`、`data/edge_and_vertex_mapping.txt` 后，需要重新执行 `npm run process-data`。
+- 页面数据异常时，优先检查 [src/assets/graph_table_data.json](src/assets/graph_table_data.json) 是否为最新产物。
