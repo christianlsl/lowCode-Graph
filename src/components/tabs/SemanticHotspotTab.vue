@@ -15,8 +15,8 @@
                 </div>
             </template>
 
-            <el-table :data="filteredRows" border row-key="cluster_id" max-height="50vh"
-                highlight-current-row @current-change="handleCurrentChange">
+            <el-table :data="filteredRows" border row-key="cluster_id" max-height="50vh" highlight-current-row
+                @current-change="handleCurrentChange">
                 <el-table-column prop="cluster_id" label="cluster_id" min-width="110" sortable />
                 <el-table-column prop="structure_name" label="技术功能" min-width="220" show-overflow-tooltip />
                 <el-table-column prop="domain_name" label="业务领域" min-width="180" show-overflow-tooltip />
@@ -91,7 +91,7 @@
                             <el-tag size="small" type="success" effect="light">{{ item.structure_name || '-' }}</el-tag>
                             <el-tag size="small" type="info" effect="plain">复用: {{ item.reuse_count ?? 0 }}</el-tag>
                             <el-tag size="small" type="warning" effect="plain">覆盖工程: {{ item.covered_projects_count ?? 0
-                                }}</el-tag>
+                            }}</el-tag>
                         </div>
                     </div>
 
@@ -106,7 +106,8 @@
                         <el-table-column prop="instance_summary" label="语义描述" min-width="220" show-overflow-tooltip />
                         <el-table-column label="包含组件" min-width="90" align="center">
                             <template #default="scope">
-                                <el-button type="primary" link @click="openComponentListDialog(scope.row)">查看</el-button>
+                                <el-button type="primary" link
+                                    @click="openComponentListDialog(scope.row)">查看</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
