@@ -7,6 +7,14 @@
                     <div class="filter-actions">
                         <el-input v-model="searchKeyword" clearable placeholder="搜索 cluster_id/技术功能/业务领域"
                             class="search-input" />
+                        <el-select v-model="selectedStructureName" class="structure-select" placeholder="选择技术功能">
+                            <el-option label="全部技术功能" value="all" />
+                            <el-option v-for="name in structureNameOptions" :key="name" :label="name" :value="name" />
+                        </el-select>
+                        <el-select v-model="selectedDomainName" class="domain-select" placeholder="选择业务领域">
+                            <el-option label="全部业务领域" value="all" />
+                            <el-option v-for="name in domainNameOptions" :key="name" :label="name" :value="name" />
+                        </el-select>
                         <el-select v-model="selectedType" class="type-select" placeholder="选择组件类型">
                             <el-option label="全部组件类型" value="all" />
                             <el-option v-for="type in componentTypeOptions" :key="type" :label="type" :value="type" />
@@ -91,7 +99,7 @@
                             <el-tag size="small" type="success" effect="light">{{ item.structure_name || '-' }}</el-tag>
                             <el-tag size="small" type="info" effect="plain">复用: {{ item.reuse_count ?? 0 }}</el-tag>
                             <el-tag size="small" type="warning" effect="plain">覆盖工程: {{ item.covered_projects_count ?? 0
-                            }}</el-tag>
+                                }}</el-tag>
                         </div>
                     </div>
 
@@ -150,6 +158,8 @@ const graphMode = ref('tree')
 const selectedRow = ref(null)
 const selectedStructureClusterId = ref(null)
 const searchKeyword = ref('')
+const selectedStructureName = ref('all')
+const selectedDomainName = ref('all')
 const selectedType = ref('all')
 const detailSearchKeyword = ref('')
 const componentListDialogVisible = ref(false)
@@ -165,6 +175,26 @@ const componentTypeOptions = computed(() => {
         }
     }
     return Array.from(typeSet)
+})
+
+const structureNameOptions = computed(() => {
+    const nameSet = new Set()
+    for (const row of props.rows) {
+        if (row?.structure_name) {
+            nameSet.add(row.structure_name)
+        }
+    }
+    return Array.from(nameSet).sort((a, b) => String(a).localeCompare(String(b), 'zh-Hans-CN'))
+})
+
+const domainNameOptions = computed(() => {
+    const nameSet = new Set()
+    for (const row of props.rows) {
+        if (row?.domain_name) {
+            nameSet.add(row.domain_name)
+        }
+    }
+    return Array.from(nameSet).sort((a, b) => String(a).localeCompare(String(b), 'zh-Hans-CN'))
 })
 
 const sortedRows = computed(() => {
@@ -187,7 +217,11 @@ const filteredRows = computed(() => {
     const keyword = searchKeyword.value.trim().toLowerCase()
     return sortedRows.value.filter((row) => {
         const matchesType = selectedType.value === 'all' || row.type === selectedType.value
+        const matchesStructureName = selectedStructureName.value === 'all' || row.structure_name === selectedStructureName.value
+        const matchesDomainName = selectedDomainName.value === 'all' || row.domain_name === selectedDomainName.value
         if (!matchesType) return false
+        if (!matchesStructureName) return false
+        if (!matchesDomainName) return false
 
         if (!keyword) return true
 
@@ -475,6 +509,11 @@ onBeforeUnmount(() => {
     width: 180px;
 }
 
+.structure-select,
+.domain-select {
+    width: 220px;
+}
+
 .chart-empty {
     min-height: 120px;
     display: flex;
@@ -611,6 +650,8 @@ onBeforeUnmount(() => {
     }
 
     .search-input,
+    .structure-select,
+    .domain-select,
     .type-select {
         width: 100%;
     }
