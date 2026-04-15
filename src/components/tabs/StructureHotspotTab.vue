@@ -25,7 +25,7 @@
             </template>
 
             <el-table
-                :data="treeRows"
+                :data="paginatedTreeRows"
                 border
                 row-key="row_id"
                 max-height="46vh"
@@ -78,6 +78,16 @@
                     </template>
                 </el-table-column>
             </el-table>
+
+            <div class="table-pagination">
+                <el-pagination
+                    v-model:current-page="tableCurrentPage"
+                    v-model:page-size="tablePageSize"
+                    :page-sizes="[10, 20, 50]"
+                    layout="total, sizes, prev, pager, next"
+                    :total="treeRows.length"
+                />
+            </div>
         </el-card>
 
         <el-card class="panel-card chart-card" shadow="hover">
@@ -231,7 +241,7 @@
                         </template>
 
                         <div
-                            v-for="(func, index) in typeGroup.functions"
+                            v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
                             :key="`${typeGroup.detail_key}-${index}-${func.file_path || 'code'}`"
                             class="function-snippet"
                         >
@@ -242,9 +252,15 @@
                                 </el-tag>
                             </div>
                             <pre
-                                v-if="isCloneTypeGroupExpanded(typeGroup.detail_key)"
+                                v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && index === 0"
                                 class="code-block"
                             ><code class="hljs language-javascript" v-html="highlightJsCode(func.code)"></code></pre>
+                        </div>
+
+                        <div v-if="typeGroup.functions?.length > 10" class="type-group-expand-actions">
+                            <el-button type="primary" link @click="toggleTypeGroupFunctionList(typeGroup.detail_key)">
+                                {{ isTypeGroupFunctionListExpanded(typeGroup.detail_key) ? '收起函数列表' : `展开全部函数 (${typeGroup.functions.length})` }}
+                            </el-button>
                         </div>
                     </el-card>
                 </div>
@@ -348,9 +364,12 @@ const componentListDialogVisible = ref(false)
 const selectedComponentList = ref([])
 const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
+const tableCurrentPage = ref(1)
+const tablePageSize = ref(10)
 const leftDiffIndex = ref(0)
 const rightDiffIndex = ref(1)
 const expandedCloneCodeMap = ref({})
+const expandedTypeGroupFunctionMap = ref({})
 const activeDetailGroupKey = ref('')
 const cloneDetailRefs = new Map()
 let chartInstance = null
@@ -431,6 +450,12 @@ const treeRows = computed(() => {
             }
         })
         .filter(Boolean)
+})
+
+const paginatedTreeRows = computed(() => {
+    const start = (tableCurrentPage.value - 1) * tablePageSize.value
+    const end = start + tablePageSize.value
+    return treeRows.value.slice(start, end)
 })
 
 const flattenedStructureRows = computed(() => {
@@ -748,6 +773,23 @@ const toggleCloneTypeGroup = (detailKey) => {
 
 const isCloneTypeGroupExpanded = (detailKey) => !!expandedCloneCodeMap.value[detailKey]
 
+const toggleTypeGroupFunctionList = (detailKey) => {
+    expandedTypeGroupFunctionMap.value = {
+        ...expandedTypeGroupFunctionMap.value,
+        [detailKey]: !expandedTypeGroupFunctionMap.value[detailKey]
+    }
+}
+
+const isTypeGroupFunctionListExpanded = (detailKey) => !!expandedTypeGroupFunctionMap.value[detailKey]
+
+const getVisibleTypeGroupFunctions = (typeGroup) => {
+    const functions = Array.isArray(typeGroup?.functions) ? typeGroup.functions : []
+    if (isTypeGroupFunctionListExpanded(typeGroup?.detail_key)) {
+        return functions
+    }
+    return functions.slice(0, 10)
+}
+
 const initSelection = async () => {
     if (!flattenedStructureRows.value.length) {
         selectedStructureRow.value = null
@@ -774,6 +816,17 @@ watch(
     },
     { immediate: true }
 )
+
+watch([treeRows, tablePageSize], () => {
+    const maxPage = Math.max(1, Math.ceil(treeRows.value.length / tablePageSize.value))
+    if (tableCurrentPage.value > maxPage) {
+        tableCurrentPage.value = maxPage
+    }
+})
+
+watch([searchKeyword, selectedType], () => {
+    tableCurrentPage.value = 1
+})
 
 watch(activeCloneGroup, (group) => {
     if (!group) return
@@ -887,6 +940,12 @@ onBeforeUnmount(() => {
     border-radius: 10px;
     padding: 12px;
     background: #f8fbff;
+}
+
+.table-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
 }
 
 .graph-tree {
@@ -1079,6 +1138,12 @@ onBeforeUnmount(() => {
 
 .function-snippet + .function-snippet {
     margin-top: 12px;
+}
+
+.type-group-expand-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
 }
 
 .function-meta {
