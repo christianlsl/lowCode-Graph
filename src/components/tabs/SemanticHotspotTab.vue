@@ -76,9 +76,9 @@
                 <el-descriptions :column="1" :border="false" class="detail-descriptions">
                     <el-descriptions-item label="业务领域">{{ row.domain_name || '-' }}</el-descriptions-item>
                     <el-descriptions-item label="类型">{{ row.type || '-' }}</el-descriptions-item>
-                    <el-descriptions-item label="结构变体总数">{{ row.structure_variant_count ?? 0 }}</el-descriptions-item>
+                    <!-- <el-descriptions-item label="结构变体总数">{{ row.structure_variant_count ?? 0 }}</el-descriptions-item>
                     <el-descriptions-item label="复用次数">{{ row.reuse_count ?? 0 }}</el-descriptions-item>
-                    <el-descriptions-item label="覆盖工程数">{{ row.covered_projects_count ?? 0 }}</el-descriptions-item>
+                    <el-descriptions-item label="覆盖工程数">{{ row.covered_projects_count ?? 0 }}</el-descriptions-item> -->
                 </el-descriptions>
 
                 <div v-if="!(row.items_display || []).length" class="empty-items">暂无明细项。</div>
