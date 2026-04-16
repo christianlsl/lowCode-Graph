@@ -135,6 +135,8 @@
                     class="detail-search-input" />
             </div>
 
+            <el-empty v-if="!hasActiveDetailSelection" description="请在上方表格中点击查看详情" />
+
             <el-card v-for="group in detailFilteredCloneGroups" :key="group.group_key"
                 :ref="(el) => setCloneDetailRef(group.group_key, el)"
                 class="panel-card detail-item-card clone-detail-card" shadow="hover"
@@ -422,19 +424,18 @@ const flattenedStructureRows = computed(() => {
 })
 
 const detailFilteredStructureRows = computed(() => {
-    const keyword = detailSearchKeyword.value.trim().toLowerCase()
-    if (!keyword) return flattenedStructureRows.value
+    const selectedRow = selectedStructureRowForDetail.value
+    if (!selectedRow) return []
 
-    return flattenedStructureRows.value
-        .map((row) => {
-            const instances = Array.isArray(row.instances)
-                ? row.instances.filter((instance) =>
-                    String(instance?.instance_summary || '').toLowerCase().includes(keyword)
-                )
-                : []
-            return { ...row, instances }
-        })
-        .filter((row) => row.instances.length > 0)
+    const keyword = detailSearchKeyword.value.trim().toLowerCase()
+    if (!keyword) return [selectedRow]
+
+    const instances = Array.isArray(selectedRow.instances)
+        ? selectedRow.instances.filter((instance) =>
+            String(instance?.instance_summary || '').toLowerCase().includes(keyword)
+        )
+        : []
+    return [{ ...selectedRow, instances }]
 })
 
 const normalizedCloneGroups = computed(() => {
@@ -448,19 +449,39 @@ const normalizedCloneGroups = computed(() => {
 })
 
 const detailFilteredCloneGroups = computed(() => {
+    const selectedGroup = selectedCloneGroupForDetail.value
+    if (!selectedGroup) return []
+
     const keyword = detailSearchKeyword.value.trim().toLowerCase()
-    if (!keyword) return normalizedCloneGroups.value
+    if (!keyword) return [selectedGroup]
 
-    return normalizedCloneGroups.value.filter((group) => {
-        const summaryValues = Object.values(group.summary || {}).map((value) => String(value || '').toLowerCase())
-        const summaryMatched = summaryValues.some((value) => value.includes(keyword))
-        if (summaryMatched) return true
+    const summaryValues = Object.values(selectedGroup.summary || {}).map((value) => String(value || '').toLowerCase())
+    const summaryMatched = summaryValues.some((value) => value.includes(keyword))
+    if (summaryMatched) return [selectedGroup]
 
-        return group.type1_group.some((typeGroup) =>
-            String(typeGroup.group_name || '').toLowerCase().includes(keyword)
-            || String(typeGroup.functionality || '').toLowerCase().includes(keyword)
-        )
-    })
+    const typeGroupMatched = selectedGroup.type1_group.some((typeGroup) =>
+        String(typeGroup.group_name || '').toLowerCase().includes(keyword)
+        || String(typeGroup.functionality || '').toLowerCase().includes(keyword)
+    )
+    return typeGroupMatched ? [selectedGroup] : []
+})
+
+const selectedCloneGroupForDetail = computed(() => {
+    if (!activeDetailGroupKey.value) return null
+
+    return normalizedCloneGroups.value.find((group) => {
+        if (group.group_key !== activeDetailGroupKey.value) return false
+        return treeRows.value.some((row) => row._source === 'clone' && row.parent_cluster_id === group.parent_cluster_id)
+    }) || null
+})
+
+const selectedStructureRowForDetail = computed(() => {
+    if (activeStructureDetailId.value === null || activeStructureDetailId.value === undefined) return null
+    return flattenedStructureRows.value.find((row) => row.structure_cluster_id === activeStructureDetailId.value) || null
+})
+
+const hasActiveDetailSelection = computed(() => {
+    return !!selectedCloneGroupForDetail.value || !!selectedStructureRowForDetail.value
 })
 
 const selectedPayload = computed(() => {
@@ -575,15 +596,12 @@ const openStructureParentDetail = async (row) => {
     const targetClusterId = firstChild?.structure_cluster_id
     if (targetClusterId === null || targetClusterId === undefined) return
 
+    detailSearchKeyword.value = ''
+    activeDetailGroupKey.value = ''
     activeStructureDetailId.value = targetClusterId
     await nextTick()
 
-    let targetElement = structureDetailRefs.get(targetClusterId)
-    if (!targetElement && detailSearchKeyword.value) {
-        detailSearchKeyword.value = ''
-        await nextTick()
-        targetElement = structureDetailRefs.get(targetClusterId)
-    }
+    const targetElement = structureDetailRefs.get(targetClusterId)
 
     targetElement?.scrollIntoView({
         behavior: 'smooth',
@@ -595,6 +613,8 @@ const openCloneDetail = async (row) => {
     const cloneGroup = normalizedCloneGroups.value.find((group) => group.parent_cluster_id === row.parent_cluster_id)
     if (!cloneGroup) return
 
+    detailSearchKeyword.value = ''
+    activeStructureDetailId.value = null
     activeDetailGroupKey.value = cloneGroup.group_key
     await nextTick()
     cloneDetailRefs.get(cloneGroup.group_key)?.scrollIntoView({
@@ -812,6 +832,15 @@ watch([treeRows, tablePageSize], () => {
 
 watch([searchKeyword, selectedType], () => {
     tableCurrentPage.value = 1
+})
+
+watch([selectedCloneGroupForDetail, selectedStructureRowForDetail], ([cloneGroup, structureRow]) => {
+    if (!cloneGroup && activeDetailGroupKey.value) {
+        activeDetailGroupKey.value = ''
+    }
+    if (!structureRow && activeStructureDetailId.value !== null) {
+        activeStructureDetailId.value = null
+    }
 })
 
 watch(activeCloneGroup, (group) => {
