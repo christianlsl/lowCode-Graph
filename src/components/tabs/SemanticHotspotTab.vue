@@ -26,8 +26,8 @@
             <el-table :data="filteredRows" border row-key="cluster_id" max-height="50vh" highlight-current-row
                 @current-change="handleCurrentChange">
                 <el-table-column prop="cluster_id" label="cluster_id" min-width="110" sortable />
-                <el-table-column prop="structure_name" label="技术功能" min-width="220" show-overflow-tooltip />
                 <el-table-column prop="domain_name" label="业务领域" min-width="180" show-overflow-tooltip />
+                <el-table-column prop="structure_name" label="技术功能" min-width="220" show-overflow-tooltip />
                 <el-table-column prop="type" label="类型" min-width="120" />
                 <el-table-column prop="structure_variant_count" label="结构变体总数" min-width="130" sortable />
                 <el-table-column prop="reuse_count" label="复用次数" min-width="110" sortable />

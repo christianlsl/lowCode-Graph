@@ -17,7 +17,7 @@
 
             <el-table :data="paginatedTreeRows" border row-key="row_id" max-height="46vh" highlight-current-row
                 :tree-props="{ children: 'children' }" @current-change="handleCurrentChange"
-                :row-class-name="tableRowClassName">
+                :row-class-name="tableRowClassName" @sort-change="handleSortChange">
                 <el-table-column label="簇类型" min-width="120">
                     <template #default="scope">
                         {{ getRowType(scope.row) }}
@@ -33,18 +33,18 @@
                         {{ scope.row.name || '-' }}
                     </template>
                 </el-table-column>
-                <el-table-column label="组件大小" min-width="100">
+                <el-table-column label="组件大小" prop="size" min-width="100" sortable="custom">
                     <template #default="scope">
                         {{ formatDisplayValue(scope.row._isParent ? getRange(scope.row.children, 'size') :
                             scope.row.size) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="复用次数" min-width="110">
+                <el-table-column label="复用次数" prop="support" min-width="110" sortable="custom">
                     <template #default="scope">
                         {{ formatDisplayValue(scope.row.support) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="涉及工程个数" min-width="120">
+                <el-table-column label="涉及工程个数" prop="relevent_projects_num" min-width="120" sortable="custom">
                     <template #default="scope">
                         {{ formatDisplayValue(scope.row.relevent_projects_num) }}
                     </template>
@@ -319,6 +319,10 @@ const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
 const tableCurrentPage = ref(1)
 const tablePageSize = ref(10)
+const sortState = ref({
+    prop: '',
+    order: null
+})
 const leftDiffIndex = ref(0)
 const rightDiffIndex = ref(1)
 const expandedCloneCodeMap = ref({})
@@ -379,7 +383,7 @@ const componentTypeOptions = computed(() => {
 const treeRows = computed(() => {
     const keyword = searchKeyword.value.trim().toLowerCase()
 
-    return normalizedRows.value
+    const filteredRows = normalizedRows.value
         .map((parentRow) => {
             const parentNameText = String(parentRow?.name || '').toLowerCase()
             const parentClusterText = String(parentRow?.parent_cluster_id || '').toLowerCase()
@@ -405,6 +409,12 @@ const treeRows = computed(() => {
             }
         })
         .filter(Boolean)
+
+    if (!sortState.value.prop || !sortState.value.order) {
+        return filteredRows
+    }
+
+    return [...filteredRows].sort((a, b) => compareParentRows(a, b, sortState.value.prop, sortState.value.order))
 })
 
 const paginatedTreeRows = computed(() => {
@@ -732,6 +742,59 @@ const getRange = (children, key) => {
     const min = Math.min(...values)
     const max = Math.max(...values)
     return min === max ? `${min}` : `${min}~${max}`
+}
+
+const toSortableNumber = (value) => {
+    if (value === null || value === undefined || value === '' || value === 'none') return null
+    const numeric = Number(value)
+    return Number.isFinite(numeric) ? numeric : null
+}
+
+const getNumericValuesFromChildren = (children, key) => {
+    if (!Array.isArray(children) || !children.length) return []
+    return children
+        .map((child) => toSortableNumber(child?.[key]))
+        .filter((value) => value !== null)
+}
+
+const getParentSortValue = (row, prop) => {
+    if (!row || row._isParent === false) return null
+
+    if (prop === 'size') {
+        const childValues = getNumericValuesFromChildren(row.children, 'size')
+        return childValues.length ? Math.min(...childValues) : null
+    }
+
+    const parentValue = toSortableNumber(row[prop])
+    if (parentValue !== null) {
+        return parentValue
+    }
+
+    const childValues = getNumericValuesFromChildren(row.children, prop)
+    if (!childValues.length) return null
+
+    return childValues.reduce((sum, current) => sum + current, 0)
+}
+
+const compareParentRows = (a, b, prop, order) => {
+    const aValue = getParentSortValue(a, prop)
+    const bValue = getParentSortValue(b, prop)
+    const aMissing = aValue === null
+    const bMissing = bValue === null
+
+    if (aMissing && bMissing) return 0
+    if (aMissing) return 1
+    if (bMissing) return -1
+
+    return order === 'ascending' ? aValue - bValue : bValue - aValue
+}
+
+const handleSortChange = ({ prop, order }) => {
+    sortState.value = {
+        prop: prop || '',
+        order: order || null
+    }
+    tableCurrentPage.value = 1
 }
 
 const formatSimilarity = (value) => {

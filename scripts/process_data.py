@@ -149,6 +149,36 @@ def _extract_top_level_dir(file_path: Any) -> str:
 	return parts[0] if parts else ""
 
 
+def _to_positive_int(value: Any) -> int | None:
+	try:
+		parsed = int(value)
+	except (TypeError, ValueError):
+		return None
+	return parsed if parsed > 0 else None
+
+
+def _sum_function_code_lines(functions: list[dict[str, Any]]) -> int:
+	total_lines = 0
+	for function_item in functions:
+		if not isinstance(function_item, dict):
+			continue
+		start_line = _to_positive_int(function_item.get("start_line"))
+		end_line = _to_positive_int(function_item.get("end_line"))
+		if start_line is None or end_line is None or end_line < start_line:
+			continue
+		total_lines += end_line - start_line + 1
+	return total_lines
+
+
+def _count_unique_function_files(functions: list[dict[str, Any]]) -> int:
+	file_paths = {
+		str(function_item.get("file_path", "")).strip()
+		for function_item in functions
+		if isinstance(function_item, dict) and str(function_item.get("file_path", "")).strip()
+	}
+	return len(file_paths)
+
+
 def _extract_top_level_page(page_path: Any) -> str:
 	parts = [part for part in str(page_path).split("/") if part]
 	return parts[0] if parts else ""
@@ -405,13 +435,15 @@ def _build_clone_detection_payload(
 				for function_item in functions
 				if _extract_top_level_dir(function_item.get("file_path", ""))
 			}
+			code_line_count = _sum_function_code_lines(functions)
+			file_count = _count_unique_function_files(functions)
 			structure_cluster_id = parent_cluster_id + child_index
 			child_row = {
 				"type": "脚本",
 				"structure_cluster_id": structure_cluster_id,
 				"name": str(type1_group.get("group_name", "")).strip() or f"函数组 {child_index}",
-				"size": None,
-				"support": None,
+				"size": code_line_count,
+				"support": file_count,
 				"relevent_projects_num": len(project_dirs),
 				"clone_group_index": group_index,
 				"type1_group_index": child_index - 1,
@@ -428,13 +460,15 @@ def _build_clone_detection_payload(
 				}
 			)
 
+		parent_support = sum(int(child.get("support", 0)) for child in children)
+
 		table_rows.append(
 			{
 				"parent_cluster_id": parent_cluster_id,
 				"name": parent_name,
 				"type": "脚本",
 				"size": None,
-				"support": None,
+				"support": parent_support,
 				"relevent_projects_num": len(relevant_projects),
 				"clone_group_index": group_index,
 				"children": children,
