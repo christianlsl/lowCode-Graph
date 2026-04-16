@@ -159,7 +159,8 @@
                         </div>
                     </el-descriptions-item>
                     <el-descriptions-item label="Type-1组差异">
-                        <div class="markdown-content" v-html="renderMarkdown(group.summary.type1_group_differences)">
+                        <div class="markdown-content"
+                            v-html="group.type1_group?.length === 1 ? '-' : renderMarkdown(group.summary.type1_group_differences)">
                         </div>
                     </el-descriptions-item>
                     <el-descriptions-item label="复用机会">
