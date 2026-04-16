@@ -442,11 +442,19 @@ def _build_clone_detection_payload(
 			}
 		)
 
-		similarity_values = [
-			float(item.get("similarity"))
-			for item in group.get("type1_group_similarity", [])
-			if isinstance(item, dict) and isinstance(item.get("similarity"), (int, float))
-		]
+		similarity_values: list[float] = []
+		for item in group.get("type1_group_similarity", []):
+			if not isinstance(item, dict):
+				continue
+			similarity = item.get("similarity")
+			if isinstance(similarity, (int, float)):
+				similarity_values.append(float(similarity))
+		if len(type1_groups) == 1 and not similarity_values:
+			similarity_range_min = 1.0
+			similarity_range_max = 1.0
+		else:
+			similarity_range_min = min(similarity_values) if similarity_values else None
+			similarity_range_max = max(similarity_values) if similarity_values else None
 		detail_groups.append(
 			{
 				"group_key": f"clone-group-{group_index}",
@@ -454,8 +462,8 @@ def _build_clone_detection_payload(
 				"summary": summary,
 				"relevent_projects": relevant_projects,
 				"similarity_range": {
-					"min": min(similarity_values) if similarity_values else None,
-					"max": max(similarity_values) if similarity_values else None,
+					"min": similarity_range_min,
+					"max": similarity_range_max,
 				},
 				"type1_group_similarity": group.get("type1_group_similarity", []),
 				"type1_group": detail_type1_groups,

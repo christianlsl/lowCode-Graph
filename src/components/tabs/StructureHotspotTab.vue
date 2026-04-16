@@ -5,35 +5,19 @@
                 <div class="card-header with-filter">
                     <span>结构相似热点组件</span>
                     <div class="filter-actions">
-                        <el-input
-                            v-model="searchKeyword"
-                            clearable
-                            placeholder="搜索热点簇名称/结构cluster_id/脚本函数组"
-                            class="search-input"
-                        />
+                        <el-input v-model="searchKeyword" clearable placeholder="搜索热点簇名称/结构cluster_id/脚本函数组"
+                            class="search-input" />
                         <el-select v-model="selectedType" class="type-select" placeholder="选择组件类型">
                             <el-option label="全部组件类型" value="all" />
-                            <el-option
-                                v-for="type in componentTypeOptions"
-                                :key="type"
-                                :label="type"
-                                :value="type"
-                            />
+                            <el-option v-for="type in componentTypeOptions" :key="type" :label="type" :value="type" />
                         </el-select>
                     </div>
                 </div>
             </template>
 
-            <el-table
-                :data="paginatedTreeRows"
-                border
-                row-key="row_id"
-                max-height="46vh"
-                highlight-current-row
-                :tree-props="{ children: 'children' }"
-                @current-change="handleCurrentChange"
-                :row-class-name="tableRowClassName"
-            >
+            <el-table :data="paginatedTreeRows" border row-key="row_id" max-height="46vh" highlight-current-row
+                :tree-props="{ children: 'children' }" @current-change="handleCurrentChange"
+                :row-class-name="tableRowClassName">
                 <el-table-column label="簇类型" min-width="120">
                     <template #default="scope">
                         {{ getRowType(scope.row) }}
@@ -51,7 +35,8 @@
                 </el-table-column>
                 <el-table-column label="组件大小" min-width="100">
                     <template #default="scope">
-                        {{ formatDisplayValue(scope.row._isParent ? getRange(scope.row.children, 'size') : scope.row.size) }}
+                        {{ formatDisplayValue(scope.row._isParent ? getRange(scope.row.children, 'size') :
+                            scope.row.size) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="复用次数" min-width="110">
@@ -66,12 +51,9 @@
                 </el-table-column>
                 <el-table-column label="详情" min-width="150" fixed="right">
                     <template #default="scope">
-                        <el-button
-                            v-if="getActionLabel(scope.row)"
-                            :type="scope.row._source === 'clone' ? 'warning' : 'success'"
-                            plain
-                            @click="handleDetailAction(scope.row)"
-                        >
+                        <el-button v-if="getActionLabel(scope.row)"
+                            :type="scope.row._source === 'clone' ? 'warning' : 'success'" plain
+                            @click="handleDetailAction(scope.row)">
                             {{ getActionLabel(scope.row) }}
                         </el-button>
                         <span v-else>-</span>
@@ -80,13 +62,8 @@
             </el-table>
 
             <div class="table-pagination">
-                <el-pagination
-                    v-model:current-page="tableCurrentPage"
-                    v-model:page-size="tablePageSize"
-                    :page-sizes="[10, 20, 50]"
-                    layout="total, sizes, prev, pager, next"
-                    :total="treeRows.length"
-                />
+                <el-pagination v-model:current-page="tableCurrentPage" v-model:page-size="tablePageSize"
+                    :page-sizes="[10, 20, 50]" layout="total, sizes, prev, pager, next" :total="treeRows.length" />
             </div>
         </el-card>
 
@@ -107,13 +84,10 @@
                         <div class="diff-selector-column">
                             <div class="selector-label">左侧函数组</div>
                             <div class="selector-list">
-                                <el-button
-                                    v-for="(group, index) in activeCloneGroup.type1_group"
+                                <el-button v-for="(group, index) in activeCloneGroup.type1_group"
                                     :key="`left-${group.detail_key}`"
-                                    :type="leftDiffIndex === index ? 'primary' : 'default'"
-                                    size="small"
-                                    @click="leftDiffIndex = index"
-                                >
+                                    :type="leftDiffIndex === index ? 'primary' : 'default'" size="small"
+                                    @click="leftDiffIndex = index">
                                     {{ group.group_name || `函数组 ${index + 1}` }}
                                 </el-button>
                             </div>
@@ -124,13 +98,10 @@
                         <div class="diff-selector-column">
                             <div class="selector-label">右侧函数组</div>
                             <div class="selector-list">
-                                <el-button
-                                    v-for="(group, index) in activeCloneGroup.type1_group"
+                                <el-button v-for="(group, index) in activeCloneGroup.type1_group"
                                     :key="`right-${group.detail_key}`"
-                                    :type="rightDiffIndex === index ? 'primary' : 'default'"
-                                    size="small"
-                                    @click="rightDiffIndex = index"
-                                >
+                                    :type="rightDiffIndex === index ? 'primary' : 'default'" size="small"
+                                    @click="rightDiffIndex = index">
                                     {{ group.group_name || `函数组 ${index + 1}` }}
                                 </el-button>
                             </div>
@@ -141,18 +112,9 @@
                     </div>
 
                     <div class="diff-view-wrap">
-                        <CodeDiff
-                            :old-string="leftDiffCode"
-                            :new-string="rightDiffCode"
-                            language="javascript"
-                            :context="20"
-                            output-format="side-by-side"
-                            diff-style="word"
-                            :hide-header="true"
-                            :hide-stat="true"
-                            max-height="72vh"
-                            :filename="diffFileName"
-                        />
+                        <CodeDiff :old-string="leftDiffCode" :new-string="rightDiffCode" language="javascript"
+                            :context="20" output-format="side-by-side" diff-style="word" :hide-header="true"
+                            :hide-stat="true" max-height="72vh" :filename="diffFileName" />
                     </div>
                 </div>
                 <el-empty v-else description="请选择脚本函数组查看代码差异" />
@@ -169,22 +131,14 @@
         <section class="detail-section">
             <div class="section-title with-detail-search">
                 <span>结构相似热点组件详情</span>
-                <el-input
-                    v-model="detailSearchKeyword"
-                    clearable
-                    placeholder="搜索脚本函数组说明或结构实例语义"
-                    class="detail-search-input"
-                />
+                <el-input v-model="detailSearchKeyword" clearable placeholder="搜索脚本函数组说明或结构实例语义"
+                    class="detail-search-input" />
             </div>
 
-            <el-card
-                v-for="group in detailFilteredCloneGroups"
-                :key="group.group_key"
+            <el-card v-for="group in detailFilteredCloneGroups" :key="group.group_key"
                 :ref="(el) => setCloneDetailRef(group.group_key, el)"
-                class="panel-card detail-item-card clone-detail-card"
-                shadow="hover"
-                :class="{ 'is-active-card': activeDetailGroupKey === group.group_key }"
-            >
+                class="panel-card detail-item-card clone-detail-card" shadow="hover"
+                :class="{ 'is-active-card': activeDetailGroupKey === group.group_key }">
                 <template #header>
                     <div class="card-header detail-header">
                         <span>{{ group.summary.group_name || '未命名函数组' }}</span>
@@ -199,17 +153,20 @@
                         <div class="markdown-content" v-html="renderMarkdown(group.summary.group_name)"></div>
                     </el-descriptions-item>
                     <el-descriptions-item label="整体功能">
-                        <div class="markdown-content" v-html="renderMarkdown(group.summary.overall_functionality)"></div>
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.overall_functionality)">
+                        </div>
                     </el-descriptions-item>
                     <el-descriptions-item label="Type-1组差异">
-                        <div class="markdown-content" v-html="renderMarkdown(group.summary.type1_group_differences)"></div>
+                        <div class="markdown-content" v-html="renderMarkdown(group.summary.type1_group_differences)">
+                        </div>
                     </el-descriptions-item>
                     <el-descriptions-item label="复用机会">
                         <div class="markdown-content" v-html="renderMarkdown(group.summary.reuse_opportunities)"></div>
                     </el-descriptions-item>
                     <el-descriptions-item label="涉及工程">
                         <div class="tag-list">
-                            <el-tag v-for="project in group.relevent_projects" :key="project" size="small" effect="plain">
+                            <el-tag v-for="project in group.relevent_projects" :key="project" size="small"
+                                effect="plain">
                                 {{ project }}
                             </el-tag>
                             <span v-if="!group.relevent_projects.length">-</span>
@@ -222,17 +179,15 @@
 
                 <div class="subsection-title">Type-1 函数组</div>
                 <div class="function-list">
-                    <el-card
-                        v-for="typeGroup in group.type1_group"
-                        :key="typeGroup.detail_key"
-                        class="function-card"
-                        shadow="never"
-                    >
+                    <el-card v-for="typeGroup in group.type1_group" :key="typeGroup.detail_key" class="function-card"
+                        shadow="never">
                         <template #header>
                             <div class="function-header">
                                 <div class="function-header-text">
-                                    <div class="function-group-title markdown-content" v-html="renderMarkdown(typeGroup.group_name)"></div>
-                                    <div class="function-group-desc markdown-content" v-html="renderMarkdown(typeGroup.functionality)"></div>
+                                    <div class="function-group-title markdown-content"
+                                        v-html="renderMarkdown(typeGroup.group_name)"></div>
+                                    <div class="function-group-desc markdown-content"
+                                        v-html="renderMarkdown(typeGroup.functionality)"></div>
                                 </div>
                                 <el-button type="primary" link @click="toggleCloneTypeGroup(typeGroup.detail_key)">
                                     {{ isCloneTypeGroupExpanded(typeGroup.detail_key) ? '收起代码' : '展开代码' }}
@@ -240,38 +195,33 @@
                             </div>
                         </template>
 
-                        <div
-                            v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
+                        <div v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
                             :key="`${typeGroup.detail_key}-${index}-${func.file_path || 'code'}`"
-                            class="function-snippet"
-                        >
+                            class="function-snippet">
                             <div class="function-meta">
                                 <span>{{ func.file_path || '-' }}</span>
                                 <el-tag size="small" type="info" effect="plain">
                                     {{ formatLineRange(func.start_line, func.end_line) }}
                                 </el-tag>
                             </div>
-                            <pre
-                                v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && index === 0"
-                                class="code-block"
-                            ><code class="hljs language-javascript" v-html="highlightJsCode(func.code)"></code></pre>
+                            <pre v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && index === 0"
+                                class="code-block"><code
+                            class="hljs language-javascript" v-html="highlightJsCode(func.code)"></code></pre>
                         </div>
 
                         <div v-if="typeGroup.functions?.length > 10" class="type-group-expand-actions">
                             <el-button type="primary" link @click="toggleTypeGroupFunctionList(typeGroup.detail_key)">
-                                {{ isTypeGroupFunctionListExpanded(typeGroup.detail_key) ? '收起函数列表' : `展开全部函数 (${typeGroup.functions.length})` }}
+                                {{ isTypeGroupFunctionListExpanded(typeGroup.detail_key) ? '收起函数列表' : `展开全部函数
+                                (${typeGroup.functions.length})` }}
                             </el-button>
                         </div>
                     </el-card>
                 </div>
             </el-card>
 
-            <el-card
-                v-for="row in detailFilteredStructureRows"
-                :key="row.structure_cluster_id"
-                class="panel-card detail-item-card"
-                shadow="hover"
-            >
+            <el-card v-for="row in detailFilteredStructureRows" :key="row.structure_cluster_id"
+                :ref="(el) => setStructureDetailRef(row.structure_cluster_id, el)" class="panel-card detail-item-card"
+                shadow="hover" :class="{ 'is-active-card': activeStructureDetailId === row.structure_cluster_id }">
                 <template #header>
                     <div class="card-header detail-header">
                         <span>{{ row.name || '未命名结构簇' }}</span>
@@ -371,7 +321,9 @@ const rightDiffIndex = ref(1)
 const expandedCloneCodeMap = ref({})
 const expandedTypeGroupFunctionMap = ref({})
 const activeDetailGroupKey = ref('')
+const activeStructureDetailId = ref(null)
 const cloneDetailRefs = new Map()
+const structureDetailRefs = new Map()
 let chartInstance = null
 
 const normalizedRows = computed(() => {
@@ -570,7 +522,7 @@ const getRowType = (row) => {
 
 const formatDisplayValue = (value) => {
     if (value === null || value === undefined || value === '' || value === 'none') {
-        return 'none'
+        return '-'
     }
     return value
 }
@@ -579,6 +531,7 @@ const getActionLabel = (row) => {
     if (!row) return ''
     if (row._source === 'clone' && row._isParent) return '查看函数组对比'
     if (row._source === 'clone' && !row._isParent) return '查看函数组详情'
+    if (row._source === 'structure' && row._isParent) return '查看详情'
     if (!row._isParent) return '查看关系图'
     return ''
 }
@@ -609,6 +562,35 @@ const setCloneDetailRef = (groupKey, element) => {
     }
 }
 
+const setStructureDetailRef = (clusterId, element) => {
+    if (element) {
+        structureDetailRefs.set(clusterId, element.$el || element)
+    } else {
+        structureDetailRefs.delete(clusterId)
+    }
+}
+
+const openStructureParentDetail = async (row) => {
+    const firstChild = Array.isArray(row?.children) ? row.children[0] : null
+    const targetClusterId = firstChild?.structure_cluster_id
+    if (targetClusterId === null || targetClusterId === undefined) return
+
+    activeStructureDetailId.value = targetClusterId
+    await nextTick()
+
+    let targetElement = structureDetailRefs.get(targetClusterId)
+    if (!targetElement && detailSearchKeyword.value) {
+        detailSearchKeyword.value = ''
+        await nextTick()
+        targetElement = structureDetailRefs.get(targetClusterId)
+    }
+
+    targetElement?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    })
+}
+
 const openCloneDetail = async (row) => {
     const cloneGroup = normalizedCloneGroups.value.find((group) => group.parent_cluster_id === row.parent_cluster_id)
     if (!cloneGroup) return
@@ -624,6 +606,10 @@ const openCloneDetail = async (row) => {
 const handleDetailAction = async (row) => {
     if (row._source === 'clone' && row._isParent) {
         openCloneDiff(row)
+        return
+    }
+    if (row._source === 'structure' && row._isParent) {
+        await openStructureParentDetail(row)
         return
     }
     if (row._source === 'clone') {
@@ -721,7 +707,7 @@ const getRange = (children, key) => {
         .map((child) => child[key])
         .filter((value) => value !== undefined && value !== null && value !== 'none' && !Number.isNaN(Number(value)))
         .map((value) => Number(value))
-    if (!values.length) return 'none'
+    if (!values.length) return '-'
     const min = Math.min(...values)
     const max = Math.max(...values)
     return min === max ? `${min}` : `${min}~${max}`
@@ -1136,7 +1122,7 @@ onBeforeUnmount(() => {
     line-height: 1.6;
 }
 
-.function-snippet + .function-snippet {
+.function-snippet+.function-snippet {
     margin-top: 12px;
 }
 
@@ -1190,6 +1176,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 992px) {
+
     .with-action,
     .with-filter,
     .with-detail-search {
