@@ -49,9 +49,17 @@
                         {{ formatDisplayValue(scope.row.relevent_projects_num) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="详情" min-width="150" fixed="right">
+                <el-table-column label="详情" min-width="220" fixed="right">
                     <template #default="scope">
-                        <el-button v-if="getActionLabel(scope.row)"
+                        <div v-if="scope.row._source === 'structure' && !scope.row._isParent" class="action-buttons-group">
+                            <el-button type="success" plain @click="selectStructureRow(scope.row)">
+                                查看关系图
+                            </el-button>
+                            <el-button type="success" plain @click="openStructureChildDetail(scope.row)">
+                                查看详情
+                            </el-button>
+                        </div>
+                        <el-button v-else-if="getActionLabel(scope.row)"
                             :type="scope.row._source === 'clone' ? 'warning' : 'success'" plain
                             @click="handleDetailAction(scope.row)">
                             {{ getActionLabel(scope.row) }}
@@ -569,8 +577,6 @@ const getActionLabel = (row) => {
     if (!row) return ''
     if (row._source === 'clone' && row._isParent) return '查看函数组对比'
     if (row._source === 'clone' && !row._isParent) return '查看函数组详情'
-    if (row._source === 'structure' && row._isParent) return '查看详情'
-    if (!row._isParent) return '查看关系图'
     return ''
 }
 
@@ -608,9 +614,9 @@ const setStructureDetailRef = (clusterId, element) => {
     }
 }
 
-const openStructureParentDetail = async (row) => {
-    const firstChild = Array.isArray(row?.children) ? row.children[0] : null
-    const targetClusterId = firstChild?.structure_cluster_id
+const openStructureChildDetail = async (row) => {
+    if (!row || row._isParent || row._source !== 'structure') return
+    const targetClusterId = row.structure_cluster_id
     if (targetClusterId === null || targetClusterId === undefined) return
 
     detailSearchKeyword.value = ''
@@ -645,15 +651,10 @@ const handleDetailAction = async (row) => {
         openCloneDiff(row)
         return
     }
-    if (row._source === 'structure' && row._isParent) {
-        await openStructureParentDetail(row)
-        return
-    }
     if (row._source === 'clone') {
         await openCloneDetail(row)
         return
     }
-    await selectStructureRow(row)
 }
 
 const handleCurrentChange = async (row) => {
@@ -1031,6 +1032,13 @@ onBeforeUnmount(() => {
     display: flex;
     justify-content: flex-end;
     margin-top: 16px;
+}
+
+.action-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .graph-tree {
