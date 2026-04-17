@@ -157,19 +157,6 @@ def _to_positive_int(value: Any) -> int | None:
 	return parsed if parsed > 0 else None
 
 
-def _sum_function_code_lines(functions: list[dict[str, Any]]) -> int:
-	total_lines = 0
-	for function_item in functions:
-		if not isinstance(function_item, dict):
-			continue
-		start_line = _to_positive_int(function_item.get("start_line"))
-		end_line = _to_positive_int(function_item.get("end_line"))
-		if start_line is None or end_line is None or end_line < start_line:
-			continue
-		total_lines += end_line - start_line + 1
-	return total_lines
-
-
 def _count_unique_function_files(functions: list[dict[str, Any]]) -> int:
 	file_paths = {
 		str(function_item.get("file_path", "")).strip()
@@ -177,6 +164,16 @@ def _count_unique_function_files(functions: list[dict[str, Any]]) -> int:
 		if isinstance(function_item, dict) and str(function_item.get("file_path", "")).strip()
 	}
 	return len(file_paths)
+
+
+def _get_first_function_code_lines(functions: list[dict[str, Any]]) -> int:
+	if not functions or not isinstance(functions[0], dict):
+		return 0
+	start_line = _to_positive_int(functions[0].get("start_line"))
+	end_line = _to_positive_int(functions[0].get("end_line"))
+	if start_line is None or end_line is None or end_line < start_line:
+		return 0
+	return end_line - start_line + 1
 
 
 def _extract_top_level_page(page_path: Any) -> str:
@@ -339,8 +336,8 @@ def _build_parent_cluster_rows(
 		project_names: set[str] = set()
 		for child in children:
 			for instance in child.get("instances", []):
-				for component_id in instance.get("component_id_list", []):
-					top_level = _extract_top_level_name(component_id)
+				for page_path in _normalize_page_path_list(instance.get("page_path", [])):
+					top_level = _extract_top_level_page(page_path)
 					if top_level:
 						project_names.add(top_level)
 
@@ -365,8 +362,8 @@ def _build_parent_cluster_rows(
 		project_names: set[str] = set()
 		for child in orphan_children:
 			for instance in child.get("instances", []):
-				for component_id in instance.get("component_id_list", []):
-					top_level = _extract_top_level_name(component_id)
+				for page_path in _normalize_page_path_list(instance.get("page_path", [])):
+					top_level = _extract_top_level_page(page_path)
 					if top_level:
 						project_names.add(top_level)
 
@@ -435,7 +432,7 @@ def _build_clone_detection_payload(
 				for function_item in functions
 				if _extract_top_level_dir(function_item.get("file_path", ""))
 			}
-			code_line_count = _sum_function_code_lines(functions)
+			code_line_count = _get_first_function_code_lines(functions)
 			file_count = _count_unique_function_files(functions)
 			structure_cluster_id = parent_cluster_id + child_index
 			child_row = {
