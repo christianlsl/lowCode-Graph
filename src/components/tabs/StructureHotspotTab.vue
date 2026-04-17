@@ -51,7 +51,8 @@
                 </el-table-column>
                 <el-table-column label="详情" min-width="220" fixed="right">
                     <template #default="scope">
-                        <div v-if="scope.row._source === 'structure' && !scope.row._isParent" class="action-buttons-group">
+                        <div v-if="scope.row._source === 'structure' && !scope.row._isParent"
+                            class="action-buttons-group">
                             <el-button type="success" plain @click="selectStructureRow(scope.row)">
                                 查看关系图
                             </el-button>

@@ -23,21 +23,47 @@
                 </div>
             </template>
 
-            <el-table :data="filteredRows" border row-key="cluster_id" max-height="50vh" highlight-current-row
-                @current-change="handleCurrentChange">
-                <el-table-column prop="cluster_id" label="cluster_id" min-width="110" sortable />
+            <el-table :data="paginatedTreeRows" border row-key="row_id" max-height="50vh" highlight-current-row
+                :tree-props="{ children: 'children' }" :row-class-name="tableRowClassName"
+                @current-change="handleCurrentChange" @sort-change="handleSortChange">
+                <el-table-column label="cluster_id" min-width="110">
+                    <template #default="scope">
+                        {{ scope.row._isParent ? scope.row.cluster_id : scope.row.structure_cluster_id }}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="domain_name" label="业务领域" min-width="180" show-overflow-tooltip />
                 <el-table-column prop="structure_name" label="技术功能" min-width="220" show-overflow-tooltip />
                 <el-table-column prop="type" label="类型" min-width="120" />
-                <el-table-column prop="structure_variant_count" label="结构变体总数" min-width="130" sortable />
-                <el-table-column prop="reuse_count" label="复用次数" min-width="110" sortable />
-                <el-table-column prop="covered_projects_count" label="覆盖工程数" min-width="120" sortable />
-                <el-table-column label="明细" min-width="120" fixed="right">
+                <el-table-column label="结构变体总数" prop="structure_variant_count" min-width="130" sortable="custom">
                     <template #default="scope">
-                        <el-button type="success" plain @click="openDetail(scope.row)">查看明细</el-button>
+                        {{ formatDisplayValue(scope.row._isParent ? scope.row.structure_variant_count : '-') }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="复用次数" prop="reuse_count" min-width="110" sortable="custom">
+                    <template #default="scope">
+                        {{ formatDisplayValue(scope.row.reuse_count) }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="覆盖工程数" prop="covered_projects_count" min-width="120" sortable="custom">
+                    <template #default="scope">
+                        {{ formatDisplayValue(scope.row.covered_projects_count) }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="明细" min-width="220" fixed="right">
+                    <template #default="scope">
+                        <div v-if="!scope.row._isParent" class="action-buttons-group">
+                            <el-button type="success" plain @click="selectRow(scope.row, true)">查看关系图</el-button>
+                            <el-button type="success" plain @click="openDetailForRow(scope.row)">查看明细</el-button>
+                        </div>
+                        <span v-else>-</span>
                     </template>
                 </el-table-column>
             </el-table>
+
+            <div class="table-pagination">
+                <el-pagination v-model:current-page="tableCurrentPage" v-model:page-size="tablePageSize"
+                    :page-sizes="[10, 20, 50]" layout="total, sizes, prev, pager, next" :total="treeRows.length" />
+            </div>
         </el-card>
 
         <el-card ref="chartCardRef" class="panel-card chart-card" shadow="hover">
@@ -72,8 +98,8 @@
                     class="detail-search-input" />
             </div>
 
-            <el-card v-for="row in detailFilteredRows" :key="row.cluster_id" class="panel-card detail-item-card"
-                shadow="hover">
+            <el-card v-for="row in detailFilteredRows" :key="row.row_id" :ref="(el) => setDetailCardRef(row.row_id, el)"
+                class="panel-card detail-item-card" shadow="hover">
                 <template #header>
                     <div class="card-header detail-header">
                         <span>{{ row.structure_name || '未命名技术功能' }}</span>
@@ -99,7 +125,7 @@
                             <el-tag size="small" type="success" effect="light">{{ item.structure_name || '-' }}</el-tag>
                             <el-tag size="small" type="info" effect="plain">复用: {{ item.reuse_count ?? 0 }}</el-tag>
                             <el-tag size="small" type="warning" effect="plain">覆盖工程: {{ item.covered_projects_count ?? 0
-                                }}</el-tag>
+                            }}</el-tag>
                         </div>
                     </div>
 
@@ -162,16 +188,55 @@ const selectedStructureName = ref('all')
 const selectedDomainName = ref('all')
 const selectedType = ref('all')
 const detailSearchKeyword = ref('')
+const activeDetailRowId = ref('')
+const tableCurrentPage = ref(1)
+const tablePageSize = ref(10)
+const sortState = ref({
+    prop: '',
+    order: null
+})
 const componentListDialogVisible = ref(false)
 const selectedComponentList = ref([])
 const treeProps = { children: 'children', label: 'label' }
+const detailCardRefs = new Map()
 let chartInstance = null
+
+const normalizedRows = computed(() => {
+    return (Array.isArray(props.rows) ? props.rows : []).map((parentRow, parentIndex) => {
+        const parentKey = parentRow?.cluster_id ?? parentIndex
+        const availableIds = Array.isArray(parentRow?.available_structure_cluster_ids)
+            ? parentRow.available_structure_cluster_ids
+            : []
+
+        return {
+            ...parentRow,
+            row_id: `semantic-parent-${parentKey}`,
+            _isParent: true,
+            _source: 'semantic',
+            children: (Array.isArray(parentRow?.items_expanded) ? parentRow.items_expanded : []).map((child, childIndex) => ({
+                ...child,
+                row_id: `semantic-child-${parentKey}-${child?.structure_cluster_id ?? childIndex}`,
+                _isParent: false,
+                _source: 'semantic',
+                cluster_id: parentRow?.cluster_id,
+                domain_name: parentRow?.domain_name,
+                available_structure_cluster_ids: availableIds.length
+                    ? availableIds
+                    : (child?.structure_cluster_id === null || child?.structure_cluster_id === undefined
+                        ? []
+                        : [child.structure_cluster_id]),
+            }))
+        }
+    })
+})
 
 const componentTypeOptions = computed(() => {
     const typeSet = new Set()
-    for (const row of props.rows) {
-        if (row?.type) {
-            typeSet.add(row.type)
+    for (const row of normalizedRows.value) {
+        for (const child of row.children || []) {
+            if (child?.type) {
+                typeSet.add(child.type)
+            }
         }
     }
     return Array.from(typeSet)
@@ -179,9 +244,11 @@ const componentTypeOptions = computed(() => {
 
 const structureNameOptions = computed(() => {
     const nameSet = new Set()
-    for (const row of props.rows) {
-        if (row?.structure_name) {
-            nameSet.add(row.structure_name)
+    for (const row of normalizedRows.value) {
+        for (const child of row.children || []) {
+            if (child?.structure_name) {
+                nameSet.add(child.structure_name)
+            }
         }
     }
     return Array.from(nameSet).sort((a, b) => String(a).localeCompare(String(b), 'zh-Hans-CN'))
@@ -189,7 +256,7 @@ const structureNameOptions = computed(() => {
 
 const domainNameOptions = computed(() => {
     const nameSet = new Set()
-    for (const row of props.rows) {
+    for (const row of normalizedRows.value) {
         if (row?.domain_name) {
             nameSet.add(row.domain_name)
         }
@@ -197,9 +264,48 @@ const domainNameOptions = computed(() => {
     return Array.from(nameSet).sort((a, b) => String(a).localeCompare(String(b), 'zh-Hans-CN'))
 })
 
-const sortedRows = computed(() => {
-    const list = Array.isArray(props.rows) ? [...props.rows] : []
-    return list.sort((a, b) => {
+const treeRows = computed(() => {
+    const keyword = searchKeyword.value.trim().toLowerCase()
+    const rows = normalizedRows.value
+        .map((parentRow) => {
+            const matchesDomainName = selectedDomainName.value === 'all' || parentRow.domain_name === selectedDomainName.value
+            if (!matchesDomainName) return null
+
+            const parentClusterText = String(parentRow.cluster_id || '').toLowerCase()
+            const parentStructureNameText = String(parentRow.structure_name || '').toLowerCase()
+            const parentDomainText = String(parentRow.domain_name || '').toLowerCase()
+            const parentTypeText = String(parentRow.type || '').toLowerCase()
+            const parentMatchesKeyword = !!keyword
+                && (parentClusterText.includes(keyword)
+                    || parentStructureNameText.includes(keyword)
+                    || parentDomainText.includes(keyword)
+                    || parentTypeText.includes(keyword))
+
+            const filteredChildren = (parentRow.children || []).filter((child) => {
+                const matchesType = selectedType.value === 'all' || child.type === selectedType.value
+                const matchesStructureName = selectedStructureName.value === 'all' || child.structure_name === selectedStructureName.value
+                if (!matchesType || !matchesStructureName) return false
+
+                if (!keyword || parentMatchesKeyword) return true
+
+                const childClusterText = String(child.structure_cluster_id || '').toLowerCase()
+                const childStructureNameText = String(child.structure_name || '').toLowerCase()
+                const childTypeText = String(child.type || '').toLowerCase()
+                return childClusterText.includes(keyword)
+                    || childStructureNameText.includes(keyword)
+                    || childTypeText.includes(keyword)
+            })
+
+            if (!filteredChildren.length) return null
+
+            return {
+                ...parentRow,
+                children: filteredChildren,
+            }
+        })
+        .filter(Boolean)
+
+    const defaultSortedRows = [...rows].sort((a, b) => {
         const domainCompare = String(a?.domain_name || '').localeCompare(String(b?.domain_name || ''), 'zh-Hans-CN')
         if (domainCompare !== 0) return domainCompare
 
@@ -211,29 +317,28 @@ const sortedRows = computed(() => {
 
         return Number(a?.cluster_id || 0) - Number(b?.cluster_id || 0)
     })
+
+    if (!sortState.value.prop || !sortState.value.order) {
+        return defaultSortedRows
+    }
+
+    return [...defaultSortedRows].sort((a, b) => compareParentRows(a, b, sortState.value.prop, sortState.value.order))
 })
 
-const filteredRows = computed(() => {
-    const keyword = searchKeyword.value.trim().toLowerCase()
-    return sortedRows.value.filter((row) => {
-        const matchesType = selectedType.value === 'all' || row.type === selectedType.value
-        const matchesStructureName = selectedStructureName.value === 'all' || row.structure_name === selectedStructureName.value
-        const matchesDomainName = selectedDomainName.value === 'all' || row.domain_name === selectedDomainName.value
-        if (!matchesType) return false
-        if (!matchesStructureName) return false
-        if (!matchesDomainName) return false
+const paginatedTreeRows = computed(() => {
+    const start = (tableCurrentPage.value - 1) * tablePageSize.value
+    const end = start + tablePageSize.value
+    return treeRows.value.slice(start, end)
+})
 
-        if (!keyword) return true
-
-        const clusterIdText = String(row.cluster_id || '').toLowerCase()
-        const structureNameText = String(row.structure_name || '').toLowerCase()
-        const domainNameText = String(row.domain_name || '').toLowerCase()
-        const typeText = String(row.type || '').toLowerCase()
-        return clusterIdText.includes(keyword)
-            || structureNameText.includes(keyword)
-            || domainNameText.includes(keyword)
-            || typeText.includes(keyword)
-    })
+const flattenedChildRows = computed(() => {
+    const rows = []
+    for (const parentRow of treeRows.value) {
+        for (const child of parentRow.children || []) {
+            rows.push(child)
+        }
+    }
+    return rows
 })
 
 const structureClusterOptions = computed(() => {
@@ -241,10 +346,7 @@ const structureClusterOptions = computed(() => {
     if (!row) return []
 
     const ids = Array.isArray(row.available_structure_cluster_ids) ? row.available_structure_cluster_ids : []
-    const nameMap = new Map()
-    for (const item of row.items_expanded || []) {
-        nameMap.set(item.structure_cluster_id, item.structure_name || '')
-    }
+    const nameMap = new Map([[row.structure_cluster_id, row.structure_name || '']])
 
     return ids.map((id) => ({
         value: id,
@@ -262,70 +364,57 @@ const treeData = computed(() => selectedPayload.value?.tree || [])
 
 const chartTitle = computed(() => {
     if (!selectedRow.value) {
-        return '请选择联合簇查看关系图'
+        return '请选择结构簇查看关系图'
     }
     if (!selectedPayload.value) {
-        return '当前联合簇无可用关系图'
+        return '当前结构簇无可用关系图'
     }
     return selectedPayload.value.title || '关系图'
 })
 
+const selectedDetailRow = computed(() => {
+    if (!activeDetailRowId.value) return null
+    return flattenedChildRows.value.find((row) => row.row_id === activeDetailRowId.value) || null
+})
+
 const detailFilteredRows = computed(() => {
+    const targetRow = selectedDetailRow.value
+    if (!targetRow) return []
+
     const keyword = detailSearchKeyword.value.trim().toLowerCase()
-    if (!keyword) {
-        return filteredRows.value.map((row) => ({
-            ...row,
-            items_display: Array.isArray(row.items_expanded) ? row.items_expanded : [],
-        }))
+
+    const allInstances = Array.isArray(targetRow.instances) ? targetRow.instances : []
+    const instanceMatches = allInstances.filter((instance) => {
+        const summary = String(instance?.instance_summary || '').toLowerCase()
+        const pagePath = formatPagePath(instance?.page_path).toLowerCase()
+        const instanceId = String(instance?.instance_id || '').toLowerCase()
+        return summary.includes(keyword) || pagePath.includes(keyword) || instanceId.includes(keyword)
+    })
+
+    const rowMatches = String(targetRow.structure_name || '').toLowerCase().includes(keyword)
+        || String(targetRow.domain_name || '').toLowerCase().includes(keyword)
+        || String(targetRow.type || '').toLowerCase().includes(keyword)
+        || String(targetRow.cluster_id || '').toLowerCase().includes(keyword)
+        || String(targetRow.structure_cluster_id || '').toLowerCase().includes(keyword)
+
+    if (keyword && !rowMatches && !instanceMatches.length) {
+        return []
     }
 
-    const result = []
-    for (const row of filteredRows.value) {
-        const rowMatches = String(row.structure_name || '').toLowerCase().includes(keyword)
-            || String(row.domain_name || '').toLowerCase().includes(keyword)
-            || String(row.type || '').toLowerCase().includes(keyword)
-            || String(row.cluster_id || '').toLowerCase().includes(keyword)
-
-        const items = Array.isArray(row.items_expanded) ? row.items_expanded : []
-        const matchedItems = items
-            .map((item) => {
-                const instanceMatches = (item.instances || []).filter((instance) => {
-                    const summary = String(instance?.instance_summary || '').toLowerCase()
-                    const pagePath = formatPagePath(instance?.page_path).toLowerCase()
-                    const instanceId = String(instance?.instance_id || '').toLowerCase()
-                    return summary.includes(keyword) || pagePath.includes(keyword) || instanceId.includes(keyword)
-                })
-
-                const itemMatches = String(item.structure_name || '').toLowerCase().includes(keyword)
-                    || String(item.structure_cluster_id || '').toLowerCase().includes(keyword)
-
-                if (itemMatches && !instanceMatches.length) {
-                    return {
-                        ...item,
-                        instances: item.instances || [],
-                    }
-                }
-
-                if (instanceMatches.length) {
-                    return {
-                        ...item,
-                        instances: instanceMatches,
-                    }
-                }
-
-                return null
-            })
-            .filter(Boolean)
-
-        if (rowMatches || matchedItems.length) {
-            result.push({
-                ...row,
-                items_display: rowMatches && !matchedItems.length ? items : matchedItems,
-            })
-        }
-    }
-
-    return result
+    return [{
+        row_id: targetRow.row_id,
+        cluster_id: targetRow.cluster_id,
+        domain_name: targetRow.domain_name,
+        type: targetRow.type,
+        structure_name: targetRow.structure_name,
+        items_display: [{
+            structure_cluster_id: targetRow.structure_cluster_id,
+            structure_name: targetRow.structure_name,
+            reuse_count: targetRow.reuse_count,
+            covered_projects_count: targetRow.covered_projects_count,
+            instances: rowMatches || !keyword ? allInstances : instanceMatches,
+        }],
+    }]
 })
 
 const ensureChart = () => {
@@ -346,7 +435,7 @@ const renderGraph = async () => {
 }
 
 const selectRow = async (row, scrollToChart = false) => {
-    if (!row) return
+    if (!row || row._isParent) return
     selectedRow.value = row
 
     const availableIds = Array.isArray(row.available_structure_cluster_ids) ? row.available_structure_cluster_ids : []
@@ -366,14 +455,98 @@ const selectRow = async (row, scrollToChart = false) => {
     }
 }
 
-const openDetail = async (row) => {
-    await selectRow(row, true)
+const openDetailForRow = async (row) => {
+    if (!row || row._isParent) return
+
+    activeDetailRowId.value = row.row_id
+    await selectRow(row)
+    await nextTick()
+    const targetDetailCard = detailCardRefs.get(row.row_id)
+    if (targetDetailCard) {
+        targetDetailCard.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+    }
+    document.querySelector('.detail-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const handleCurrentChange = (row) => {
-    if (row) {
+    if (row && !row._isParent) {
         selectRow(row)
     }
+}
+
+const tableRowClassName = ({ row }) => {
+    if (row?._isParent) {
+        return 'semantic-parent-row'
+    }
+    return ''
+}
+
+const setDetailCardRef = (rowId, element) => {
+    if (element) {
+        detailCardRefs.set(rowId, element.$el || element)
+    } else {
+        detailCardRefs.delete(rowId)
+    }
+}
+
+const toSortableNumber = (value) => {
+    if (value === null || value === undefined || value === '' || value === 'none') return null
+    const numeric = Number(value)
+    return Number.isFinite(numeric) ? numeric : null
+}
+
+const getNumericValuesFromChildren = (children, key) => {
+    if (!Array.isArray(children) || !children.length) return []
+    return children
+        .map((child) => toSortableNumber(child?.[key]))
+        .filter((value) => value !== null)
+}
+
+const getParentSortValue = (row, prop) => {
+    if (!row || row._isParent === false) return null
+
+    const parentValue = toSortableNumber(row[prop])
+    if (parentValue !== null) {
+        return parentValue
+    }
+
+    const childValues = getNumericValuesFromChildren(row.children, prop)
+    if (!childValues.length) return null
+
+    if (prop === 'structure_variant_count') {
+        return Math.max(...childValues)
+    }
+
+    return childValues.reduce((sum, current) => sum + current, 0)
+}
+
+const compareParentRows = (a, b, prop, order) => {
+    const aValue = getParentSortValue(a, prop)
+    const bValue = getParentSortValue(b, prop)
+    const aMissing = aValue === null
+    const bMissing = bValue === null
+
+    if (aMissing && bMissing) return 0
+    if (aMissing) return 1
+    if (bMissing) return -1
+
+    return order === 'ascending' ? aValue - bValue : bValue - aValue
+}
+
+const handleSortChange = ({ prop, order }) => {
+    sortState.value = {
+        prop: prop || '',
+        order: order || null,
+    }
+    tableCurrentPage.value = 1
+}
+
+const formatDisplayValue = (value) => {
+    if (value === null || value === undefined || value === '' || value === 'none') {
+        return '-'
+    }
+    return value
 }
 
 const openComponentListDialog = (row) => {
@@ -392,20 +565,40 @@ const formatPagePath = (pagePath) => {
 }
 
 watch(
-    filteredRows,
+    flattenedChildRows,
     async () => {
-        if (!filteredRows.value.length) {
+        if (!flattenedChildRows.value.length) {
             selectedRow.value = null
             selectedStructureClusterId.value = null
+            activeDetailRowId.value = ''
             return
         }
 
-        const currentId = selectedRow.value?.cluster_id
-        const matched = filteredRows.value.find((row) => row.cluster_id === currentId)
-        await selectRow(matched || filteredRows.value[0])
+        const currentId = selectedRow.value?.row_id
+        const matched = flattenedChildRows.value.find((row) => row.row_id === currentId)
+        await selectRow(matched || flattenedChildRows.value[0])
+
+        if (activeDetailRowId.value) {
+            const detailMatched = flattenedChildRows.value.some((row) => row.row_id === activeDetailRowId.value)
+            if (!detailMatched) {
+                detailCardRefs.delete(activeDetailRowId.value)
+                activeDetailRowId.value = ''
+            }
+        }
     },
     { immediate: true }
 )
+
+watch([searchKeyword, selectedStructureName, selectedDomainName, selectedType], () => {
+    tableCurrentPage.value = 1
+})
+
+watch([treeRows, tablePageSize], () => {
+    const maxPage = Math.max(1, Math.ceil(treeRows.value.length / tablePageSize.value))
+    if (tableCurrentPage.value > maxPage) {
+        tableCurrentPage.value = maxPage
+    }
+})
 
 watch(graphMode, async (value) => {
     if (value !== 'directed') {
@@ -499,6 +692,19 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.table-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.action-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .search-input {
@@ -620,6 +826,10 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+}
+
+:deep(.semantic-parent-row) {
+    background-color: #f0f9ff !important;
 }
 
 @media (max-width: 992px) {
