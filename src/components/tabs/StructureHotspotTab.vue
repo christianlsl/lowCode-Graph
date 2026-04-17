@@ -334,32 +334,38 @@ const structureDetailRefs = new Map()
 let chartInstance = null
 
 const normalizedRows = computed(() => {
-    const structureRows = props.rows.map((parentRow, parentIndex) => ({
-        ...parentRow,
-        row_id: `structure-parent-${parentRow?.parent_cluster_id ?? parentIndex}`,
-        _isParent: true,
-        _source: 'structure',
-        children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
-            ...child,
-            row_id: `structure-child-${child?.structure_cluster_id ?? `${parentIndex}-${childIndex}`}`,
-            _isParent: false,
-            _source: 'structure'
-        }))
-    }))
+    const structureRows = props.rows.map((parentRow, parentIndex) => {
+        const parentKey = parentRow?.parent_cluster_id ?? parentIndex
+        return {
+            ...parentRow,
+            row_id: `structure-parent-${parentKey}`,
+            _isParent: true,
+            _source: 'structure',
+            children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
+                ...child,
+                row_id: `structure-child-${parentKey}-${child?.structure_cluster_id ?? childIndex}`,
+                _isParent: false,
+                _source: 'structure'
+            }))
+        }
+    })
 
-    const cloneRows = props.cloneRows.map((parentRow, parentIndex) => ({
-        ...parentRow,
-        row_id: `clone-parent-${parentRow?.parent_cluster_id ?? parentIndex}`,
-        _isParent: true,
-        _source: 'clone',
-        children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
-            ...child,
-            parent_cluster_id: parentRow?.parent_cluster_id ?? null,
-            row_id: `clone-child-${child?.structure_cluster_id ?? `${parentIndex}-${childIndex}`}`,
-            _isParent: false,
-            _source: 'clone'
-        }))
-    }))
+    const cloneRows = props.cloneRows.map((parentRow, parentIndex) => {
+        const parentKey = parentRow?.parent_cluster_id ?? parentIndex
+        return {
+            ...parentRow,
+            row_id: `clone-parent-${parentKey}`,
+            _isParent: true,
+            _source: 'clone',
+            children: (Array.isArray(parentRow?.children) ? parentRow.children : []).map((child, childIndex) => ({
+                ...child,
+                parent_cluster_id: parentRow?.parent_cluster_id ?? null,
+                row_id: `clone-child-${parentKey}-${child?.structure_cluster_id ?? childIndex}`,
+                _isParent: false,
+                _source: 'clone'
+            }))
+        }
+    })
 
     return [...structureRows, ...cloneRows]
 })
