@@ -243,7 +243,7 @@
 
                 <el-descriptions :column="1" :border="false" class="detail-descriptions">
                     <el-descriptions-item label="组件类型">
-                        <div class="markdown-content" v-html="renderMarkdown(row.type)"></div>
+                        <div class="markdown-content" v-html="renderMarkdown(getRowType(row))"></div>
                     </el-descriptions-item>
                     <el-descriptions-item label="摘要">
                         <div class="markdown-content" v-html="renderMarkdown(row.summary)"></div>
@@ -387,8 +387,9 @@ const componentTypeOptions = computed(() => {
             continue
         }
         for (const child of parentRow.children || []) {
-            if (child?.type) {
-                typeSet.add(child.type)
+            const childType = getRowType(child)
+            if (childType && childType !== '-') {
+                typeSet.add(childType)
             }
         }
     }
@@ -562,9 +563,9 @@ const getRowType = (row) => {
     if (!row) return '-'
     if (row._source === 'clone') return '脚本'
     if (row._isParent) {
-        return row.children?.length ? (row.children[0].type || '-') : '-'
+        return row.children?.length ? getRowType(row.children[0]) : '-'
     }
-    return row.type || '-'
+    return row.show_type || row.type || '-'
 }
 
 const formatDisplayValue = (value) => {

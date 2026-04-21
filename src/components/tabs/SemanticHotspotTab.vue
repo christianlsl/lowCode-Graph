@@ -33,7 +33,11 @@
                 </el-table-column>
                 <el-table-column prop="domain_name" label="业务领域" min-width="180" show-overflow-tooltip />
                 <el-table-column prop="structure_name" label="技术功能" min-width="220" show-overflow-tooltip />
-                <el-table-column prop="type" label="类型" min-width="120" />
+                <el-table-column label="类型" min-width="120">
+                    <template #default="scope">
+                        {{ getDisplayType(scope.row) }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="结构变体总数" prop="structure_variant_count" min-width="130" sortable="custom">
                     <template #default="scope">
                         {{ formatDisplayValue(scope.row._isParent ? scope.row.structure_variant_count : '-') }}
@@ -109,7 +113,7 @@
 
                 <el-descriptions :column="1" :border="false" class="detail-descriptions">
                     <el-descriptions-item label="业务领域">{{ row.domain_name || '-' }}</el-descriptions-item>
-                    <el-descriptions-item label="类型">{{ row.type || '-' }}</el-descriptions-item>
+                    <el-descriptions-item label="类型">{{ getDisplayType(row) }}</el-descriptions-item>
                     <!-- <el-descriptions-item label="结构变体总数">{{ row.structure_variant_count ?? 0 }}</el-descriptions-item>
                     <el-descriptions-item label="复用次数">{{ row.reuse_count ?? 0 }}</el-descriptions-item>
                     <el-descriptions-item label="覆盖工程数">{{ row.covered_projects_count ?? 0 }}</el-descriptions-item> -->
@@ -125,7 +129,7 @@
                             <el-tag size="small" type="success" effect="light">{{ item.structure_name || '-' }}</el-tag>
                             <el-tag size="small" type="info" effect="plain">复用: {{ item.reuse_count ?? 0 }}</el-tag>
                             <el-tag size="small" type="warning" effect="plain">覆盖工程: {{ item.covered_projects_count ?? 0
-                            }}</el-tag>
+                                }}</el-tag>
                         </div>
                     </div>
 
@@ -234,13 +238,19 @@ const componentTypeOptions = computed(() => {
     const typeSet = new Set()
     for (const row of normalizedRows.value) {
         for (const child of row.children || []) {
-            if (child?.type) {
-                typeSet.add(child.type)
+            const displayType = getDisplayType(child)
+            if (displayType && displayType !== '-') {
+                typeSet.add(displayType)
             }
         }
     }
     return Array.from(typeSet)
 })
+
+const getDisplayType = (row) => {
+    if (!row) return '-'
+    return row.show_type || row.type || '-'
+}
 
 const structureNameOptions = computed(() => {
     const nameSet = new Set()
@@ -274,7 +284,7 @@ const treeRows = computed(() => {
             const parentClusterText = String(parentRow.cluster_id || '').toLowerCase()
             const parentStructureNameText = String(parentRow.structure_name || '').toLowerCase()
             const parentDomainText = String(parentRow.domain_name || '').toLowerCase()
-            const parentTypeText = String(parentRow.type || '').toLowerCase()
+            const parentTypeText = String(getDisplayType(parentRow) || '').toLowerCase()
             const parentMatchesKeyword = !!keyword
                 && (parentClusterText.includes(keyword)
                     || parentStructureNameText.includes(keyword)
@@ -282,7 +292,7 @@ const treeRows = computed(() => {
                     || parentTypeText.includes(keyword))
 
             const filteredChildren = (parentRow.children || []).filter((child) => {
-                const matchesType = selectedType.value === 'all' || child.type === selectedType.value
+                const matchesType = selectedType.value === 'all' || getDisplayType(child) === selectedType.value
                 const matchesStructureName = selectedStructureName.value === 'all' || child.structure_name === selectedStructureName.value
                 if (!matchesType || !matchesStructureName) return false
 
@@ -290,7 +300,7 @@ const treeRows = computed(() => {
 
                 const childClusterText = String(child.structure_cluster_id || '').toLowerCase()
                 const childStructureNameText = String(child.structure_name || '').toLowerCase()
-                const childTypeText = String(child.type || '').toLowerCase()
+                const childTypeText = String(getDisplayType(child) || '').toLowerCase()
                 return childClusterText.includes(keyword)
                     || childStructureNameText.includes(keyword)
                     || childTypeText.includes(keyword)
@@ -393,7 +403,7 @@ const detailFilteredRows = computed(() => {
 
     const rowMatches = String(targetRow.structure_name || '').toLowerCase().includes(keyword)
         || String(targetRow.domain_name || '').toLowerCase().includes(keyword)
-        || String(targetRow.type || '').toLowerCase().includes(keyword)
+        || String(getDisplayType(targetRow) || '').toLowerCase().includes(keyword)
         || String(targetRow.cluster_id || '').toLowerCase().includes(keyword)
         || String(targetRow.structure_cluster_id || '').toLowerCase().includes(keyword)
 
@@ -406,6 +416,7 @@ const detailFilteredRows = computed(() => {
         cluster_id: targetRow.cluster_id,
         domain_name: targetRow.domain_name,
         type: targetRow.type,
+        show_type: targetRow.show_type,
         structure_name: targetRow.structure_name,
         items_display: [{
             structure_cluster_id: targetRow.structure_cluster_id,

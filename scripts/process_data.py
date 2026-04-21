@@ -275,6 +275,7 @@ def _build_structure_rows(
 
 		rows.append(
 			{
+				"show_type": cluster.get("show_type", cluster.get("type", "")),
 				"type": cluster.get("type", ""),
 				"structure_cluster_id": cluster_id,
 				"name": cluster.get("name", ""),
@@ -602,6 +603,7 @@ def _build_semantic_rows(
 					"domain_cluster_id": int(item.get("domain_cluster_id", -1)),
 					"instance_ids": sorted(set(instance_ids)),
 					"structure_name": str(structure_cluster.get("name", "")),
+					"show_type": str(structure_cluster.get("show_type", structure_cluster.get("type", cluster.get("type", "")))),
 					"type": str(structure_cluster.get("type", cluster.get("type", ""))),
 					"reuse_count": len(set(instance_ids)),
 					"covered_projects_count": len(item_projects),
@@ -618,6 +620,7 @@ def _build_semantic_rows(
 				"cluster_id": cluster_id,
 				"structure_name": str(cluster.get("structure_name", "")),
 				"domain_name": str(cluster.get("domain_name", "")),
+				"show_type": str(cluster.get("show_type", cluster.get("type", ""))),
 				"type": str(cluster.get("type", "")),
 				"structure_variant_count": len(unique_structure_ids),
 				"reuse_count": len(unique_instance_ids),

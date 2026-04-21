@@ -11,6 +11,7 @@
   "structure_similar_clusters": [
     {
       "structure_cluster_id": 0,
+      "show_type": "show单页面",
       "type": "单页面",
       "name": "表单操作组件",
       "support": 2,
