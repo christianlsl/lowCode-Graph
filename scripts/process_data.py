@@ -407,6 +407,7 @@ def _build_clone_detection_payload(
 		default=0,
 	)
 	block_size = max(max_type1_group_count + 1, 10)
+	clone_parent_cluster_id_offset = 40000
 	base_parent_id = (max(used_ids) if used_ids else 0) + block_size
 
 	table_rows: list[dict[str, Any]] = []
@@ -415,12 +416,13 @@ def _build_clone_detection_payload(
 	for group_index, group in enumerate(clone_groups):
 		summary = group.get("summary", {}) if isinstance(group.get("summary"), dict) else {}
 		type1_groups = group.get("type1_group", []) if isinstance(group.get("type1_group"), list) else []
+		category = str(group.get("category", "")).strip()
 		relevant_projects = [
 			str(project)
 			for project in group.get("relevent_projects", [])
 			if str(project).strip()
 		]
-		parent_cluster_id = base_parent_id + group_index * block_size
+		parent_cluster_id = base_parent_id + group_index * block_size + clone_parent_cluster_id_offset
 		parent_name = str(summary.get("group_name", "")).strip() or f"脚本函数组 {group_index + 1}"
 
 		children: list[dict[str, Any]] = []
@@ -438,6 +440,7 @@ def _build_clone_detection_payload(
 			structure_cluster_id = parent_cluster_id + child_index
 			child_row = {
 				"type": "脚本",
+				"category": category,
 				"structure_cluster_id": structure_cluster_id,
 				"name": str(type1_group.get("group_name", "")).strip() or f"函数组 {child_index}",
 				"size": code_line_count,
@@ -465,6 +468,7 @@ def _build_clone_detection_payload(
 				"parent_cluster_id": parent_cluster_id,
 				"name": parent_name,
 				"type": "脚本",
+				"category": category,
 				"size": None,
 				"support": parent_support,
 				"relevent_projects_num": len(relevant_projects),
@@ -491,6 +495,7 @@ def _build_clone_detection_payload(
 			{
 				"group_key": f"clone-group-{group_index}",
 				"parent_cluster_id": parent_cluster_id,
+				"category": category,
 				"summary": summary,
 				"relevent_projects": relevant_projects,
 				"similarity_range": {

@@ -383,7 +383,10 @@ const componentTypeOptions = computed(() => {
     const typeSet = new Set()
     for (const parentRow of normalizedRows.value) {
         if (parentRow?._source === 'clone') {
-            typeSet.add('脚本')
+            const cloneType = getRowType(parentRow)
+            if (cloneType && cloneType !== '-') {
+                typeSet.add(cloneType)
+            }
             continue
         }
         for (const child of parentRow.children || []) {
@@ -561,7 +564,10 @@ const renderGraph = async () => {
 
 const getRowType = (row) => {
     if (!row) return '-'
-    if (row._source === 'clone') return '脚本'
+    if (row._source === 'clone') {
+        const category = String(row.category || '').trim()
+        return category ? `${category}脚本` : '脚本'
+    }
     if (row._isParent) {
         return row.children?.length ? getRowType(row.children[0]) : '-'
     }
