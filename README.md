@@ -11,7 +11,7 @@
 
 ## 页面功能
 
-当前界面包含 4 个标签页：
+当前界面包含 5 个标签页：
 
 - 分析概览：报告元信息和统计指标。
 - 相关定义：热点定义、相似性维度和支持度规则。
@@ -21,6 +21,10 @@
 - 语义相似热点组件：
   - 顶部表格展示联合簇（`structure_domain_joint_clusters`）聚合指标。
   - 明细联动到图卡片，并按“联合簇 -> items -> 实例”展示。
+- 模型相似热点组件：
+  - 数据源为 `data/model_result.json` 的 `frequent_patterns`。
+  - 顶部表格展示 `name`、`support`、`support_count`、`total_trans`，并支持“查看详情”。
+  - 详情区为单卡模式，仅显示当前选中行；`itemsets` 与 `model_list` 使用表格展示。
 
 ## 技术栈
 
@@ -78,6 +82,7 @@ npm run preview
 - `data/edge_and_vertex_mapping.txt`：节点类型和边关系编码映射。
 - `data/clone_detection_result.json`：脚本函数相似（code clone）输入，数组结构，可选。
 - `data/defs.json`：定义页静态说明（前端直接使用）。
+- `data/model_result.json`：模型相似热点输入（前端直接使用 `frequent_patterns`）。
 
 ## 输出文件说明
 
@@ -129,6 +134,24 @@ npm run preview
 - 函数源码展开
 - 高亮差异查看
 
+## 模型相似热点数据模型（当前实现）
+
+`data/model_result.json` 中 `frequent_patterns` 每一项用于“模型相似热点组件”页签，核心字段如下：
+
+- `name`：相似簇名称
+- `description`：相似簇介绍
+- `itemsets`：相似簇包含的所有元素
+- `total_trans`：当前工程下所有元素个数
+- `support_count`：字段组合同时出现的模型数量（模型支持度）
+- `support`：支持率
+- `model_list`：使用当前相似簇元素的模型名称列表
+
+页面交互：
+
+- 顶部表格按行展示 `frequent_patterns`。
+- 点击“查看详情”后滚动到下方详情区。
+- 详情区仅显示当前选中行单卡，`itemsets` 与 `model_list` 以表格形式展示。
+
 ## 项目结构
 
 ```text
@@ -137,6 +160,7 @@ lowCode-Graph/
 │  ├─ clone_detection_result.json
 │  ├─ defs.json
 │  ├─ edge_and_vertex_mapping.txt
+│  ├─ model_result.json
 │  └─ data_*.json
 ├─ scripts/
 │  └─ process_data.py
@@ -146,6 +170,7 @@ lowCode-Graph/
 │  ├─ components/
 │  │  └─ tabs/
 │  │     ├─ DefinitionsTab.vue
+│  │     ├─ ModelSimilarityHotspotTab.vue
 │  │     ├─ OverviewTab.vue
 │  │     ├─ SemanticHotspotTab.vue
 │  │     └─ StructureHotspotTab.vue

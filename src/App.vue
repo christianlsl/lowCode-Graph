@@ -24,6 +24,11 @@
                     <SemanticHotspotTab :rows="semanticHotspot.rows || []" :charts="charts"
                         :is-active="activeTab === 'semantic-hotspot'" />
                 </el-tab-pane>
+
+                <el-tab-pane label="模型相似热点组件" name="model-similarity-hotspot">
+                    <ModelSimilarityHotspotTab :rows="modelSimilarityHotspotRows"
+                        :is-active="activeTab === 'model-similarity-hotspot'" />
+                </el-tab-pane>
             </el-tabs>
         </el-main>
     </el-container>
@@ -32,10 +37,12 @@
 <script setup>
 import { ref } from 'vue'
 import processedData from './assets/graph_table_data.json'
+import modelResultData from '../data/model_result.json'
 import OverviewTab from './components/tabs/OverviewTab.vue'
 import DefinitionsTab from './components/tabs/DefinitionsTab.vue'
 import StructureHotspotTab from './components/tabs/StructureHotspotTab.vue'
 import SemanticHotspotTab from './components/tabs/SemanticHotspotTab.vue'
+import ModelSimilarityHotspotTab from './components/tabs/ModelSimilarityHotspotTab.vue'
 
 const activeTab = ref('overview')
 
@@ -45,6 +52,9 @@ const structureHotspot = processedData.structure_hotspot || {}
 const cloneDetection = processedData.clone_detection || {}
 const semanticHotspot = processedData.semantic_hotspot || {}
 const charts = processedData.charts || { subgraphs: {} }
+const modelSimilarityHotspotRows = Array.isArray(modelResultData?.frequent_patterns)
+    ? modelResultData.frequent_patterns
+    : []
 </script>
 
 <style scoped>

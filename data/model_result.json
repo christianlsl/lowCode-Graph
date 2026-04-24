@@ -1,0 +1,31 @@
+{
+    "best_k":-1,
+    "clusters":{},
+    "semantic_mapping":[],
+    "transactions":[],
+    "frequent_patterns":[
+        {
+            "itemsets":[
+                "analyzeoperationmode",
+                "approvefiverequest",
+                "approverequest",
+                "cancelrequest",
+                "createrequest",
+                "deleterequest",
+                "handleoerationmode"
+            ],
+            "name":"表单操作组件",
+            "description":"包含了表单的创建、审批、取消、删除等操作模式的组件。",
+            "support":0.0198,
+            "support_count":5,
+            "total_trans":252,
+            "model_list":[
+                "analyzeoperationmodel",
+                "approvefiverequestmodel",
+                "approverequestmodel",
+                "cancelrequestmodel",
+                "createrequestmodel"
+            ]
+        }
+    ]
+}
