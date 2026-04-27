@@ -62,30 +62,30 @@
                 </template>
 
                 <el-descriptions :column="1" border class="detail-descriptions">
-                    <el-descriptions-item label="name (相似簇名称)">
+                    <el-descriptions-item label="相似簇名称">
                         {{ formatDisplayValue(selectedDetailRow.name) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="description (相似簇介绍)">
+                    <el-descriptions-item label="相似簇介绍">
                         {{ formatDisplayValue(selectedDetailRow.description) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="total_trans (当前工程下所有元素个数)">
+                    <el-descriptions-item label="当前工程包含元素个数">
                         {{ formatDisplayValue(selectedDetailRow.total_trans) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="support_count (模型支持度)">
+                    <el-descriptions-item label="模型支持度">
                         {{ formatDisplayValue(selectedDetailRow.support_count) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="support (支持率)">
+                    <el-descriptions-item label="支持率">
                         {{ formatSupport(selectedDetailRow.support) }}
                     </el-descriptions-item>
                 </el-descriptions>
 
-                <div class="subsection-title">itemsets (相似簇包含的所有元素)</div>
+                <div class="subsection-title">相似簇包含的所有元素（itemsets）</div>
                 <el-table :data="itemsetsTableData" border size="small" max-height="28vh" empty-text="-">
                     <el-table-column type="index" label="序号" width="70" align="center" />
                     <el-table-column prop="value" label="元素名称" min-width="260" show-overflow-tooltip />
                 </el-table>
 
-                <div class="subsection-title">item_list (model_list: 使用当前相似簇元素的模型名称)</div>
+                <div class="subsection-title">使用当前相似簇元素的模型（model_list）</div>
                 <el-table :data="modelListTableData" border size="small" max-height="28vh" empty-text="-">
                     <el-table-column type="index" label="序号" width="70" align="center" />
                     <el-table-column prop="value" label="模型名称" min-width="260" show-overflow-tooltip />
