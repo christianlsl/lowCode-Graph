@@ -189,7 +189,7 @@
                     </el-descriptions-item>
                 </el-descriptions>
 
-                <div class="subsection-title">Type-1 函数组</div>
+                <div class="subsection-title">完全一致函数组（Type-1）</div>
                 <div class="function-list">
                     <el-card v-for="typeGroup in group.type1_group" :key="typeGroup.detail_key" class="function-card"
                         shadow="never">
@@ -207,7 +207,18 @@
                             </div>
                         </template>
 
-                        <div v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
+                        <div v-if="isCloneTypeGroupExpanded(typeGroup.detail_key)" class="type-group-code-block">
+                            <pre class="code-block"><code class="hljs language-javascript"
+                            v-html="highlightJsCode(getTypeGroupCode(typeGroup))"></code></pre>
+                            <div class="subsection-title file-path-title">包含此函数的所有文件路径</div>
+                            <el-table :data="getTypeGroupFileRows(typeGroup)" border size="small"
+                                class="file-path-table">
+                                <el-table-column label="文件路径" prop="file_path" min-width="260" show-overflow-tooltip />
+                                <el-table-column label="行号范围" prop="line_range" min-width="120" />
+                            </el-table>
+                        </div>
+
+                        <!-- <div v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
                             :key="`${typeGroup.detail_key}-${index}-${func.file_path || 'code'}`"
                             class="function-snippet">
                             <div class="function-meta">
@@ -216,10 +227,7 @@
                                     {{ formatLineRange(func.start_line, func.end_line) }}
                                 </el-tag>
                             </div>
-                            <pre v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && index === 0"
-                                class="code-block"><code
-                            class="hljs language-javascript" v-html="highlightJsCode(func.code)"></code></pre>
-                        </div>
+                        </div> -->
 
                         <div v-if="typeGroup.functions?.length > 10" class="type-group-expand-actions">
                             <el-button type="primary" link @click="toggleTypeGroupFunctionList(typeGroup.detail_key)">
@@ -875,6 +883,24 @@ const getVisibleTypeGroupFunctions = (typeGroup) => {
     return functions.slice(0, 10)
 }
 
+const getTypeGroupFileRows = (typeGroup) => {
+    const functions = Array.isArray(typeGroup?.functions) ? typeGroup.functions : []
+    const rows = []
+    const seen = new Set()
+
+    for (const func of functions) {
+        const filePath = func?.file_path || '-'
+        if (seen.has(filePath)) continue
+        seen.add(filePath)
+        rows.push({
+            file_path: filePath,
+            line_range: formatLineRange(func?.start_line, func?.end_line)
+        })
+    }
+
+    return rows
+}
+
 const initSelection = async () => {
     if (!flattenedStructureRows.value.length) {
         selectedStructureRow.value = null
@@ -1239,6 +1265,21 @@ onBeforeUnmount(() => {
 
 .function-snippet+.function-snippet {
     margin-top: 12px;
+}
+
+.type-group-code-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.file-path-title {
+    margin-top: 2px;
+}
+
+.file-path-table {
+    border-radius: 8px;
 }
 
 .type-group-expand-actions {
