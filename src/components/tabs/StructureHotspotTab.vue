@@ -207,34 +207,25 @@
                             </div>
                         </template>
 
-                        <div v-if="isCloneTypeGroupExpanded(typeGroup.detail_key)" class="type-group-code-block">
-                            <pre class="code-block"><code class="hljs language-javascript"
-                            v-html="highlightJsCode(getTypeGroupCode(typeGroup))"></code></pre>
-                            <div class="subsection-title file-path-title">包含此函数的所有文件路径</div>
-                            <el-table :data="getTypeGroupFileRows(typeGroup)" border size="small"
-                                class="file-path-table">
-                                <el-table-column label="文件路径" prop="file_path" min-width="260" show-overflow-tooltip />
-                                <el-table-column label="行号范围" prop="line_range" min-width="120" />
-                            </el-table>
-                        </div>
+                        <pre v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && typeGroup.functions?.[0]?.code"
+                            class="code-block"><code
+                        class="hljs language-javascript" v-html="highlightJsCode(typeGroup.functions[0].code)"></code></pre>
 
-                        <!-- <div v-for="(func, index) in getVisibleTypeGroupFunctions(typeGroup)"
-                            :key="`${typeGroup.detail_key}-${index}-${func.file_path || 'code'}`"
-                            class="function-snippet">
-                            <div class="function-meta">
-                                <span>{{ func.file_path || '-' }}</span>
-                                <el-tag size="small" type="info" effect="plain">
-                                    {{ formatLineRange(func.start_line, func.end_line) }}
-                                </el-tag>
-                            </div>
-                        </div> -->
-
-                        <div v-if="typeGroup.functions?.length > 10" class="type-group-expand-actions">
-                            <el-button type="primary" link @click="toggleTypeGroupFunctionList(typeGroup.detail_key)">
-                                {{ isTypeGroupFunctionListExpanded(typeGroup.detail_key) ? '收起函数列表' : `展开全部函数
-                                (${typeGroup.functions.length})` }}
-                            </el-button>
-                        </div>
+                        <div class="subsection-title">包含此函数的所有文件路径</div>
+                        <el-table :data="typeGroup.functions || []" border size="small" max-height="300px">
+                            <el-table-column label="文件路径" min-width="260" show-overflow-tooltip>
+                                <template #default="scope">
+                                    {{ scope.row.file_path || '-' }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="行号范围" width="120" align="center">
+                                <template #default="scope">
+                                    <el-tag size="small" type="info" effect="plain">
+                                        {{ formatLineRange(scope.row.start_line, scope.row.end_line) }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                        </el-table>
                     </el-card>
                 </div>
             </el-card>
@@ -343,7 +334,6 @@ const sortState = ref({
 const leftDiffIndex = ref(0)
 const rightDiffIndex = ref(1)
 const expandedCloneCodeMap = ref({})
-const expandedTypeGroupFunctionMap = ref({})
 const activeDetailGroupKey = ref('')
 const activeStructureDetailId = ref(null)
 const cloneDetailRefs = new Map()
@@ -866,41 +856,6 @@ const toggleCloneTypeGroup = (detailKey) => {
 
 const isCloneTypeGroupExpanded = (detailKey) => !!expandedCloneCodeMap.value[detailKey]
 
-const toggleTypeGroupFunctionList = (detailKey) => {
-    expandedTypeGroupFunctionMap.value = {
-        ...expandedTypeGroupFunctionMap.value,
-        [detailKey]: !expandedTypeGroupFunctionMap.value[detailKey]
-    }
-}
-
-const isTypeGroupFunctionListExpanded = (detailKey) => !!expandedTypeGroupFunctionMap.value[detailKey]
-
-const getVisibleTypeGroupFunctions = (typeGroup) => {
-    const functions = Array.isArray(typeGroup?.functions) ? typeGroup.functions : []
-    if (isTypeGroupFunctionListExpanded(typeGroup?.detail_key)) {
-        return functions
-    }
-    return functions.slice(0, 10)
-}
-
-const getTypeGroupFileRows = (typeGroup) => {
-    const functions = Array.isArray(typeGroup?.functions) ? typeGroup.functions : []
-    const rows = []
-    const seen = new Set()
-
-    for (const func of functions) {
-        const filePath = func?.file_path || '-'
-        if (seen.has(filePath)) continue
-        seen.add(filePath)
-        rows.push({
-            file_path: filePath,
-            line_range: formatLineRange(func?.start_line, func?.end_line)
-        })
-    }
-
-    return rows
-}
-
 const initSelection = async () => {
     if (!flattenedStructureRows.value.length) {
         selectedStructureRow.value = null
@@ -1261,40 +1216,6 @@ onBeforeUnmount(() => {
 .function-group-desc {
     color: #475569;
     line-height: 1.6;
-}
-
-.function-snippet+.function-snippet {
-    margin-top: 12px;
-}
-
-.type-group-code-block {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.file-path-title {
-    margin-top: 2px;
-}
-
-.file-path-table {
-    border-radius: 8px;
-}
-
-.type-group-expand-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-
-.function-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-    color: #334155;
 }
 
 .code-block {
