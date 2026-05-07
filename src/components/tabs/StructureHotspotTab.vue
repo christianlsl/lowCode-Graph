@@ -167,7 +167,7 @@
                         <div class="markdown-content" v-html="renderMarkdown(group.summary.overall_functionality)">
                         </div>
                     </el-descriptions-item>
-                    <el-descriptions-item label="Type-1组差异">
+                    <el-descriptions-item label="相似函数组差异">
                         <div class="markdown-content"
                             v-html="group.type1_group?.length === 1 ? '-' : renderMarkdown(group.summary.type1_group_differences)">
                         </div>
@@ -189,15 +189,18 @@
                     </el-descriptions-item>
                 </el-descriptions>
 
-                <div class="subsection-title">完全一致函数组（Type-1）</div>
-                <div class="function-list">
-                    <el-card v-for="typeGroup in group.type1_group" :key="typeGroup.detail_key" class="function-card"
-                        shadow="never">
+                <div class="subsection-title">相似函数组</div>
+                <div class="subsection-hint">+ 此模块包含以下{{ group.type1_group.length }}种函数模式</div>
+                <div class="subsection-hint">+ 每种函数模式可能存在于多个文件中，具体可查看 "包含此函数的所有文件路径"</div>
+                <div class="function-list" :ref="(el) => setFunctionListRef(group.group_key, el)">
+                    <el-card v-for="(typeGroup, typeIndex) in group.type1_group" :key="typeGroup.detail_key"
+                        class="function-card" shadow="never">
                         <template #header>
                             <div class="function-header">
                                 <div class="function-header-text">
                                     <div class="function-group-title markdown-content"
-                                        v-html="renderMarkdown(typeGroup.group_name)"></div>
+                                        v-html="renderMarkdown('函数模式' + (typeIndex + 1) + '：' + typeGroup.group_name)">
+                                    </div>
                                     <div class="function-group-desc markdown-content"
                                         v-html="renderMarkdown(typeGroup.functionality)"></div>
                                 </div>
@@ -208,8 +211,8 @@
                         </template>
 
                         <pre v-if="isCloneTypeGroupExpanded(typeGroup.detail_key) && typeGroup.functions?.[0]?.code"
-                            class="code-block"><code
-                        class="hljs language-javascript" v-html="highlightJsCode(typeGroup.functions[0].code)"></code></pre>
+                            class="code-block"><code class="hljs language-javascript"
+                        v-html="highlightJsCode(typeGroup.functions[0].code)"></code></pre>
 
                         <div class="subsection-title">包含此函数的所有文件路径</div>
                         <el-table :data="typeGroup.functions || []" border size="small" max-height="300px">
@@ -338,6 +341,7 @@ const activeDetailGroupKey = ref('')
 const activeStructureDetailId = ref(null)
 const cloneDetailRefs = new Map()
 const structureDetailRefs = new Map()
+const functionListRefs = new Map()
 let chartInstance = null
 
 const normalizedRows = computed(() => {
@@ -620,6 +624,14 @@ const setStructureDetailRef = (clusterId, element) => {
     }
 }
 
+const setFunctionListRef = (groupKey, element) => {
+    if (element) {
+        functionListRefs.set(groupKey, element.$el || element)
+    } else {
+        functionListRefs.delete(groupKey)
+    }
+}
+
 const openStructureChildDetail = async (row) => {
     if (!row || row._isParent || row._source !== 'structure') return
     const targetClusterId = row.structure_cluster_id
@@ -646,7 +658,8 @@ const openCloneDetail = async (row) => {
     activeStructureDetailId.value = null
     activeDetailGroupKey.value = cloneGroup.group_key
     await nextTick()
-    cloneDetailRefs.get(cloneGroup.group_key)?.scrollIntoView({
+    const target = functionListRefs.get(cloneGroup.group_key) || cloneDetailRefs.get(cloneGroup.group_key)
+    target?.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
     })
@@ -1090,6 +1103,12 @@ onBeforeUnmount(() => {
     margin: 12px 0 8px;
     font-weight: 600;
     color: #334155;
+}
+
+.subsection-hint {
+    margin: 5px 0;
+    font-size: 13px;
+    color: #909399;
 }
 
 .detail-descriptions {
