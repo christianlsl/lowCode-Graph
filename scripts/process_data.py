@@ -665,6 +665,27 @@ def _merge_structure_cluster_statistics(
 	]
 
 
+def _build_clone_detection_statistics(
+	clone_groups: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+	category_label_map = {"PAGE": "PAGE脚本", "SERVICE": "SERVICE脚本"}
+	acc: dict[str, dict[str, int]] = {}
+	for group in clone_groups:
+		category = str(group.get("category", "")).strip()
+		show_type = category_label_map.get(category)
+		if not show_type:
+			continue
+		if show_type not in acc:
+			acc[show_type] = {"cluster_count": 0, "instance_count": 0}
+		acc[show_type]["cluster_count"] += 1
+		for type1_group in group.get("type1_group", []):
+			acc[show_type]["instance_count"] += _count_unique_function_files(type1_group.get("functions", []))
+	return [
+		{"show_type": show_type, "cluster_count": counts["cluster_count"], "instance_count": counts["instance_count"]}
+		for show_type, counts in acc.items()
+	]
+
+
 def _merge_covered_repositories(meta_blocks: list[dict[str, Any]]) -> list[str]:
 	repositories: set[str] = set()
 	for meta in meta_blocks:
@@ -711,6 +732,7 @@ def build_output() -> dict[str, Any]:
 	]
 
 	overview_stats = _merge_structure_cluster_statistics(structure_cluster_statistics_blocks)
+	overview_stats.extend(_build_clone_detection_statistics(clone_groups))
 
 	subgraph_charts: dict[str, Any] = {}
 	parent_cluster_name_map = _build_parent_cluster_name_map(parent_clusters)
