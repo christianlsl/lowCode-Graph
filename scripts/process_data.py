@@ -646,15 +646,23 @@ def _build_semantic_rows(
 	)
 
 
-def _merge_statistic_blocks(statistics: list[dict[str, Any]]) -> dict[str, Any]:
-	merged: dict[str, Any] = {}
-	for stat in statistics:
-		for key, value in stat.items():
-			if isinstance(value, (int, float)):
-				merged[key] = merged.get(key, 0) + value
-			elif key not in merged:
-				merged[key] = value
-	return merged
+def _merge_structure_cluster_statistics(
+	statistics_blocks: list[list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+	merged: dict[str, dict[str, int]] = {}
+	for block in statistics_blocks:
+		for item in block:
+			show_type = str(item.get("show_type", "")).strip()
+			if not show_type:
+				continue
+			if show_type not in merged:
+				merged[show_type] = {"cluster_count": 0, "instance_count": 0}
+			merged[show_type]["cluster_count"] += int(item.get("cluster_count", 0))
+			merged[show_type]["instance_count"] += int(item.get("instance_count", 0))
+	return [
+		{"show_type": show_type, "cluster_count": counts["cluster_count"], "instance_count": counts["instance_count"]}
+		for show_type, counts in merged.items()
+	]
 
 
 def _merge_covered_repositories(meta_blocks: list[dict[str, Any]]) -> list[str]:
@@ -698,9 +706,11 @@ def build_output() -> dict[str, Any]:
 		for cluster in payload.get("structure_domain_joint_clusters", [])
 	]
 	meta_blocks = [payload.get("meta_data", {}) for payload in payloads]
-	statistics = [payload.get("statistic", {}) for payload in payloads]
+	structure_cluster_statistics_blocks = [
+		payload.get("structure_cluster_statistics", []) for payload in payloads
+	]
 
-	overview_stats = _merge_statistic_blocks(statistics)
+	overview_stats = _merge_structure_cluster_statistics(structure_cluster_statistics_blocks)
 
 	subgraph_charts: dict[str, Any] = {}
 	parent_cluster_name_map = _build_parent_cluster_name_map(parent_clusters)

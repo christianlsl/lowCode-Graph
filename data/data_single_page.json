@@ -137,13 +137,21 @@
       "Trouble_ticket"
     ]
   },
-  "statistic": {
-    "hotspot_clusters": 1,
-    "hotspot_instances": 2,
-    "projects_involved": 1,
-    "pages_involved": 1,
-    "components_involved": 1,
-    "services_involved": 1,
-    "models_involved": 1
-  }
+  "structure_cluster_statistics": [
+    {
+      "show_type":"多种元素类型",
+      "cluster_count": 1,
+      "instance_count": 6
+    },
+    {
+      "show_type":"页面元素",
+      "cluster_count": 1,
+      "instance_count": 2
+    },
+    {
+      "show_type":"流程元素",
+      "cluster_count": 0,
+      "instance_count": 0
+    }
+  ]
 }

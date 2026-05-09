@@ -2,7 +2,47 @@
   {
     "func_group": [
       {
+        "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 4.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
+      },
+      {
+        "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 3.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
+      },
+      {
+        "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 2.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
+      },
+      {
         "file_path": "2.inf_cent/PAGE/angular-locale_gv.js",
+        "start_line": 2,
+        "end_line": 143,
+        "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+        "function_name": [
+          "getDecimals",
+          "getVF"
+        ]
+      },
+      {
+        "file_path": "2.inf_cent/PAGE/angular-locale_gv copy.js",
         "start_line": 2,
         "end_line": 143,
         "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
@@ -28,11 +68,51 @@
     ],
     "type1_group": [
       {
-        "group_name": "Angular国际化本地化模块",
-        "functionality": "为Angular应用提供马恩岛语(gv)的本地化配置，包括日期时间格式、数字格式、复数规则等国际化支持",
+        "group_name": "盖尔语AngularJS本地化函数组",
+        "functionality": "定义AngularJS的盖尔语本地化模块，配置日期时间格式和复数规则。",
         "functions": [
           {
+            "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 4.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          },
+          {
+            "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 3.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          },
+          {
+            "file_path": "2.inf_cent/PAGE/angular-locale_gv copy 2.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          },
+          {
             "file_path": "2.inf_cent/PAGE/angular-locale_gv.js",
+            "start_line": 2,
+            "end_line": 143,
+            "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
+            "function_name": [
+              "getDecimals",
+              "getVF"
+            ]
+          },
+          {
+            "file_path": "2.inf_cent/PAGE/angular-locale_gv copy.js",
             "start_line": 2,
             "end_line": 143,
             "code": "angular.module(\"ngLocale\", [], [\"$provide\", function($provide) {\nvar PLURAL_CATEGORY = {ZERO: \"zero\", ONE: \"one\", TWO: \"two\", FEW: \"few\", MANY: \"many\", OTHER: \"other\"};\nfunction getDecimals(n) {\n  n = n + '';\n  var i = n.indexOf('.');\n  return (i == -1) ? 0 : n.length - i - 1;\n}\n\nfunction getVF(n, opt_precision) {\n  var v = opt_precision;\n\n  if (undefined === v) {\n    v = Math.min(getDecimals(n), 3);\n  }\n\n  var base = Math.pow(10, v);\n  var f = ((n * base) | 0) % base;\n  return {v: v, f: f};\n}\n\n$provide.value(\"$locale\", {\n  \"DATETIME_FORMATS\": {\n    \"AMPMS\": [\n      \"a.m.\",\n      \"p.m.\"\n    ],\n    \"DAY\": [\n      \"Jedoonee\",\n      \"Jelhein\",\n      \"Jemayrt\",\n      \"Jercean\",\n      \"Jerdein\",\n      \"Jeheiney\",\n      \"Jesarn\"\n    ],\n    \"ERANAMES\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"ERAS\": [\n      \"RC\",\n      \"AD\"\n    ],\n    \"FIRSTDAYOFWEEK\": 0,\n    \"MONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"SHORTDAY\": [\n      \"Jed\",\n      \"Jel\",\n      \"Jem\",\n      \"Jerc\",\n      \"Jerd\",\n      \"Jeh\",\n      \"Jes\"\n    ],\n    \"SHORTMONTH\": [\n      \"J-guer\",\n      \"T-arree\",\n      \"Mayrnt\",\n      \"Avrril\",\n      \"Boaldyn\",\n      \"M-souree\",\n      \"J-souree\",\n      \"Luanistyn\",\n      \"M-fouyir\",\n      \"J-fouyir\",\n      \"M-Houney\",\n      \"M-Nollick\"\n    ],\n    \"STANDALONEMONTH\": [\n      \"Jerrey-geuree\",\n      \"Toshiaght-arree\",\n      \"Mayrnt\",\n      \"Averil\",\n      \"Boaldyn\",\n      \"Mean-souree\",\n      \"Jerrey-souree\",\n      \"Luanistyn\",\n      \"Mean-fouyir\",\n      \"Jerrey-fouyir\",\n      \"Mee Houney\",\n      \"Mee ny Nollick\"\n    ],\n    \"WEEKENDRANGE\": [\n      5,\n      6\n    ],\n    \"fullDate\": \"y MMMM d, EEEE\",\n    \"longDate\": \"y MMMM d\",\n    \"medium\": \"y MMM d HH:mm:ss\",\n    \"mediumDate\": \"y MMM d\",\n    \"mediumTime\": \"HH:mm:ss\",\n    \"short\": \"y-MM-dd HH:mm\",\n    \"shortDate\": \"y-MM-dd\",\n    \"shortTime\": \"HH:mm\"\n  },\n  \"NUMBER_FORMATS\": {\n    \"CURRENCY_SYM\": \"\\u00a3\",\n    \"DECIMAL_SEP\": \".\",\n    \"GROUP_SEP\": \",\",\n    \"PATTERNS\": [\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 3,\n        \"minFrac\": 0,\n        \"minInt\": 1,\n        \"negPre\": \"-\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\",\n        \"posSuf\": \"\"\n      },\n      {\n        \"gSize\": 3,\n        \"lgSize\": 3,\n        \"maxFrac\": 2,\n        \"minFrac\": 2,\n        \"minInt\": 1,\n        \"negPre\": \"-\\u00a4\",\n        \"negSuf\": \"\",\n        \"posPre\": \"\\u00a4\",\n        \"posSuf\": \"\"\n      }\n    ]\n  },\n  \"id\": \"gv\",\n  \"localeID\": \"gv\",\n  \"pluralCat\": function(n, opt_precision) {  var i = n | 0;  var vf = getVF(n, opt_precision);  if (i == 1 && vf.v == 0) {    return PLURAL_CATEGORY.ONE;  }  return PLURAL_CATEGORY.OTHER;}\n});\n}]);",
@@ -44,8 +124,8 @@
         ]
       },
       {
-        "group_name": "Angular英语-芬兰语言环境配置",
-        "functionality": "为Angular应用提供英语-芬兰地区的本地化配置，包括日期时间格式、数字格式、复数规则和货币符号等国际化设置",
+        "group_name": "AngularJS 英语-芬兰语区域设置",
+        "functionality": "定义 AngularJS 的英语-芬兰语区域设置，配置日期时间格式和数字格式。",
         "functions": [
           {
             "file_path": "01.datahub/modules/split/modules/cmdb/general_work/PAGE/angular-locale_en-fi.js",
@@ -61,10 +141,10 @@
       }
     ],
     "summary": {
-      "group_name": "Angular国际化本地化配置模块",
-      "overall_functionality": "为Angular应用提供不同语言和地区的本地化配置，包括日期时间格式、数字格式、复数规则、货币符号等国际化支持功能",
-      "type1_group_differences": "两个Type-1组的主要差异在于目标语言和地区不同：第一组提供马恩岛语(gv)的本地化配置，使用马恩岛语的日期名称（如Jedoonee、Jelhein等）和时间格式（a.m./p.m.）；第二组提供英语-芬兰地区的本地化配置，使用英语的日期名称（Sunday、Monday等）和标准AM/PM格式。两组在数据结构和核心算法上完全相同，仅在具体的本地化数据内容上有所区别",
-      "reuse_opportunities": "可以抽取共同的模块结构和工具函数（如getDecimals、getVF、PLURAL_CATEGORY等）作为基础框架，然后通过配置文件或参数化的方式来支持不同语言的本地化数据，避免为每种语言重复编写相同的代码结构，提高代码复用性和维护效率"
+      "group_name": "AngularJS本地化函数组",
+      "overall_functionality": "定义AngularJS的本地化模块，用于配置日期时间格式和复数规则，支持盖尔语和英语-芬兰语等语言。",
+      "type1_group_differences": "Type1组1（盖尔语）配置了盖尔语的日期名称、复数规则和更多函数；Type1组2（英语-芬兰语）配置了英语-芬兰语的日期名称和数字格式，函数数量较少。两者在语言特定数据和函数数量上存在差异。",
+      "reuse_opportunities": "辅助函数如getDecimals和getVF可直接重用；模块定义框架相同，只需替换语言特定配置数据即可适配其他语言。"
     },
     "type1_group_similarity": [
       {
@@ -101,8 +181,8 @@
     ],
     "type1_group": [
       {
-        "group_name": "插值结束处理规则",
-        "functionality": "处理插值表达式结束的Mustache语法规则，弹出状态栈，添加表达式函数到插值部分，并切换到插值内部规则",
+        "group_name": "Mustache插值结束规则函数组",
+        "functionality": "在消息格式解析中处理插值结束事件，弹出状态并添加表达式函数到插值部分，同时更新当前规则。",
         "functions": [
           {
             "file_path": "02.sdm_df/SERVICE/messageFormatParser.js",
@@ -116,8 +196,8 @@
         ]
       },
       {
-        "group_name": "结束插值表达式处理规则",
-        "functionality": "处理消息格式解析中插值表达式结束的规则，弹出状态栈，添加表达式函数到插值部分，并切换到插值或消息文本规则",
+        "group_name": "Mustache插值结束解析规则",
+        "functionality": "处理Mustache模板中插值或消息部分的结束，将解析的表达式函数添加到插值部分，并切换到文本解析规则。",
         "functions": [
           {
             "file_path": "02.sdm_df/SERVICE/messageFormatParser.js",
@@ -132,10 +212,10 @@
       }
     ],
     "summary": {
-      "group_name": "插值表达式结束处理规则组",
-      "overall_functionality": "处理MessageFormat解析器中插值表达式结束的语法规则，负责弹出状态栈、添加表达式函数到插值部分，并根据不同上下文切换到相应的解析规则",
-      "type1_group_differences": "两个Type-1组的主要差异在于结束后的状态切换目标：第一组切换到`ruleInInterpolation`规则，专门处理插值内部；第二组切换到`ruleInInterpolationOrMessageText`规则，可以处理插值或消息文本两种情况，适用范围更广",
-      "reuse_opportunities": "可以抽取公共的结束处理逻辑（弹出状态栈、添加表达式函数）为基础方法，然后通过参数化的方式指定不同的目标规则，减少代码重复并提高维护性"
+      "group_name": "Mustache插值结束规则函数组总结",
+      "overall_functionality": "在消息格式解析中处理Mustache插值结束事件，弹出状态并添加表达式函数到插值部分，同时更新当前规则。",
+      "type1_group_differences": "组1（ruleInterpolationEndMustache）更新规则为ruleInInterpolation，专注于插值上下文；组2（ruleEndMustacheInInterpolationOrMessage）更新规则为ruleInInterpolationOrMessageText，适用于插值或消息部分的结束。",
+      "reuse_opportunities": "两个函数逻辑高度相似，仅规则更新不同，可通过参数化规则或提取公共函数实现代码重用。"
     },
     "type1_group_similarity": [
       {
@@ -172,8 +252,8 @@
     ],
     "type1_group": [
       {
-        "group_name": "表单控件状态重置",
-        "functionality": "将表单控件状态重置为原始状态，设置为未修改状态并更新相应的CSS类",
+        "group_name": "$setPristine 函数组",
+        "functionality": "设置表单为原始状态，清除脏标记并更新CSS类。",
         "functions": [
           {
             "file_path": "01.datahub/modules/split/modules/cmdb/general_work/SERVICE/ngModel.js",
@@ -187,8 +267,8 @@
         ]
       },
       {
-        "group_name": "表单控件设置脏状态",
-        "functionality": "将表单控件标记为已修改状态，设置dirty为true，pristine为false，更新CSS类名，并通知父表单",
+        "group_name": "ngModel $setDirty 函数",
+        "functionality": "设置表单控件为脏状态，更新相关CSS类并通知父表单。",
         "functions": [
           {
             "file_path": "01.datahub/modules/split/modules/cmdb/general_work/SERVICE/ngModel.js",
@@ -203,10 +283,10 @@
       }
     ],
     "summary": {
-      "group_name": "表单控件状态管理",
-      "overall_functionality": "管理表单控件的修改状态，通过设置dirty/pristine标志和对应的CSS类来反映控件是否被用户修改过",
-      "type1_group_differences": "两个组实现相反的功能：第一组将控件重置为原始未修改状态（pristine），第二组将控件标记为已修改状态（dirty）。主要差异包括：1）状态标志设置相反（dirty/pristine的true/false值互换）；2）CSS类操作相反（添加/移除PRISTINE_CLASS和DIRTY_CLASS）；3）第二组额外调用父表单的$setDirty()方法进行状态传播",
-      "reuse_opportunities": "可以抽象出通用的状态切换函数，接受目标状态参数来统一处理状态设置、CSS类更新和父表单通知逻辑，减少代码重复并提高维护性"
+      "group_name": "表单状态设置函数组",
+      "overall_functionality": "这两个函数组用于管理表单控件的原始和脏状态，通过修改内部属性（如$dirty和$pristine）和CSS类来反映状态变化。",
+      "type1_group_differences": "Type1组1（$setPristine）将表单设置为原始状态，设置$dirty为false、$pristine为true，并更新CSS类为原始状态；Type1组2（$setDirty）将表单设置为脏状态，设置$dirty为true、$pristine为false，更新CSS类为脏状态，并额外通知父表单。主要差异在于状态标志的相反设置和是否通知父表单。",
+      "reuse_opportunities": "两个函数在更新CSS类和状态标志方面有共同逻辑，可以抽象出一个通用函数，通过参数控制设置原始或脏状态，从而减少代码重复并提高可维护性。"
     },
     "type1_group_similarity": [
       {
@@ -245,8 +325,8 @@
     ],
     "type1_group": [
       {
-        "group_name": "模型监听器设置函数",
-        "functionality": "为控制器设置模型值监听器，监听作用域中的模型值变化，当模型值与控制器的模型值不同步时更新控制器的模型值",
+        "group_name": "setupModelWatcher 克隆函数组",
+        "functionality": "设置作用域监视器，用于同步模型值和控制器值，并处理 NaN 情况以确保数据一致性。",
         "functions": [
           {
             "file_path": "01.datahub/modules/split/modules/cmdb/general_work/SERVICE/ngModel.js",
@@ -272,10 +352,10 @@
       }
     ],
     "summary": {
-      "group_name": "模型监听器设置函数",
-      "overall_functionality": "为控制器设置模型值监听器，监听作用域中的模型值变化，当模型值与控制器的模型值不同步时更新控制器的模型值。该函数处理复杂的双向数据绑定场景，包括用户输入、ng-change事件和模型同步等情况。",
-      "type1_group_differences": "当前只有一个Type-1组，包含2个功能完全相同的函数实现，没有功能差异。",
-      "reuse_opportunities": "可以将这2个相同的函数实现合并为一个公共函数，消除重复代码。建议提取为独立的工具函数或放入共享模块中，供需要设置模型监听器的控制器复用。"
+      "group_name": "setupModelWatcher 克隆函数组",
+      "overall_functionality": "设置作用域监视器，用于同步模型值和控制器值，并处理 NaN 情况以确保数据一致性。",
+      "type1_group_differences": "组内包含两个函数，它们在处理模型值同步和 NaN 检查上功能相似，但可能在监视器回调或错误处理细节上略有差异。",
+      "reuse_opportunities": "该监视器设置模式可重用于其他需要模型-视图同步的场景，特别是涉及 NaN 处理的控制器，以提高代码复用性。"
     },
     "type1_group_similarity": [],
     "category": "SERVICE"

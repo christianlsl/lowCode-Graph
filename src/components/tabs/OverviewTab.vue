@@ -14,11 +14,12 @@
 
         <el-card class="panel-card" shadow="hover">
             <template #header>
-                <div class="card-header">热点组件统计</div>
+                <div class="card-header">结构簇统计</div>
             </template>
-            <el-table :data="overviewRows" border>
-                <el-table-column prop="label" label="统计项" min-width="180" />
-                <el-table-column prop="value" label="值" min-width="120" />
+            <el-table :data="stats" border>
+                <el-table-column prop="show_type" label="展示类型" min-width="180" />
+                <el-table-column prop="cluster_count" label="簇数量" min-width="120" />
+                <el-table-column prop="instance_count" label="实例数量" min-width="120" />
             </el-table>
         </el-card>
     </div>
@@ -33,8 +34,8 @@ const props = defineProps({
         default: () => ({})
     },
     stats: {
-        type: Object,
-        default: () => ({})
+        type: Array,
+        default: () => []
     }
 })
 
@@ -45,16 +46,6 @@ const coveredRepositories = computed(() => {
     }
     return value || '-'
 })
-
-const overviewRows = computed(() => [
-    { label: '识别热点簇', value: props.stats.hotspot_clusters ?? 0 },
-    { label: '热点实例', value: props.stats.hotspot_instances ?? 0 },
-    { label: '涉及工程个数', value: props.stats.projects_involved ?? 0 },
-    { label: '涉及页面个数', value: props.stats.pages_involved ?? 0 },
-    { label: '涉及组件个数', value: props.stats.components_involved ?? 0 },
-    { label: '涉及服务个数', value: props.stats.services_involved ?? 0 },
-    { label: '涉及模型个数', value: props.stats.models_involved ?? 0 }
-])
 </script>
 
 <style scoped>
