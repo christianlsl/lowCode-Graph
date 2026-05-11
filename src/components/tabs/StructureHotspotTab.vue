@@ -189,17 +189,19 @@
                     </el-descriptions-item>
                 </el-descriptions>
 
-                <div class="subsection-title">相似函数组</div>
-                <div class="subsection-hint">+ 此模块包含以下{{ group.type1_group.length }}种函数模式</div>
-                <div class="subsection-hint">+ 每种函数模式可能存在于多个文件中，具体可查看 "包含此函数的所有文件路径"</div>
+                <div class="subsection-title">相似函数组形态详情</div>
+                <div class="subsection-hint">+ 此函数组包含以下{{ group.type1_group.length }}种形态</div>
+                <div class="subsection-hint">+ 每种函数形态可能存在于多个文件中，具体可查看 "包含此函数的所有文件路径"</div>
                 <div class="function-list" :ref="(el) => setFunctionListRef(group.group_key, el)">
                     <el-card v-for="(typeGroup, typeIndex) in group.type1_group" :key="typeGroup.detail_key"
-                        class="function-card" shadow="never">
+                        :ref="(el) => setTypeGroupRef(typeGroup.detail_key, el)"
+                        class="function-card" shadow="never"
+                        :class="{ 'is-type-group-active': activeTypeGroupKey === typeGroup.detail_key }">
                         <template #header>
                             <div class="function-header">
                                 <div class="function-header-text">
                                     <div class="function-group-title markdown-content"
-                                        v-html="renderMarkdown('函数模式' + (typeIndex + 1) + '：' + typeGroup.group_name)">
+                                        v-html="renderMarkdown('形态' + (typeIndex + 1) + '：' + typeGroup.group_name)">
                                     </div>
                                     <div class="function-group-desc markdown-content"
                                         v-html="renderMarkdown(typeGroup.functionality)"></div>
@@ -339,9 +341,11 @@ const rightDiffIndex = ref(1)
 const expandedCloneCodeMap = ref({})
 const activeDetailGroupKey = ref('')
 const activeStructureDetailId = ref(null)
+const activeTypeGroupKey = ref('')
 const cloneDetailRefs = new Map()
 const structureDetailRefs = new Map()
 const functionListRefs = new Map()
+const typeGroupRefs = new Map()
 let chartInstance = null
 
 const normalizedRows = computed(() => {
@@ -632,6 +636,14 @@ const setFunctionListRef = (groupKey, element) => {
     }
 }
 
+const setTypeGroupRef = (detailKey, element) => {
+    if (element) {
+        typeGroupRefs.set(detailKey, element.$el || element)
+    } else {
+        typeGroupRefs.delete(detailKey)
+    }
+}
+
 const openStructureChildDetail = async (row) => {
     if (!row || row._isParent || row._source !== 'structure') return
     const targetClusterId = row.structure_cluster_id
@@ -658,11 +670,24 @@ const openCloneDetail = async (row) => {
     activeStructureDetailId.value = null
     activeDetailGroupKey.value = cloneGroup.group_key
     await nextTick()
-    const target = functionListRefs.get(cloneGroup.group_key) || cloneDetailRefs.get(cloneGroup.group_key)
+
+    const detailKey = row?.detail_key || ''
+    const typeGroupTarget = detailKey ? typeGroupRefs.get(detailKey) : null
+    const fallbackTarget = functionListRefs.get(cloneGroup.group_key) || cloneDetailRefs.get(cloneGroup.group_key)
+    const target = typeGroupTarget || fallbackTarget
     target?.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
     })
+
+    if (detailKey) {
+        activeTypeGroupKey.value = detailKey
+        window.setTimeout(() => {
+            if (activeTypeGroupKey.value === detailKey) {
+                activeTypeGroupKey.value = ''
+            }
+        }, 1600)
+    }
 }
 
 const handleDetailAction = async (row) => {
@@ -1212,6 +1237,11 @@ onBeforeUnmount(() => {
 .function-card {
     border-radius: 10px;
     background: #fbfdff;
+}
+
+.is-type-group-active {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    transition: box-shadow 0.2s ease;
 }
 
 .function-header {
