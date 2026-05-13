@@ -4,7 +4,14 @@
             <template #header>
                 <div class="card-header with-filter">
                     <span>模型相似热点组件</span>
-                    <el-input v-model="searchKeyword" clearable placeholder="搜索相似簇名称/介绍" class="search-input" />
+                    <div class="header-actions">
+                        <el-input v-model="searchKeyword" clearable placeholder="搜索相似簇名称/介绍" class="search-input" />
+                        <span v-if="folderLoaded" class="folder-path">{{ folderPath }}</span>
+                        <el-button type="primary" plain @click="folderInput.click()">
+                            {{ folderLoaded ? '重新选择' : '选择模型文件夹' }}
+                        </el-button>
+                        <input ref="folderInput" type="file" webkitdirectory @change="handleFolderChange" style="display: none;" />
+                    </div>
                 </div>
             </template>
 
@@ -24,11 +31,11 @@
                         {{ formatDisplayValue(scope.row.support_count) }}
                     </template>
                 </el-table-column>
-                <el-table-column prop="total_trans" label="工程元素总数" min-width="120" sortable="custom">
+                <!-- <el-table-column prop="total_trans" label="工程元素总数" min-width="120" sortable="custom">
                     <template #default="scope">
                         {{ formatDisplayValue(scope.row.total_trans) }}
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="详情" min-width="120" fixed="right">
                     <template #default="scope">
                         <el-button type="success" plain @click="openDetailForRow(scope.row)">
@@ -62,41 +69,62 @@
                 </template>
 
                 <el-descriptions :column="1" border class="detail-descriptions">
-                    <el-descriptions-item label="相似簇名称">
+                    <el-descriptions-item label="相似字段组名称">
                         {{ formatDisplayValue(selectedDetailRow.name) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="相似簇介绍">
+                    <el-descriptions-item label="相似字段组介绍">
                         {{ formatDisplayValue(selectedDetailRow.description) }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="当前工程包含元素个数">
-                        {{ formatDisplayValue(selectedDetailRow.total_trans) }}
-                    </el-descriptions-item>
+                    <!-- <el-descriptions-item label="当前工程包含元素个数">
+                        {{ formatDisplayValue(selectedDetailRow.total_trans) }} -->
+                    <!-- </el-descriptions-item> -->
                     <el-descriptions-item label="模型支持度">
                         {{ formatDisplayValue(selectedDetailRow.support_count) }}
                     </el-descriptions-item>
                     <el-descriptions-item label="支持率">
-                        {{ formatSupport(selectedDetailRow.support) }}
+                        {{ formatSupport(selectedDetailRow.support) }} ({{
+                            formatDisplayValue(selectedDetailRow.support_count) }}
+                        / {{
+                            formatDisplayValue(selectedDetailRow.total_trans) }})
                     </el-descriptions-item>
                 </el-descriptions>
 
-                <div class="subsection-title">相似簇包含的所有元素（itemsets）</div>
+                <div class="subsection-title">相似字段组包含的所有字段</div>
                 <el-table :data="itemsetsTableData" border size="small" max-height="28vh" empty-text="-">
                     <el-table-column type="index" label="序号" width="70" align="center" />
-                    <el-table-column prop="value" label="元素名称" min-width="260" show-overflow-tooltip />
+                    <el-table-column prop="value" label="字段名称" min-width="260" show-overflow-tooltip />
                 </el-table>
 
-                <div class="subsection-title">使用当前相似簇元素的模型（model_list）</div>
+                <div class="subsection-title">当前相似字段组关联模型</div>
                 <el-table :data="modelListTableData" border size="small" max-height="28vh" empty-text="-">
                     <el-table-column type="index" label="序号" width="70" align="center" />
                     <el-table-column prop="value" label="模型名称" min-width="260" show-overflow-tooltip />
+                    <el-table-column label="查看模型" width="120" align="center">
+                        <template #default="scope">
+                            <el-button type="primary" link @click="viewModelFile(scope.$index)">
+                                查看
+                            </el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-card>
         </section>
+
+        <el-dialog v-model="modelDialogVisible" :title="modelDialogTitle" width="60%" top="5vh">
+            <el-scrollbar max-height="70vh">
+                <pre class="model-json-content" v-html="highlightedJson"></pre>
+            </el-scrollbar>
+        </el-dialog>
     </div>
 </template>
 
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
+import hljs from 'highlight.js/lib/core'
+import json from 'highlight.js/lib/languages/json'
+import 'highlight.js/styles/github.css'
+
+hljs.registerLanguage('json', json)
 
 const props = defineProps({
     rows: {
@@ -118,6 +146,12 @@ const sortState = ref({
 })
 const activeDetailKey = ref('')
 const detailCardRef = ref(null)
+const folderInput = ref(null)
+const folderFiles = ref(new Map())
+const folderPath = ref('')
+const modelDialogVisible = ref(false)
+const modelDialogContent = ref('')
+const modelDialogTitle = ref('')
 
 const normalizedRows = computed(() => {
     return (Array.isArray(props.rows) ? props.rows : []).map((row, index) => ({
@@ -169,7 +203,9 @@ const itemsetsTableData = computed(() => {
 })
 
 const modelListTableData = computed(() => {
-    return toStringArray(selectedDetailRow.value?.model_list).map((value) => ({ value }))
+    const names = toStringArray(selectedDetailRow.value?.model_list)
+    const paths = toStringArray(selectedDetailRow.value?.model_path_list)
+    return names.map((value, i) => ({ value, path: paths[i] || '' }))
 })
 
 const getRowKey = (row, index) => {
@@ -235,6 +271,93 @@ const formatSupport = (value) => {
     return `${(numeric * 100).toFixed(2)}%`
 }
 
+const folderLoaded = computed(() => folderFiles.value.size > 0)
+
+const highlightedJson = computed(() => {
+    if (!modelDialogContent.value) return ''
+    try {
+        return hljs.highlight(modelDialogContent.value, { language: 'json' }).value
+    } catch {
+        return modelDialogContent.value
+    }
+})
+
+const normalizeModelPath = (path) => {
+    return path.replace(/^\/+/, '').replace(/\\/g, '/')
+}
+
+const handleFolderChange = (event) => {
+    const files = event.target.files
+    const map = new Map()
+    for (const file of files) {
+        const relativePath = file.webkitRelativePath || file.name
+        map.set(relativePath, file)
+    }
+    folderFiles.value = map
+    if (files.length > 0) {
+        const firstPath = files[0].webkitRelativePath || ''
+        folderPath.value = firstPath.split('/')[0] || ''
+    } else {
+        folderPath.value = ''
+    }
+}
+
+const viewModelFile = async (index) => {
+    const rawPath = modelListTableData.value[index]?.path
+    if (!rawPath) {
+        modelDialogContent.value = '无模型文件路径'
+        modelDialogTitle.value = '模型文件'
+        modelDialogVisible.value = true
+        return
+    }
+
+    if (!folderFiles.value.size) {
+        modelDialogContent.value = '请先选择模型文件夹'
+        modelDialogTitle.value = '模型文件'
+        modelDialogVisible.value = true
+        return
+    }
+
+    const normalized = normalizeModelPath(rawPath)
+    const fileName = normalized.split('/').pop()
+
+    let matchedFile = folderFiles.value.get(normalized)
+    if (!matchedFile) {
+        for (const [key, file] of folderFiles.value) {
+            if (key.endsWith('/' + normalized) || key === normalized) {
+                matchedFile = file
+                break
+            }
+        }
+    }
+    if (!matchedFile) {
+        for (const [key, file] of folderFiles.value) {
+            if (key.endsWith('/' + fileName)) {
+                matchedFile = file
+                break
+            }
+        }
+    }
+
+    if (!matchedFile) {
+        modelDialogContent.value = `未找到文件: ${normalized}`
+        modelDialogTitle.value = fileName || '模型文件'
+        modelDialogVisible.value = true
+        return
+    }
+
+    try {
+        const text = await matchedFile.text()
+        const json = JSON.parse(text)
+        modelDialogContent.value = JSON.stringify(json, null, 2)
+        modelDialogTitle.value = fileName || '模型文件'
+    } catch (e) {
+        modelDialogContent.value = `读取文件失败: ${e.message}`
+        modelDialogTitle.value = fileName || '模型文件'
+    }
+    modelDialogVisible.value = true
+}
+
 watch([searchKeyword, tablePageSize], () => {
     tableCurrentPage.value = 1
 })
@@ -275,6 +398,34 @@ watch(filteredRows, () => {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.folder-path {
+    font-size: 13px;
+    color: #16a34a;
+    font-weight: 600;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.model-json-content {
+    margin: 0;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: #f6f8fa;
+    border-radius: 6px;
+    color: #24292f;
 }
 
 .search-input {
@@ -331,6 +482,12 @@ watch(filteredRows, () => {
     .with-filter {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
     }
 
     .search-input {

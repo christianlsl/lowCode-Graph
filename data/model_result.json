@@ -22,10 +22,13 @@
             "model_list":[
                 "analyzeoperationmodel",
                 "approvefiverequestmodel",
-                "approverequestmodel",
-                "cancelrequestmodel",
-                "createrequestmodel"
-            ]
+                "approverequestmodel"
+            ],
+            "model_path_list":[
+                "/AbnormalBusinessTrips\\modules\\Management\\general_work\\MODEL\\analyzeoperationmodel.json",
+                "/AbnormalBusinessTrips\\modules\\Management\\general_work\\MODEL\\approvefiverequestmodel.json",
+                "/AbnormalBusinessTrips\\modules\\Management\\general_work\\MODEL\\approverequestmodel.json"
+             ]
         }
     ]
 }

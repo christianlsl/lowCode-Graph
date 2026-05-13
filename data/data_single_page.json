@@ -58,7 +58,8 @@
         {
           "instance_id": 1,
           "page_path": [
-            "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_clock_point_management"
+            "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_clock_point_management",
+            "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
           ],
           "component_id_list": [
             "/AbnormalClockPoint/Management/Toolbar/MainToolbar",

@@ -18,7 +18,7 @@
             </template>
             <el-table :data="stats" border>
                 <el-table-column prop="show_type" label="展示类型" min-width="180" />
-                <el-table-column prop="cluster_count" label="簇数量" min-width="120" />
+                <el-table-column prop="cluster_count" label="相似组件数量" min-width="120" />
                 <el-table-column prop="instance_count" label="实例数量" min-width="120" />
             </el-table>
         </el-card>

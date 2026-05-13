@@ -194,8 +194,7 @@
                 <div class="subsection-hint">+ 每种函数形态可能存在于多个文件中，具体可查看 "包含此函数的所有文件路径"</div>
                 <div class="function-list" :ref="(el) => setFunctionListRef(group.group_key, el)">
                     <el-card v-for="(typeGroup, typeIndex) in group.type1_group" :key="typeGroup.detail_key"
-                        :ref="(el) => setTypeGroupRef(typeGroup.detail_key, el)"
-                        class="function-card" shadow="never"
+                        :ref="(el) => setTypeGroupRef(typeGroup.detail_key, el)" class="function-card" shadow="never"
                         :class="{ 'is-type-group-active': activeTypeGroupKey === typeGroup.detail_key }">
                         <template #header>
                             <div class="function-header">
