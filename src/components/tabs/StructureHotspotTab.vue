@@ -11,6 +11,12 @@
                             <el-option label="全部组件类型" value="all" />
                             <el-option v-for="type in componentTypeOptions" :key="type" :label="type" :value="type" />
                         </el-select>
+                        <span v-if="folderLoaded" class="folder-path">{{ folderPath }}</span>
+                        <el-button type="primary" plain @click="folderInputRef.click()">
+                            {{ folderLoaded ? '重新选择' : '选择文件夹' }}
+                        </el-button>
+                        <input ref="folderInputRef" type="file" webkitdirectory @change="handleFolderChange"
+                            style="display: none;" />
                     </div>
                 </div>
             </template>
@@ -265,20 +271,38 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="instance_summary" label="语义描述" min-width="180" show-overflow-tooltip />
-                    <el-table-column label="包含组件" min-width="40" align="center">
+                    <el-table-column label="查看文件" min-width="80" align="center">
                         <template #default="scope">
-                            <el-button type="primary" link @click="openComponentListDialog(scope.row)">查看</el-button>
+                            <el-button type="primary" link @click="openPagePathListDialog(scope.row)">查看</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </el-card>
         </section>
 
-        <el-dialog v-model="componentListDialogVisible" title="包含组件" width="50%">
-            <el-table :data="selectedComponentList" border size="small" max-height="50vh">
-                <el-table-column type="index" label="序号" width="60" align="center" />
-                <el-table-column label="组件ID" prop="id" />
-            </el-table>
+        <el-dialog v-model="pagePathListDialogVisible" title="查看文件" width="90%" top="3vh">
+            <el-empty v-if="!pageFileColumns.length" description="无文件路径信息" />
+            <div v-else class="file-columns" :style="{ '--col-count': pageFileColumns.length }">
+                <div v-for="(col, colIdx) in pageFileColumns" :key="colIdx" class="file-column">
+                    <div class="file-column-header">
+                        <el-button v-for="(entry, entryIdx) in col.entries" :key="entryIdx" size="small"
+                            :type="col.selectedPathIndex === entryIdx ? 'primary' : 'default'"
+                            @click="switchColumnPath(colIdx, entryIdx)">
+                            {{ entry.page_path.split('/').pop() }}
+                        </el-button>
+                    </div>
+                    <div class="file-column-body">
+                        <div v-if="col.loading" class="file-column-loading">加载中...</div>
+                        <div v-else-if="col.error" class="file-column-error">{{ col.error }}</div>
+                        <div v-else-if="!col.content" class="file-column-empty">
+                            {{ folderFiles.size ? '点击上方按钮加载文件' : '请先选择文件夹' }}
+                        </div>
+                        <el-scrollbar v-else max-height="60vh">
+                            <pre class="file-json-content" v-html="highlightJsonContent(col.content)"></pre>
+                        </el-scrollbar>
+                    </div>
+                </div>
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -288,11 +312,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'
+import json from 'highlight.js/lib/languages/json'
 import { CodeDiff } from 'v-code-diff'
 import { buildGraphOption } from '../../utils/graphOption'
 import 'highlight.js/styles/github-dark.css'
 
 hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('json', json)
 
 const props = defineProps({
     rows: {
@@ -325,8 +351,11 @@ const selectedCloneParentId = ref(null)
 const searchKeyword = ref('')
 const selectedType = ref('all')
 const detailSearchKeyword = ref('')
-const componentListDialogVisible = ref(false)
-const selectedComponentList = ref([])
+const folderInputRef = ref(null)
+const folderFiles = ref(new Map())
+const folderPath = ref('')
+const pagePathListDialogVisible = ref(false)
+const pageFileColumns = ref([])
 const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
 const tableCurrentPage = ref(1)
@@ -706,9 +735,143 @@ const handleCurrentChange = async (row) => {
     }
 }
 
-const openComponentListDialog = (row) => {
-    selectedComponentList.value = (row.component_id_list || []).map((id) => ({ id }))
-    componentListDialogVisible.value = true
+const folderLoaded = computed(() => folderFiles.value.size > 0)
+
+const highlightJsonContent = (content) => {
+    if (!content) return ''
+    try {
+        return hljs.highlight(content, { language: 'json' }).value
+    } catch {
+        return content
+    }
+}
+
+const handleFolderChange = (event) => {
+    const files = event.target.files
+    const map = new Map()
+    for (const file of files) {
+        const relativePath = file.webkitRelativePath || file.name
+        map.set(relativePath, file)
+    }
+    folderFiles.value = map
+    if (files.length > 0) {
+        const firstPath = files[0].webkitRelativePath || ''
+        folderPath.value = firstPath.split('/')[0] || ''
+    } else {
+        folderPath.value = ''
+    }
+}
+
+const normalizeFilePath = (path) => {
+    return path.replace(/^\/+/, '').replace(/\\/g, '/')
+}
+
+const matchFile = (rawPath) => {
+    const normalized = normalizeFilePath(rawPath)
+    const fileName = normalized.split('/').pop()
+
+    let matched = folderFiles.value.get(normalized)
+    if (!matched) {
+        for (const [key, file] of folderFiles.value) {
+            if (key.endsWith('/' + normalized) || key === normalized) {
+                matched = file
+                break
+            }
+        }
+    }
+    if (!matched) {
+        for (const [key, file] of folderFiles.value) {
+            if (key.endsWith('/' + fileName)) {
+                matched = file
+                break
+            }
+        }
+    }
+    return matched
+}
+
+const loadFileForColumn = async (colIdx, filePath) => {
+    const col = pageFileColumns.value[colIdx]
+    if (!col) return
+
+    if (!filePath) {
+        col.content = ''
+        col.error = '无文件路径'
+        col.loading = false
+        return
+    }
+
+    if (!folderFiles.value.size) {
+        col.content = ''
+        col.error = '请先选择文件夹'
+        col.loading = false
+        return
+    }
+
+    col.loading = true
+    col.error = ''
+    col.content = ''
+
+    const matchedFile = matchFile(filePath)
+    if (!matchedFile) {
+        col.error = `未找到文件: ${normalizeFilePath(filePath)}`
+        col.loading = false
+        return
+    }
+
+    try {
+        const text = await matchedFile.text()
+        const jsonContent = JSON.parse(text)
+        col.content = JSON.stringify(jsonContent, null, 2)
+    } catch (e) {
+        col.error = `读取失败: ${e.message}`
+    }
+    col.loading = false
+}
+
+const switchColumnPath = (colIdx, entryIdx) => {
+    const col = pageFileColumns.value[colIdx]
+    if (!col) return
+    col.selectedPathIndex = entryIdx
+    const entry = col.entries[entryIdx]
+    if (entry) {
+        loadFileForColumn(colIdx, entry.file_path)
+    }
+}
+
+const openPagePathListDialog = (row) => {
+    const pagePaths = Array.isArray(row.page_path) ? row.page_path : []
+    const filePaths = Array.isArray(row.page_path_list) ? row.page_path_list : []
+
+    const entries = pagePaths.map((pp, i) => ({
+        page_path: pp,
+        file_path: filePaths[i] || '',
+    }))
+
+    if (!entries.length) {
+        pageFileColumns.value = []
+        pagePathListDialogVisible.value = true
+        return
+    }
+
+    const colCount = Math.min(entries.length, 3)
+    const columns = []
+    for (let c = 0; c < colCount; c++) {
+        columns.push({
+            entries,
+            selectedPathIndex: c,
+            content: '',
+            error: '',
+            loading: false,
+        })
+    }
+
+    pageFileColumns.value = columns
+    pagePathListDialogVisible.value = true
+
+    for (let c = 0; c < colCount; c++) {
+        loadFileForColumn(c, entries[c].file_path)
+    }
 }
 
 const formatPagePath = (pagePath) => {
@@ -1162,6 +1325,76 @@ onBeforeUnmount(() => {
     width: 280px;
 }
 
+.detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.folder-path {
+    font-size: 13px;
+    color: #16a34a;
+    font-weight: 600;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-json-content {
+    margin: 0;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: #f6f8fa;
+    border-radius: 6px;
+    color: #24292f;
+}
+
+.file-columns {
+    display: flex;
+    gap: 12px;
+}
+
+.file-column {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.file-column-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.file-column-body {
+    min-height: 200px;
+    max-height: 65vh;
+    overflow: auto;
+}
+
+.file-column-loading,
+.file-column-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.file-column-error {
+    padding: 16px;
+    color: #ef4444;
+    font-size: 13px;
+}
+
 .detail-item-card {
     overflow: hidden;
 }
@@ -1309,7 +1542,8 @@ onBeforeUnmount(() => {
         align-items: flex-start;
     }
 
-    .filter-actions {
+    .filter-actions,
+    .detail-actions {
         width: 100%;
         flex-direction: column;
     }
