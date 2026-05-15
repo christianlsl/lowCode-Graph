@@ -19,12 +19,6 @@
                             <el-option label="全部组件类型" value="all" />
                             <el-option v-for="type in componentTypeOptions" :key="type" :label="type" :value="type" />
                         </el-select>
-                        <span v-if="folderLoaded" class="folder-path">{{ folderPath }}</span>
-                        <el-button type="primary" plain @click="folderInputRef.click()">
-                            {{ folderLoaded ? '重新选择' : '选择文件夹' }}
-                        </el-button>
-                        <input ref="folderInputRef" type="file" webkitdirectory @change="handleFolderChange"
-                            style="display: none;" />
                     </div>
                 </div>
             </template>
@@ -207,6 +201,10 @@ const props = defineProps({
     isActive: {
         type: Boolean,
         default: false
+    },
+    folderFiles: {
+        type: Map,
+        default: () => new Map()
     }
 })
 
@@ -227,9 +225,6 @@ const sortState = ref({
     prop: '',
     order: null
 })
-const folderInputRef = ref(null)
-const folderFiles = ref(new Map())
-const folderPath = ref('')
 const pagePathListDialogVisible = ref(false)
 const pageFileColumns = ref([])
 const treeProps = { children: 'children', label: 'label' }
@@ -591,30 +586,12 @@ const formatDisplayValue = (value) => {
     return value
 }
 
-const folderLoaded = computed(() => folderFiles.value.size > 0)
-
 const highlightJsonContent = (content) => {
     if (!content) return ''
     try {
         return hljs.highlight(content, { language: 'json' }).value
     } catch {
         return content
-    }
-}
-
-const handleFolderChange = (event) => {
-    const files = event.target.files
-    const map = new Map()
-    for (const file of files) {
-        const relativePath = file.webkitRelativePath || file.name
-        map.set(relativePath, file)
-    }
-    folderFiles.value = map
-    if (files.length > 0) {
-        const firstPath = files[0].webkitRelativePath || ''
-        folderPath.value = firstPath.split('/')[0] || ''
-    } else {
-        folderPath.value = ''
     }
 }
 
@@ -626,9 +603,9 @@ const matchFile = (rawPath) => {
     const normalized = normalizeFilePath(rawPath)
     const fileName = normalized.split('/').pop()
 
-    let matched = folderFiles.value.get(normalized)
+    let matched = props.folderFiles.get(normalized)
     if (!matched) {
-        for (const [key, file] of folderFiles.value) {
+        for (const [key, file] of props.folderFiles) {
             if (key.endsWith('/' + normalized) || key === normalized) {
                 matched = file
                 break
@@ -636,7 +613,7 @@ const matchFile = (rawPath) => {
         }
     }
     if (!matched) {
-        for (const [key, file] of folderFiles.value) {
+        for (const [key, file] of props.folderFiles) {
             if (key.endsWith('/' + fileName)) {
                 matched = file
                 break
@@ -657,7 +634,7 @@ const loadFileForColumn = async (colIdx, filePath) => {
         return
     }
 
-    if (!folderFiles.value.size) {
+    if (!props.folderFiles.size) {
         col.content = ''
         col.error = '请先选择文件夹'
         col.loading = false
@@ -963,16 +940,6 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.folder-path {
-    font-size: 13px;
-    color: #16a34a;
-    font-weight: 600;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .file-json-content {

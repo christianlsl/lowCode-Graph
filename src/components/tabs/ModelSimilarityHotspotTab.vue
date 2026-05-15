@@ -6,11 +6,6 @@
                     <span>模型相似热点组件</span>
                     <div class="header-actions">
                         <el-input v-model="searchKeyword" clearable placeholder="搜索相似簇名称/介绍" class="search-input" />
-                        <span v-if="folderLoaded" class="folder-path">{{ folderPath }}</span>
-                        <el-button type="primary" plain @click="folderInput.click()">
-                            {{ folderLoaded ? '重新选择' : '选择模型文件夹' }}
-                        </el-button>
-                        <input ref="folderInput" type="file" webkitdirectory @change="handleFolderChange" style="display: none;" />
                     </div>
                 </div>
             </template>
@@ -134,6 +129,10 @@ const props = defineProps({
     isActive: {
         type: Boolean,
         default: false
+    },
+    folderFiles: {
+        type: Map,
+        default: () => new Map()
     }
 })
 
@@ -146,9 +145,6 @@ const sortState = ref({
 })
 const activeDetailKey = ref('')
 const detailCardRef = ref(null)
-const folderInput = ref(null)
-const folderFiles = ref(new Map())
-const folderPath = ref('')
 const modelDialogVisible = ref(false)
 const modelDialogContent = ref('')
 const modelDialogTitle = ref('')
@@ -271,8 +267,6 @@ const formatSupport = (value) => {
     return `${(numeric * 100).toFixed(2)}%`
 }
 
-const folderLoaded = computed(() => folderFiles.value.size > 0)
-
 const highlightedJson = computed(() => {
     if (!modelDialogContent.value) return ''
     try {
@@ -286,22 +280,6 @@ const normalizeModelPath = (path) => {
     return path.replace(/^\/+/, '').replace(/\\/g, '/')
 }
 
-const handleFolderChange = (event) => {
-    const files = event.target.files
-    const map = new Map()
-    for (const file of files) {
-        const relativePath = file.webkitRelativePath || file.name
-        map.set(relativePath, file)
-    }
-    folderFiles.value = map
-    if (files.length > 0) {
-        const firstPath = files[0].webkitRelativePath || ''
-        folderPath.value = firstPath.split('/')[0] || ''
-    } else {
-        folderPath.value = ''
-    }
-}
-
 const viewModelFile = async (index) => {
     const rawPath = modelListTableData.value[index]?.path
     if (!rawPath) {
@@ -311,7 +289,7 @@ const viewModelFile = async (index) => {
         return
     }
 
-    if (!folderFiles.value.size) {
+    if (!props.folderFiles.size) {
         modelDialogContent.value = '请先选择模型文件夹'
         modelDialogTitle.value = '模型文件'
         modelDialogVisible.value = true
@@ -321,9 +299,9 @@ const viewModelFile = async (index) => {
     const normalized = normalizeModelPath(rawPath)
     const fileName = normalized.split('/').pop()
 
-    let matchedFile = folderFiles.value.get(normalized)
+    let matchedFile = props.folderFiles.get(normalized)
     if (!matchedFile) {
-        for (const [key, file] of folderFiles.value) {
+        for (const [key, file] of props.folderFiles) {
             if (key.endsWith('/' + normalized) || key === normalized) {
                 matchedFile = file
                 break
@@ -331,7 +309,7 @@ const viewModelFile = async (index) => {
         }
     }
     if (!matchedFile) {
-        for (const [key, file] of folderFiles.value) {
+        for (const [key, file] of props.folderFiles) {
             if (key.endsWith('/' + fileName)) {
                 matchedFile = file
                 break
@@ -404,16 +382,6 @@ watch(filteredRows, () => {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.folder-path {
-    font-size: 13px;
-    color: #16a34a;
-    font-weight: 600;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .model-json-content {
