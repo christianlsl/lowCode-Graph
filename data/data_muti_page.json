@@ -1,0 +1,96 @@
+{
+  "parent_clusters": [
+    {
+      "parent_cluster_id": 2000,
+      "name": "带操作栏的数据表格页面",
+      "structure_cluster_ids": [
+        80022,
+        80024
+      ]
+    }
+  ],
+  "structure_similar_clusters": [
+    {
+      "type": "多页面",
+      "show_type": "多种元素类型",
+      "structure_cluster_id": 80022,
+      "name": "带工具栏、扩展工具栏及操作列的数据表格",
+      "support": 3,
+      "size": 21,
+      "code_lines": 63,
+      "relevent_projects_num": 3,
+      "graph_structure_data": [
+        "v 0 1000",
+        "v 1 1001",
+        "v 2 1002",
+        "v 3 1003",
+        "v 4 1004",
+        "v 5 1005",
+        "v 6 1006",
+        "v 7 1003",
+        "v 8 1005",
+        "v 9 3000",
+        "v 10 1006",
+        "v 11 1007",
+        "v 12 1002",
+        "v 13 1003",
+        "v 14 2000",
+        "v 15 1004",
+        "v 16 0",
+        "v 17 1003",
+        "v 18 3000",
+        "v 19 0",
+        "v 20 1000",
+        "e 1 0 8",
+        "e 0 4 4",
+        "e 0 5 8",
+        "e 0 6 8",
+        "e 0 7 8",
+        "e 1 2 8",
+        "e 2 3 8",
+        "e 2 8 8",
+        "e 2 9 8",
+        "e 2 10 8",
+        "e 2 11 8",
+        "e 3 12 8",
+        "e 3 13 8",
+        "e 5 14 8",
+        "e 9 15 4",
+        "e 10 16 9",
+        "e 14 17 8",
+        "e 14 18 8",
+        "e 14 20 8",
+        "e 18 19 9",
+        "e 20 19 9"
+      ],
+      "summary": "该组件是一个集成了工具栏（含扩展、下拉选择、导出按钮、窗口按钮）、操作列、视图配置、上下文菜单及服务调用的高级数据表格，典型用于功能丰富的数据列表管理页面。",
+      "instances": [
+        {
+          "instance_id": 0,
+          "page_path": [
+            "/Site_Acceptance_Process/Site_Acceptance_Process/site_acceptance_process_worklog_create",
+            "/Site_Acceptance_Process/Site_Acceptance_Process/site_acceptance_process_worklog_grid",
+            "/Site_Acceptance_Process/Site_Acceptance_Process/site_acceptance_process_worklog_update"
+          ],
+          "component_id_list": [
+            "/Site_Acceptance_Process/Site_Acceptance_Process/datagrid_11",
+            "/Site_Acceptance_Process/Site_Acceptance_Process/toolbar_2",
+            "/Site_Acceptance_Process/Site_Acceptance_Process/default_15",
+            "/Site_Acceptance_Process/Site_Acceptance_Process/toolbarExtender_4"
+          ],
+          "instance_summary": "支持用户对站点验收流程中的工作日志进行查询、创建、更新和导出等操作。",
+          "domain": "验收管理"
+        },
+        {
+          "instance_id": 1,
+          "page_path": [
+            "/OrderProcess/OrderProcess/worklog_create",
+            "/OrderProcess/OrderProcess/worklog_grid",
+            "/OrderProcess/OrderProcess/worklog_update"
+          ],
+          "component_id_list": [],
+          "instance_summary": "支持用户对订单流程中的工作日志进行查询、创建、更新和导出等操作。",
+          "domain": "订单管理"
+        }]
+    }
+  ]}

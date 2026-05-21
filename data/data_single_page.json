@@ -3,9 +3,7 @@
     {
       "parent_cluster_id": 0,
       "name": "表单操作组件",
-      "structure_cluster_ids": [
-        0
-      ]
+      "structure_cluster_ids": [0]
     }
   ],
   "structure_similar_clusters": [
@@ -42,7 +40,7 @@
           "page_path": [
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
           ],
-          "page_path_list":[
+          "page_path_list": [
             "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_business_trips_management.json"
           ],
           "component_id_list": [
@@ -64,9 +62,9 @@
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_clock_point_management",
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
           ],
-          "page_path_list":[
-                "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_clock_point_management.json",
-                "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_business_trips_management.json"
+          "page_path_list": [
+            "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\PAGE\\abnormal_clock_point_management.json",
+            "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\PAGE\\abnormal_business_trips_management.json"
           ],
           "component_id_list": [
             "/AbnormalClockPoint/Management/Toolbar/MainToolbar",
@@ -86,10 +84,7 @@
       "domain_clusters": [
         {
           "cluster_id": 0,
-          "instance_ids": [
-            0,
-            1
-          ],
+          "instance_ids": [0, 1],
           "domain_summary": "财务管理"
         }
       ]
@@ -98,9 +93,7 @@
   "structure_name_clusters": [
     {
       "cluster_id": 0,
-      "items": [
-        0
-      ],
+      "items": [0],
       "summary": "表单操作组件"
     }
   ],
@@ -128,10 +121,7 @@
         {
           "structure_cluster_id": 0,
           "domain_cluster_id": 0,
-          "instance_ids": [
-            0,
-            1
-          ]
+          "instance_ids": [0, 1]
         }
       ]
     }
@@ -140,24 +130,21 @@
     "report_date": "2026-3-11",
     "report_version": "v1.0",
     "generator_tool_version": "v1.0",
-    "covered_repositories": [
-      "SQM",
-      "Trouble_ticket"
-    ]
+    "covered_repositories": ["SQM", "Trouble_ticket"]
   },
   "structure_cluster_statistics": [
     {
-      "show_type":"多种元素类型",
+      "show_type": "多种元素类型",
       "cluster_count": 1,
       "instance_count": 6
     },
     {
-      "show_type":"页面元素",
+      "show_type": "页面元素",
       "cluster_count": 1,
       "instance_count": 2
     },
     {
-      "show_type":"流程元素",
+      "show_type": "流程元素",
       "cluster_count": 0,
       "instance_count": 0
     }
