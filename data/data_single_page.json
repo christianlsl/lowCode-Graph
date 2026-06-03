@@ -42,7 +42,7 @@
           "page_path": [
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
           ],
-          "page_path_list":[
+          "real_path": [
             "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_business_trips_management.json"
           ],
           "component_id_list": [
@@ -64,9 +64,9 @@
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_clock_point_management",
             "AbnormalCheckInDashboard/AbnormalCheckInDashboard/abnormal_business_trips_management"
           ],
-          "page_path_list":[
-                "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_clock_point_management.json",
-                "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_business_trips_management.json"
+          "real_path": [
+            "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_clock_point_management.json",
+            "/AbnormalCheckInDashboard\\modules\\AbnormalCheckInDashboard\\general_work\\MODEL\\abnormal_business_trips_management.json"
           ],
           "component_id_list": [
             "/AbnormalClockPoint/Management/Toolbar/MainToolbar",

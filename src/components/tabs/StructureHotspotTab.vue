@@ -276,27 +276,40 @@
 
         <el-dialog v-model="pagePathListDialogVisible" title="查看文件" width="90%" top="3vh">
             <el-empty v-if="!pageFileColumns.length" description="无文件路径信息" />
-            <div v-else class="file-columns" :style="{ '--col-count': pageFileColumns.length }">
-                <div v-for="(col, colIdx) in pageFileColumns" :key="colIdx" class="file-column">
-                    <div class="file-column-header">
-                        <el-button v-for="(entry, entryIdx) in col.entries" :key="entryIdx" size="small"
-                            :type="col.selectedPathIndex === entryIdx ? 'primary' : 'default'"
-                            @click="switchColumnPath(colIdx, entryIdx)">
-                            {{ entry.page_path.split('/').pop() }}
-                        </el-button>
-                    </div>
-                    <div class="file-column-body">
-                        <div v-if="col.loading" class="file-column-loading">加载中...</div>
-                        <div v-else-if="col.error" class="file-column-error">{{ col.error }}</div>
-                        <div v-else-if="!col.content" class="file-column-empty">
-                            {{ folderFiles.size ? '点击上方按钮加载文件' : '请先选择文件夹' }}
+            <template v-else>
+                <div v-if="dialogTreeData.length" class="dialog-tree-nav">
+                    <div class="dialog-tree-title">结构树导航</div>
+                    <el-scrollbar max-height="25vh">
+                        <el-tree ref="dialogTreeRef" :data="dialogTreeData" node-key="id" :props="treeProps"
+                            default-expand-all highlight-current :current-node-key="activeTreeNodeId"
+                            @node-click="handleDialogTreeNodeClick" class="dialog-tree" />
+                    </el-scrollbar>
+                </div>
+                <div class="file-columns" :style="{ '--col-count': pageFileColumns.length }">
+                    <div v-for="(col, colIdx) in pageFileColumns" :key="colIdx" class="file-column">
+                        <div class="file-column-header">
+                            <el-button v-for="(entry, entryIdx) in col.entries" :key="entryIdx" size="small"
+                                :type="col.selectedPathIndex === entryIdx ? 'primary' : 'default'"
+                                @click="switchColumnPath(colIdx, entryIdx)">
+                                {{ entry.page_path.split('/').pop() }}
+                            </el-button>
                         </div>
-                        <el-scrollbar v-else max-height="60vh">
-                            <pre class="file-json-content" v-html="highlightJsonContent(col.content)"></pre>
-                        </el-scrollbar>
+                        <div class="file-column-body">
+                            <div v-if="col.loading" class="file-column-loading">加载中...</div>
+                            <div v-else-if="col.error" class="file-column-error">{{ col.error }}</div>
+                            <div v-else-if="!col.content" class="file-column-empty">
+                                {{ folderFiles.size ? '点击上方按钮加载文件' : '请先选择文件夹' }}
+                            </div>
+                            <el-scrollbar v-else max-height="60vh" :ref="(el) => { scrollbarRefs[colIdx] = el }">
+                                <div :class="['file-json-wrapper', { 'has-active-node': activeTreeNodeId }]">
+                                    <pre class="file-json-content"
+                                        v-html="highlightJsonContent(col.content, matchedNamesPerColumn[colIdx]?.allLines)"></pre>
+                                </div>
+                            </el-scrollbar>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </template>
         </el-dialog>
     </div>
 </template>
@@ -351,6 +364,10 @@ const selectedType = ref('all')
 const detailSearchKeyword = ref('')
 const pagePathListDialogVisible = ref(false)
 const pageFileColumns = ref([])
+const dialogTreeRef = ref(null)
+const scrollbarRefs = ref([])
+const matchedNamesPerColumn = ref({})
+const activeTreeNodeId = ref(null)
 const chartTitle = ref('请选择结构簇查看关系图')
 const treeProps = { children: 'children', label: 'label' }
 const tableCurrentPage = ref(1)
@@ -551,6 +568,12 @@ const selectedPayload = computed(() => {
 
 const treeData = computed(() => selectedPayload.value?.tree || [])
 
+const dialogTreeData = computed(() => {
+    const row = selectedStructureRowForDetail.value
+    if (!row?.visualization || row.visualization.kind !== 'subgraph') return []
+    return props.charts.subgraphs?.[row.visualization.key]?.tree || []
+})
+
 const activeCloneGroup = computed(() => {
     return normalizedCloneGroups.value.find((group) => group.parent_cluster_id === selectedCloneParentId.value) || null
 })
@@ -730,13 +753,112 @@ const handleCurrentChange = async (row) => {
     }
 }
 
-const highlightJsonContent = (content) => {
+const highlightJsonContent = (content, highlightedLines) => {
     if (!content) return ''
     try {
-        return hljs.highlight(content, { language: 'json' }).value
+        const html = hljs.highlight(content, { language: 'json' }).value
+        if (!highlightedLines || !highlightedLines.size) return html
+        const lines = html.split('\n')
+        return lines.map((line, idx) => {
+            if (!highlightedLines.has(idx)) return line
+            const ws = line.match(/^(\s*)/)[0]
+            return `${ws}<span class="json-line-highlight">${line.substring(ws.length)}</span>`
+        }).join('\n')
     } catch {
         return content
     }
+}
+
+const extractTypeNameFromLabel = (label) => {
+    if (!label) return ''
+    const colonIdx = label.indexOf(':')
+    return colonIdx >= 0 ? label.substring(colonIdx + 1).trim() : label.trim()
+}
+
+const buildLineLookup = (jsonString) => {
+    const lookup = new Map()
+    if (!jsonString) return lookup
+    const lines = jsonString.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+        const match = lines[i].match(/"name"\s*:\s*"([^"]+)"/)
+        if (match) {
+            const name = match[1]
+            if (!lookup.has(name)) lookup.set(name, [])
+            lookup.get(name).push(i)
+        }
+    }
+    return lookup
+}
+
+const flattenUnnamedNodes = (nodes) => {
+    if (!Array.isArray(nodes)) return []
+    const result = []
+    for (const node of nodes) {
+        if (!node.name && Array.isArray(node.children)) {
+            result.push(...flattenUnnamedNodes(node.children))
+        } else {
+            result.push(node)
+        }
+    }
+    return result
+}
+
+const matchStructureToFileTree = (structureChildren, fileChildren, matchedLines, lineLookup, occurrenceCount) => {
+    if (!Array.isArray(structureChildren) || !Array.isArray(fileChildren)) return
+    const flatFileChildren = flattenUnnamedNodes(fileChildren)
+    for (const sNode of structureChildren) {
+        const typeName = extractTypeNameFromLabel(sNode.label)
+        if (!typeName) continue
+        for (const fNode of flatFileChildren) {
+            if (fNode.name === typeName) {
+                const lines = lineLookup.get(typeName)
+                if (lines && lines.length) {
+                    const count = occurrenceCount.get(typeName) || 0
+                    const lineIdx = Math.min(count, lines.length - 1)
+                    occurrenceCount.set(typeName, count + 1)
+                    if (!matchedLines.has(sNode.id)) matchedLines.set(sNode.id, new Set())
+                    matchedLines.get(sNode.id).add(lines[lineIdx])
+                }
+                matchStructureToFileTree(sNode.children || [], fNode.children || [], matchedLines, lineLookup, occurrenceCount)
+                break
+            }
+        }
+    }
+}
+
+const computeAllColumnMatches = () => {
+    const result = {}
+    const tree = dialogTreeData.value
+    if (!tree || !tree.length) return result
+    for (let i = 0; i < pageFileColumns.value.length; i++) {
+        const col = pageFileColumns.value[i]
+        if (!col.parsed) continue
+        const fileContent = col.parsed.content
+        if (!fileContent || !fileContent.name) continue
+        const lineLookup = buildLineLookup(col.content)
+        const nodeLines = new Map()
+        const occurrenceCount = new Map()
+        for (const sRoot of tree) {
+            const rootTypeName = extractTypeNameFromLabel(sRoot.label)
+            if (rootTypeName && fileContent.name === rootTypeName) {
+                const lines = lineLookup.get(rootTypeName)
+                if (lines && lines.length) {
+                    const count = occurrenceCount.get(rootTypeName) || 0
+                    const lineIdx = Math.min(count, lines.length - 1)
+                    occurrenceCount.set(rootTypeName, count + 1)
+                    if (!nodeLines.has(sRoot.id)) nodeLines.set(sRoot.id, new Set())
+                    nodeLines.get(sRoot.id).add(lines[lineIdx])
+                }
+                matchStructureToFileTree(sRoot.children || [], fileContent.children || [], nodeLines, lineLookup, occurrenceCount)
+            }
+        }
+        const allLines = new Set()
+        for (const lines of nodeLines.values()) {
+            for (const ln of lines) allLines.add(ln)
+        }
+        result[i] = { nodeLines, allLines }
+    }
+    return result
 }
 
 const normalizeFilePath = (path) => {
@@ -773,6 +895,7 @@ const loadFileForColumn = async (colIdx, filePath) => {
 
     if (!filePath) {
         col.content = ''
+        col.parsed = null
         col.error = '无文件路径'
         col.loading = false
         return
@@ -780,6 +903,7 @@ const loadFileForColumn = async (colIdx, filePath) => {
 
     if (!props.folderFiles.size) {
         col.content = ''
+        col.parsed = null
         col.error = '请先选择文件夹'
         col.loading = false
         return
@@ -788,9 +912,11 @@ const loadFileForColumn = async (colIdx, filePath) => {
     col.loading = true
     col.error = ''
     col.content = ''
+    col.parsed = null
 
     const matchedFile = matchFile(filePath)
     if (!matchedFile) {
+        col.parsed = null
         col.error = `未找到文件: ${normalizeFilePath(filePath)}`
         col.loading = false
         return
@@ -800,7 +926,9 @@ const loadFileForColumn = async (colIdx, filePath) => {
         const text = await matchedFile.text()
         const jsonContent = JSON.parse(text)
         col.content = JSON.stringify(jsonContent, null, 2)
+        col.parsed = jsonContent
     } catch (e) {
+        col.parsed = null
         col.error = `读取失败: ${e.message}`
     }
     col.loading = false
@@ -818,7 +946,7 @@ const switchColumnPath = (colIdx, entryIdx) => {
 
 const openPagePathListDialog = (row) => {
     const pagePaths = Array.isArray(row.page_path) ? row.page_path : []
-    const filePaths = Array.isArray(row.page_path_list) ? row.page_path_list : []
+    const filePaths = Array.isArray(row.real_path) ? row.real_path : []
 
     const entries = pagePaths.map((pp, i) => ({
         page_path: pp,
@@ -838,6 +966,7 @@ const openPagePathListDialog = (row) => {
             entries,
             selectedPathIndex: c,
             content: '',
+            parsed: null,
             error: '',
             loading: false,
         })
@@ -845,9 +974,36 @@ const openPagePathListDialog = (row) => {
 
     pageFileColumns.value = columns
     pagePathListDialogVisible.value = true
+    activeTreeNodeId.value = null
+    matchedNamesPerColumn.value = {}
+    scrollbarRefs.value = []
 
     for (let c = 0; c < colCount; c++) {
         loadFileForColumn(c, entries[c].file_path)
+    }
+}
+
+const handleDialogTreeNodeClick = async (nodeData) => {
+    activeTreeNodeId.value = nodeData.id
+    await nextTick()
+    for (let colIdx = 0; colIdx < pageFileColumns.value.length; colIdx++) {
+        const col = pageFileColumns.value[colIdx]
+        if (!col.content) continue
+        const columnMatches = matchedNamesPerColumn.value[colIdx]
+        if (!columnMatches) continue
+        const nodeLines = columnMatches.nodeLines.get(nodeData.id)
+        if (!nodeLines || !nodeLines.size) continue
+        const firstLine = Math.min(...nodeLines)
+        const scrollbar = scrollbarRefs.value[colIdx]
+        if (!scrollbar) continue
+        const lineHeight = 19.5
+        const paddingTop = 16
+        const targetScrollTop = firstLine * lineHeight + paddingTop - 100
+        if (scrollbar.setScrollTop) {
+            scrollbar.setScrollTop(Math.max(0, targetScrollTop))
+        } else if (scrollbar.wrapRef) {
+            scrollbar.wrapRef.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'smooth' })
+        }
     }
 }
 
@@ -1051,6 +1207,10 @@ const initSelection = async () => {
         await renderGraph()
     }
 }
+
+watch(pageFileColumns, () => {
+    matchedNamesPerColumn.value = computeAllColumnMatches()
+}, { deep: true })
 
 watch(
     flattenedStructureRows,
@@ -1524,5 +1684,35 @@ onBeforeUnmount(() => {
     .diff-selector-grid {
         grid-template-columns: 1fr;
     }
+}
+
+:deep(.json-line-highlight) {
+    display: inline;
+    background-color: #fef08a;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px #facc15;
+}
+
+:deep(.has-active-node .json-line-highlight) {
+    background-color: #fde047;
+}
+
+.dialog-tree-nav {
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: #f8fbff;
+}
+
+.dialog-tree-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.dialog-tree {
+    background: transparent;
 }
 </style>

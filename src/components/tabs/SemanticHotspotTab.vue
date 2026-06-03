@@ -674,7 +674,7 @@ const switchColumnPath = (colIdx, entryIdx) => {
 
 const openPagePathListDialog = (row) => {
     const pagePaths = Array.isArray(row.page_path) ? row.page_path : []
-    const filePaths = Array.isArray(row.page_path_list) ? row.page_path_list : []
+    const filePaths = Array.isArray(row.real_path) ? row.real_path : []
 
     const entries = pagePaths.map((pp, i) => ({
         page_path: pp,

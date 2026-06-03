@@ -263,7 +263,7 @@ def _build_structure_rows(
 			instance_id = instance.get("instance_id")
 			short_paths = _normalize_page_path_list(instance.get("page_path", []))
 			component_ids = instance.get("component_id_list", instance.get("component_list", []))
-			instance_page_path_list = instance.get("page_path_list", [])
+			instance_page_path_list = instance.get("real_path", [])
 
 			instance_rows.append(
 				{
@@ -271,7 +271,7 @@ def _build_structure_rows(
 					"page_path": short_paths,
 					"instance_summary": instance.get("instance_summary", ""),
 					"component_id_list": component_ids if isinstance(component_ids, list) else [],
-					"page_path_list": instance_page_path_list if isinstance(instance_page_path_list, list) else [],
+					"real_path": instance_page_path_list if isinstance(instance_page_path_list, list) else [],
 				}
 			)
 
@@ -592,14 +592,14 @@ def _build_semantic_rows(
 						covered_projects.add(top_level_page)
 
 				component_ids = instance.get("component_id_list", instance.get("component_list", []))
-				instance_page_path_list = instance.get("page_path_list", [])
+				instance_page_path_list = instance.get("real_path", [])
 				matched_instances.append(
 					{
 						"instance_id": instance_id,
 						"page_path": short_paths,
 						"instance_summary": str(instance.get("instance_summary", "")),
 						"component_id_list": component_ids if isinstance(component_ids, list) else [],
-						"page_path_list": instance_page_path_list if isinstance(instance_page_path_list, list) else [],
+						"real_path": instance_page_path_list if isinstance(instance_page_path_list, list) else [],
 					}
 				)
 
