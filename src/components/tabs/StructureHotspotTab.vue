@@ -790,66 +790,39 @@ const buildLineLookup = (jsonString) => {
     return lookup
 }
 
-const flattenUnnamedNodes = (nodes) => {
+const flattenTreeNodes = (nodes) => {
     if (!Array.isArray(nodes)) return []
     const result = []
     for (const node of nodes) {
-        if (!node.name && Array.isArray(node.children)) {
-            result.push(...flattenUnnamedNodes(node.children))
-        } else {
-            result.push(node)
+        result.push(node)
+        if (node.children?.length) {
+            result.push(...flattenTreeNodes(node.children))
         }
     }
     return result
-}
-
-const matchStructureToFileTree = (structureChildren, fileChildren, matchedLines, lineLookup, occurrenceCount) => {
-    if (!Array.isArray(structureChildren) || !Array.isArray(fileChildren)) return
-    const flatFileChildren = flattenUnnamedNodes(fileChildren)
-    for (const sNode of structureChildren) {
-        const typeName = extractTypeNameFromLabel(sNode.label)
-        if (!typeName) continue
-        for (const fNode of flatFileChildren) {
-            if (fNode.name === typeName) {
-                const lines = lineLookup.get(typeName)
-                if (lines && lines.length) {
-                    const count = occurrenceCount.get(typeName) || 0
-                    const lineIdx = Math.min(count, lines.length - 1)
-                    occurrenceCount.set(typeName, count + 1)
-                    if (!matchedLines.has(sNode.id)) matchedLines.set(sNode.id, new Set())
-                    matchedLines.get(sNode.id).add(lines[lineIdx])
-                }
-                matchStructureToFileTree(sNode.children || [], fNode.children || [], matchedLines, lineLookup, occurrenceCount)
-                break
-            }
-        }
-    }
 }
 
 const computeAllColumnMatches = () => {
     const result = {}
     const tree = dialogTreeData.value
     if (!tree || !tree.length) return result
+    const allTreeNodes = flattenTreeNodes(tree)
     for (let i = 0; i < pageFileColumns.value.length; i++) {
         const col = pageFileColumns.value[i]
-        if (!col.parsed) continue
-        const fileContent = col.parsed.content
-        if (!fileContent || !fileContent.name) continue
+        if (!col.content) continue
         const lineLookup = buildLineLookup(col.content)
         const nodeLines = new Map()
         const occurrenceCount = new Map()
-        for (const sRoot of tree) {
-            const rootTypeName = extractTypeNameFromLabel(sRoot.label)
-            if (rootTypeName && fileContent.name === rootTypeName) {
-                const lines = lineLookup.get(rootTypeName)
-                if (lines && lines.length) {
-                    const count = occurrenceCount.get(rootTypeName) || 0
-                    const lineIdx = Math.min(count, lines.length - 1)
-                    occurrenceCount.set(rootTypeName, count + 1)
-                    if (!nodeLines.has(sRoot.id)) nodeLines.set(sRoot.id, new Set())
-                    nodeLines.get(sRoot.id).add(lines[lineIdx])
-                }
-                matchStructureToFileTree(sRoot.children || [], fileContent.children || [], nodeLines, lineLookup, occurrenceCount)
+        for (const sNode of allTreeNodes) {
+            const typeName = extractTypeNameFromLabel(sNode.label)
+            if (!typeName) continue
+            const lines = lineLookup.get(typeName)
+            if (lines && lines.length) {
+                const count = occurrenceCount.get(typeName) || 0
+                const lineIdx = Math.min(count, lines.length - 1)
+                occurrenceCount.set(typeName, count + 1)
+                if (!nodeLines.has(sNode.id)) nodeLines.set(sNode.id, new Set())
+                nodeLines.get(sNode.id).add(lines[lineIdx])
             }
         }
         const allLines = new Set()
