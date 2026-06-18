@@ -48,6 +48,13 @@ npm install
 
 2. 准备输入数据（见“输入文件说明”）
 
+- 把页面、模型、脚本三个算法输出的结果放到data/文件夹内，文件名需要符合以下标准：
+  - `data/data_*.json`：页面资产输出结果。（支持多份合并，如`data_single_page`/`data_multi_page`）
+  - `data/model_result.json`：模型资产输出结果。
+  - `data/clone_detection_result.json`：脚本资产输出结果。
+  - `data/edge_and_vertex_mapping.txt`：节点类型和边关系编码映射。
+  - `data/defs.json`：定义页静态说明（前端直接使用）。
+
 3. 生成前端数据
 
 ```bash
@@ -66,27 +73,21 @@ python scripts/process_data.py
 npm run dev
 ```
 
-5. 构建与预览
+5. 构建
 
 ```bash
 npm run build
-npm run preview
 ```
-
-## 输入文件说明
-
-数据脚本会读取 `data` 目录中的以下文件：
-
-- `data/data_*.json`：主输入数据，支持多份合并。
-  - 若不存在 `data_*.json`，会回退读取 `data/data.json`。
-- `data/edge_and_vertex_mapping.txt`：节点类型和边关系编码映射。
-- `data/clone_detection_result.json`：脚本函数相似（code clone）输入，数组结构，可选。
-- `data/defs.json`：定义页静态说明（前端直接使用）。
-- `data/model_result.json`：模型相似热点输入（前端直接使用 `frequent_patterns`）。
 
 ## 输出文件说明
 
-预处理产物：
+最终静态页面：
+
+- [dist/index.html](dist/index.html)
+
+### 中间产物
+
+脚本预处理产物：
 
 - [src/assets/graph_table_data.json](src/assets/graph_table_data.json)
 
